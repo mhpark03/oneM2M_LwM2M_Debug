@@ -272,9 +272,9 @@
             this.label12.AutoSize = true;
             this.label12.Location = new System.Drawing.Point(6, 43);
             this.label12.Name = "label12";
-            this.label12.Size = new System.Drawing.Size(216, 12);
+            this.label12.Size = new System.Drawing.Size(288, 12);
             this.label12.TabIndex = 50;
-            this.label12.Text = "Time  ID   Type  Result      Comment";
+            this.label12.Text = "Time        ID         Type       Result       Comment";
             this.label12.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // textBox1

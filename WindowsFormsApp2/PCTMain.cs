@@ -5126,14 +5126,14 @@ namespace WindowsFormsApp2
         private void btnTCResultSave_Click(object sender, EventArgs e)
         {
             listBox1.Items.Clear();
-            listBox1.Items.Add("item1");
-            listBox1.Items.Add("item2");
-            listBox1.Items.Add("item3");
-            listBox1.Items.Add("item4");
-            listBox1.Items.Add("item5");
-            listBox1.Items.Add("item6");
-            listBox1.Items.Add("item7");
-            listBox1.Items.Add("item8");
+            listBox1.Items.Add("item1\tid\ttype\tresult\tcode");
+            listBox1.Items.Add("item2\tid\ttype\tresult\tcode");
+            listBox1.Items.Add("item3\tid\ttype\tresult\tcode");
+            listBox1.Items.Add("item4\tid\ttype\tresult\tcode");
+            listBox1.Items.Add("item5\tid\ttype\tresult\tcode");
+            listBox1.Items.Add("item6\tid\ttype\tresult\tcode");
+            listBox1.Items.Add("item7\tid\ttype\tresult\tcode");
+            listBox1.Items.Add("item8\tid\ttype\tresult\tcode");
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -5254,8 +5254,11 @@ namespace WindowsFormsApp2
 
         private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
+            string selected_msg = listBox1.SelectedItem.ToString();
+            string[] values = selected_msg.Split('\t');    // 수신한 데이터를 한 문장씩 나누어 array에 저장
+
             textBox1.Text = string.Empty;
-            textBox1.AppendText(DateTime.Now.ToString("hh:mm:ss.fff") + " : " + listBox1.SelectedItem.ToString());
+            textBox1.AppendText(DateTime.Now.ToString("hh:mm:ss.fff") + " : " + values[1]);
         }
     }
 
