@@ -137,6 +137,8 @@
             this.groupBox12 = new System.Windows.Forms.GroupBox();
             this.tBoxDataIN = new System.Windows.Forms.TextBox();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
+            this.label19 = new System.Windows.Forms.Label();
+            this.button4 = new System.Windows.Forms.Button();
             this.panel1.SuspendLayout();
             this.gbTCResult.SuspendLayout();
             this.gbServerLog.SuspendLayout();
@@ -256,10 +258,13 @@
             // 
             // gbLwM2MServer
             // 
+            this.gbLwM2MServer.Controls.Add(this.button4);
+            this.gbLwM2MServer.Controls.Add(this.label19);
             this.gbLwM2MServer.Controls.Add(this.label12);
             this.gbLwM2MServer.Controls.Add(this.textBox1);
             this.gbLwM2MServer.Controls.Add(this.listBox1);
             this.gbLwM2MServer.Controls.Add(this.btnTCResultSave);
+            this.gbLwM2MServer.Enabled = false;
             this.gbLwM2MServer.Location = new System.Drawing.Point(15, 217);
             this.gbLwM2MServer.Name = "gbLwM2MServer";
             this.gbLwM2MServer.Size = new System.Drawing.Size(414, 371);
@@ -279,11 +284,11 @@
             // 
             // textBox1
             // 
-            this.textBox1.Location = new System.Drawing.Point(7, 153);
+            this.textBox1.Location = new System.Drawing.Point(7, 167);
             this.textBox1.Multiline = true;
             this.textBox1.Name = "textBox1";
             this.textBox1.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.textBox1.Size = new System.Drawing.Size(401, 212);
+            this.textBox1.Size = new System.Drawing.Size(401, 198);
             this.textBox1.TabIndex = 45;
             // 
             // listBox1
@@ -1286,6 +1291,26 @@
             this.timer1.Interval = 10000;
             this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
             // 
+            // label19
+            // 
+            this.label19.AutoSize = true;
+            this.label19.Location = new System.Drawing.Point(12, 151);
+            this.label19.Name = "label19";
+            this.label19.Size = new System.Drawing.Size(82, 12);
+            this.label19.TabIndex = 51;
+            this.label19.Text = "ResultCode : ";
+            this.label19.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // button4
+            // 
+            this.button4.Location = new System.Drawing.Point(92, 147);
+            this.button4.Name = "button4";
+            this.button4.Size = new System.Drawing.Size(112, 19);
+            this.button4.TabIndex = 52;
+            this.button4.Text = "20000000";
+            this.button4.UseVisualStyleBackColor = true;
+            this.button4.Click += new System.EventHandler(this.button4_Click_1);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 12F);
@@ -1437,6 +1462,8 @@
         private System.Windows.Forms.Label label12;
         private System.Windows.Forms.TextBox textBox1;
         private System.Windows.Forms.ListBox listBox1;
+        private System.Windows.Forms.Button button4;
+        private System.Windows.Forms.Label label19;
     }
 }
 

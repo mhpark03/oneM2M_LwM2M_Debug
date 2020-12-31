@@ -4101,10 +4101,10 @@ namespace WindowsFormsApp2
                 gbOneM2MDevice.Enabled = true;
 
                 if (svr.enrmtKeyId != string.Empty)
+                {
                     gbOneM2MServer.Enabled = true;
-                else
-                    gbOneM2MServer.Enabled = false;
-                gbLwM2MServer.Enabled = false;
+                    gbLwM2MServer.Enabled = true;
+                }
             }
             else if (dev.type == "LwM2M")                // LwM2M Device
             {
@@ -4112,10 +4112,10 @@ namespace WindowsFormsApp2
                 gbOneM2MDevice.Enabled = false;
 
                 if (svr.enrmtKeyId != string.Empty)
+                {
                     gbLwM2MServer.Enabled = true;
-                else
-                    gbLwM2MServer.Enabled = false;
-                gbOneM2MServer.Enabled = false;
+                    gbLwM2MServer.Enabled = true;
+                }
             }
             else                                    // Device information None
             {
@@ -5259,6 +5259,11 @@ namespace WindowsFormsApp2
 
             textBox1.Text = string.Empty;
             textBox1.AppendText(DateTime.Now.ToString("hh:mm:ss.fff") + " : " + values[1]);
+        }
+
+        private void button4_Click_1(object sender, EventArgs e)
+        {
+            MessageBox.Show("message = "+"BOOTSTRAP_ERROR_NO_MATCHED_END_POINT"+"\ndescription = " + "Bootstrap 시 Client가 보낸 Endpint가 MEF 정보와 다름", "Resultcode=" + "74005204");
         }
     }
 
