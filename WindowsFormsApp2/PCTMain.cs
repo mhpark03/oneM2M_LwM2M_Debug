@@ -418,6 +418,7 @@ namespace WindowsFormsApp2
         string brkUrl = "https://testbrk.onem2m.uplus.co.kr:443"; // BRK(oneM2M 개발기)       
         string brkUrlL = "https://testbrks.onem2m.uplus.co.kr:8443"; // BRK(LwM2M 개발기)       
         string mefUrl = "https://testmef.onem2m.uplus.co.kr:443"; // MEF(개발기)
+        string logUrl = "http://106.103.228.184/api/v1"; // oneM2M log(개발기)
 
         ServiceServer svr = new ServiceServer();
         Device dev = new Device();
@@ -1948,7 +1949,7 @@ namespace WindowsFormsApp2
                     break;
                 case "$OM_D_CSE_RSP=":
                     // oneM2M remoteCSE 삭제 결과, 2002이면 성공
-                    if (str2 == "2002")
+                    if (str2 == "2002" || str2 == "2000")
                     {
                         if (tc.state == "tc021204")
                             endoneM2MTC(tc.state);
@@ -1971,7 +1972,7 @@ namespace WindowsFormsApp2
                     break;
                 case "$OM_U_CSE_RSP=":
                     // oneM2M remoteCSE 업데이트 결과, 2004이면 remoteCSE (poa) 업데이트 성공
-                    if (str2 == "2004")
+                    if (str2 == "2004" || str2 == "2000")
                     {
                         if (tc.state == "tc020505")
                             endoneM2MTC(tc.state);
@@ -1985,7 +1986,7 @@ namespace WindowsFormsApp2
                             this.sendDataOut(commands["delremoteCSE"]);
                             lbActionState.Text = states.onem2mtc0212041.ToString();
                         }
-                       else
+                       else if (lbActionState.Text != states.idle.ToString())
                         {
                             startoneM2MTC("tc020502");
                             this.sendDataOut(commands["setcontainer"] + "DtoS");
@@ -1995,7 +1996,7 @@ namespace WindowsFormsApp2
                     break;
                 case "$OM_POA_NOTI=":
                     // oneM2M remoteCSE 업데이트 결과, 2004이면 remoteCSE (poa) 업데이트 성공
-                    if (str2 == "2004")
+                    if (str2 == "2004" || str2 == "2000")
                     {
                         endoneM2MTC("tc020801");
 
@@ -2162,7 +2163,7 @@ namespace WindowsFormsApp2
                     break;
                 case "$OM_U_ACP_RSP=":
                     // oneM2M ACP 업데이트 결과, 2004이면 업데이트 성공
-                    if (str2 == "2004")
+                    if (str2 == "2004" || str2 == "2000")
                     {
                         if (tc.state == "tc020903")
                             endoneM2MTC(tc.state);
@@ -2177,7 +2178,7 @@ namespace WindowsFormsApp2
                     break;
                 case "$OM_D_ACP_RSP=":
                     // oneM2M ACP 삭제 결과
-                    if (str2 == "2002")
+                    if (str2 == "2002" || str2 == "2000")
                     {
                         if (tc.state == "tc020904")
                         {
@@ -2844,7 +2845,7 @@ namespace WindowsFormsApp2
                     }
                     break;
                 case "$OM_DEV_FWUP_FINISH=":
-                    if (str2 == "2004")
+                    if (str2 == "2004" || str2 == "2000")
                     {
                         if (svr.enrmtKeyId != string.Empty)
                         {
@@ -2882,7 +2883,7 @@ namespace WindowsFormsApp2
                     {
                         if (lbActionState.Text == states.onem2mtc0208011.ToString())
                         {
-                            if (dev.maker == "QUALCOMM INCORPORATED")        //텔라딘/oneM2M 모듈
+                            if (dev.maker == "QUALCOMM INCORPORATED" || dev.maker == "AM Telecom")        //텔라딘 or AMTEL/oneM2M 모듈
                             {
                                 this.sendDataOut(commands["rfon"]);
                                 lbActionState.Text = states.onem2mtc0208012.ToString();
@@ -5125,15 +5126,7 @@ namespace WindowsFormsApp2
 
         private void btnTCResultSave_Click(object sender, EventArgs e)
         {
-            listBox1.Items.Clear();
-            listBox1.Items.Add("item1\tid\ttype\tresult\tcode");
-            listBox1.Items.Add("item2\tid\ttype\tresult\tcode");
-            listBox1.Items.Add("item3\tid\ttype\tresult\tcode");
-            listBox1.Items.Add("item4\tid\ttype\tresult\tcode");
-            listBox1.Items.Add("item5\tid\ttype\tresult\tcode");
-            listBox1.Items.Add("item6\tid\ttype\tresult\tcode");
-            listBox1.Items.Add("item7\tid\ttype\tresult\tcode");
-            listBox1.Items.Add("item8\tid\ttype\tresult\tcode");
+            oneM2MLoglistGET();
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -5257,13 +5250,190 @@ namespace WindowsFormsApp2
             string selected_msg = listBox1.SelectedItem.ToString();
             string[] values = selected_msg.Split('\t');    // 수신한 데이터를 한 문장씩 나누어 array에 저장
 
+            tBResultCode.Text = values[4];
+
+            oneM2MLogDetailGET(values[1]);
+        }
+
+
+        // oneM2M log server 응답 확인 (resultcode)
+        private void oneM2MLoglistGET()
+        {
+            ReqHeader header = new ReqHeader();
+            header.Url = logUrl + "/logs?entityId=" + dev.entityId+"&ctn="+dev.imsi;
+            header.Method = "GET";
+            header.ContentType = "application/json";
+            header.X_M2M_RI = DateTime.Now.ToString("yyyyMMddHHmmss") + "LogList";
+            header.X_M2M_Origin = svr.entityId;
+            header.X_MEF_TK = svr.token;
+            header.X_MEF_EKI = svr.enrmtKeyId;
+            string retStr = GetHttpLog(header, string.Empty);
+            
+            if (retStr != string.Empty)
+            {
+                //LogWriteNoTime(retStr);
+                try
+                {
+                    JArray jarr = JArray.Parse(retStr); //json 객체로
+
+                    listBox1.Items.Clear();
+                    foreach (JObject jobj in jarr)
+                    {
+                        string time = jobj["logTime"].ToString();
+                        string logtime = time.Substring(8, 2) + ":" + time.Substring(10, 2) + ":" + time.Substring(12, 2);
+                        listBox1.Items.Add(logtime + "\t" + jobj["logId"].ToString() + "\t" + jobj["svrType"].ToString() + "\t" + jobj["codeName"].ToString() + "\t" + jobj["resultCode"].ToString());
+                    }
+                }
+                catch (Exception ex)
+                {
+                    LogWrite(ex.ToString());
+                }
+            }
+        }
+
+        // oneM2M log server 응답 확인 (resultcode)
+        private void oneM2MLogDetailGET(string code)
+        {
+            ReqHeader header = new ReqHeader();
+            header.Url = logUrl + "/log?Id=" + code;
+            header.Method = "GET";
+            header.ContentType = "application/json";
+            header.X_M2M_RI = DateTime.Now.ToString("yyyyMMddHHmmss") + "LogDetail";
+            header.X_M2M_Origin = svr.entityId;
+            header.X_MEF_TK = svr.token;
+            header.X_MEF_EKI = svr.enrmtKeyId;
+            string retStr = GetHttpLog(header, string.Empty);
+            /*
+            if (retStr != string.Empty)
+            {
+                //LogWriteNoTime(retStr);
+                try
+                {
+                    JArray jarr = JArray.Parse(retStr); //json 객체로
+
+                    listBox1.Items.Clear();
+                    foreach (JObject jobj in jarr)
+                    {
+                        string time = jobj["logTime"].ToString();
+                        string logtime = time.Substring(8, 2) + ":" + time.Substring(10, 2) + ":" + time.Substring(12, 2);
+                        listBox1.Items.Add(logtime + "\t" + jobj["logId"].ToString() + "\t" + jobj["svrType"].ToString() + "\t" + jobj["codeName"].ToString() + "\t" + jobj["resultCode"].ToString());
+                    }
+                }
+                catch (Exception ex)
+                {
+                    LogWrite(ex.ToString());
+                }
+            }
+            */
             textBox1.Text = string.Empty;
-            textBox1.AppendText(DateTime.Now.ToString("hh:mm:ss.fff") + " : " + values[1]);
+            textBox1.AppendText(DateTime.Now.ToString("hh:mm:ss.fff") + " : " + code);
         }
 
         private void button4_Click_1(object sender, EventArgs e)
         {
-            MessageBox.Show("message = "+"BOOTSTRAP_ERROR_NO_MATCHED_END_POINT"+"\ndescription = " + "Bootstrap 시 Client가 보낸 Endpint가 MEF 정보와 다름", "Resultcode=" + "74005204");
+            ResultCodeGET();
+        }
+
+        // oneM2M log server 응답 확인 (resultcode)
+        private void ResultCodeGET()
+        {
+            ReqHeader header = new ReqHeader();
+            header.Url = logUrl + "/resultCode?value=" + tBResultCode.Text;
+            header.Method = "GET";
+            header.ContentType = "application/json";
+            header.X_M2M_RI = DateTime.Now.ToString("yyyyMMddHHmmss") + "ResultCode";
+            header.X_M2M_Origin = svr.entityId;
+            header.X_MEF_TK = svr.token;
+            header.X_MEF_EKI = svr.enrmtKeyId;
+            string retStr = GetHttpLog(header, string.Empty);
+            if (retStr != string.Empty)
+            {
+                //LogWriteNoTime(retStr);
+                try
+                {
+                    JObject obj = JObject.Parse(retStr);
+
+                    string resultCode = obj["resultCode"].ToString();
+                    string codeName = obj["codeName"].ToString();
+                    string desc = obj["desc"].ToString();
+
+                    MessageBox.Show("message = " + codeName + "\ndescription = " + desc, "Resultcode=" + resultCode);
+                }
+                catch (Exception ex)
+                {
+                    LogWrite(ex.ToString());
+                }
+            }
+        }
+
+        public string GetHttpLog(ReqHeader header, string data)
+        {
+            string resResult = string.Empty;
+
+            try
+            {
+                wReq = (HttpWebRequest)WebRequest.Create(header.Url);
+                wReq.Method = header.Method;
+                if (header.ContentType != string.Empty)
+                    wReq.ContentType = header.ContentType;
+                if (header.X_M2M_RI != string.Empty)
+                    wReq.Headers.Add("X-M2M-RI", header.X_M2M_RI);
+                if (header.X_M2M_Origin != string.Empty)
+                    wReq.Headers.Add("X-M2M-Origin", header.X_M2M_Origin);
+                if (header.X_MEF_TK != string.Empty)
+                    wReq.Headers.Add("X-MEF-TK", header.X_MEF_TK);
+                if (header.X_MEF_EKI != string.Empty)
+                    wReq.Headers.Add("X-MEF-EKI", header.X_MEF_EKI);
+
+                LogWriteNoTime(wReq.Method + " " + wReq.RequestUri + " HTTP/1.1");
+                LogWriteNoTime("");
+                for (int i = 0; i < wReq.Headers.Count; ++i)
+                    LogWriteNoTime(wReq.Headers.Keys[i] + ": " + wReq.Headers[i]);
+                LogWriteNoTime("");
+                LogWriteNoTime(data);
+                LogWriteNoTime("");
+
+                LogWrite("----------Response from oneM2M Log----------");
+                wReq.Timeout = 20000;          // 서버 응답을 20초동안 기다림
+                using (wRes = (HttpWebResponse)wReq.GetResponse())
+                {
+                    LogWriteNoTime("HTTP/1.1 " + (int)wRes.StatusCode + " " + wRes.StatusCode.ToString());
+                    LogWriteNoTime("");
+                    for (int i = 0; i < wRes.Headers.Count; ++i)
+                        LogWriteNoTime("[" + wRes.Headers.Keys[i] + "] " + wRes.Headers[i]);
+                    LogWriteNoTime("");
+
+                    Stream respPostStream = wRes.GetResponseStream();
+                    StreamReader readerPost = new StreamReader(respPostStream, Encoding.GetEncoding("UTF-8"), true);
+                    resResult = readerPost.ReadToEnd();
+                    LogWriteNoTime(resResult);
+                    LogWriteNoTime("");
+                }
+            }
+            catch (WebException ex)
+            {
+                if (ex.Status == WebExceptionStatus.ProtocolError && ex.Response != null)
+                {
+                    var resp = (HttpWebResponse)ex.Response;
+                    LogWriteNoTime("HTTP/1.1 " + (int)resp.StatusCode + " " + resp.StatusCode.ToString());
+                    LogWriteNoTime("");
+                    for (int i = 0; i < resp.Headers.Count; ++i)
+                        LogWriteNoTime(" " + resp.Headers.Keys[i] + ": " + resp.Headers[i]);
+                    LogWriteNoTime("");
+
+                    Stream respPostStream = resp.GetResponseStream();
+                    StreamReader readerPost = new StreamReader(respPostStream, Encoding.GetEncoding("UTF-8"), true);
+                    string resError = readerPost.ReadToEnd();
+                    LogWriteNoTime(resError);
+                    LogWriteNoTime("");
+                    //LogWrite("[" + (int)resp.StatusCode + "] " + resp.StatusCode.ToString());
+                }
+                else
+                {
+                    LogWrite(ex.ToString());
+                }
+            }
+            return resResult;
         }
     }
 
