@@ -5260,7 +5260,8 @@ namespace WindowsFormsApp2
         private void oneM2MLoglistGET()
         {
             ReqHeader header = new ReqHeader();
-            header.Url = logUrl + "/logs?entityId=" + dev.entityId+"&ctn="+dev.imsi;
+            //header.Url = logUrl + "/logs?entityId=" + dev.entityId+"&ctn="+dev.imsi;
+            header.Url = logUrl + "/logs?entityId=ASN_CSE-D-71221153fb-T001";
             header.Method = "GET";
             header.ContentType = "application/json";
             header.X_M2M_RI = DateTime.Now.ToString("yyyyMMddHHmmss") + "LogList";
@@ -5271,7 +5272,7 @@ namespace WindowsFormsApp2
             
             if (retStr != string.Empty)
             {
-                //LogWriteNoTime(retStr);
+                //Console.WriteLine(retStr);
                 try
                 {
                     JArray jarr = JArray.Parse(retStr); //json 객체로
@@ -5281,12 +5282,12 @@ namespace WindowsFormsApp2
                     {
                         string time = jobj["logTime"].ToString();
                         string logtime = time.Substring(8, 2) + ":" + time.Substring(10, 2) + ":" + time.Substring(12, 2);
-                        listBox1.Items.Add(logtime + "\t" + jobj["logId"].ToString() + "\t" + jobj["svrType"].ToString() + "\t" + jobj["codeName"].ToString() + "\t" + jobj["resultCode"].ToString());
+                        listBox1.Items.Add(logtime + "\t" + jobj["logId"].ToString() + "\t" + jobj["pathInfo"].ToString() + "\t" + jobj["codeName"].ToString() + "\t" + jobj["resultCode"].ToString());
                     }
                 }
                 catch (Exception ex)
                 {
-                    LogWrite(ex.ToString());
+                    Console.WriteLine(ex.ToString());
                 }
             }
         }
@@ -5295,7 +5296,8 @@ namespace WindowsFormsApp2
         private void oneM2MLogDetailGET(string code)
         {
             ReqHeader header = new ReqHeader();
-            header.Url = logUrl + "/log?Id=" + code;
+            //header.Url = logUrl + "/log?Id=" + code;
+            header.Url = logUrl + "/log?Id=61";
             header.Method = "GET";
             header.ContentType = "application/json";
             header.X_M2M_RI = DateTime.Now.ToString("yyyyMMddHHmmss") + "LogDetail";
@@ -5303,30 +5305,24 @@ namespace WindowsFormsApp2
             header.X_MEF_TK = svr.token;
             header.X_MEF_EKI = svr.enrmtKeyId;
             string retStr = GetHttpLog(header, string.Empty);
-            /*
+
+            textBox1.Text = string.Empty;
+            textBox1.AppendText(DateTime.Now.ToString("hh:mm:ss.fff") + " : " + code);
             if (retStr != string.Empty)
             {
-                //LogWriteNoTime(retStr);
+                //Console.WriteLine(retStr);
                 try
                 {
                     JArray jarr = JArray.Parse(retStr); //json 객체로
 
-                    listBox1.Items.Clear();
-                    foreach (JObject jobj in jarr)
-                    {
-                        string time = jobj["logTime"].ToString();
-                        string logtime = time.Substring(8, 2) + ":" + time.Substring(10, 2) + ":" + time.Substring(12, 2);
-                        listBox1.Items.Add(logtime + "\t" + jobj["logId"].ToString() + "\t" + jobj["svrType"].ToString() + "\t" + jobj["codeName"].ToString() + "\t" + jobj["resultCode"].ToString());
-                    }
+                    textBox1.AppendText(jarr.ToString());
                 }
                 catch (Exception ex)
                 {
-                    LogWrite(ex.ToString());
+                    Console.WriteLine(ex.ToString());
                 }
             }
-            */
-            textBox1.Text = string.Empty;
-            textBox1.AppendText(DateTime.Now.ToString("hh:mm:ss.fff") + " : " + code);
+           
         }
 
         private void button4_Click_1(object sender, EventArgs e)
@@ -5348,22 +5344,24 @@ namespace WindowsFormsApp2
             string retStr = GetHttpLog(header, string.Empty);
             if (retStr != string.Empty)
             {
-                //LogWriteNoTime(retStr);
+                //Console.WriteLine(retStr);
                 try
                 {
                     JObject obj = JObject.Parse(retStr);
 
-                    string resultCode = obj["resultCode"].ToString();
-                    string codeName = obj["codeName"].ToString();
-                    string desc = obj["desc"].ToString();
+                    var resultCode = obj["resultCode"] ?? tBResultCode.Text;
+                    var codeName = obj["codeName"] ?? "NULL";
+                    var desc = obj["desc"] ?? "NULL";
 
-                    MessageBox.Show("message = " + codeName + "\ndescription = " + desc, "Resultcode=" + resultCode);
+                    MessageBox.Show("message = " + codeName.ToString() + "\ndescription = " + desc.ToString(), "Resultcode=" + resultCode.ToString());
                 }
                 catch (Exception ex)
                 {
-                    LogWrite(ex.ToString());
+                    Console.WriteLine(ex.ToString());
                 }
             }
+            else
+                MessageBox.Show("message = " + "Unknown" + "\ndescription = " + "Resultcode 값이 존재하지 않습니다.", "Resultcode=" + tBResultCode.Text);
         }
 
         public string GetHttpLog(ReqHeader header, string data)
@@ -5385,29 +5383,28 @@ namespace WindowsFormsApp2
                 if (header.X_MEF_EKI != string.Empty)
                     wReq.Headers.Add("X-MEF-EKI", header.X_MEF_EKI);
 
-                LogWriteNoTime(wReq.Method + " " + wReq.RequestUri + " HTTP/1.1");
-                LogWriteNoTime("");
+                Console.WriteLine(wReq.Method + " " + wReq.RequestUri + " HTTP/1.1");
+                Console.WriteLine("");
                 for (int i = 0; i < wReq.Headers.Count; ++i)
-                    LogWriteNoTime(wReq.Headers.Keys[i] + ": " + wReq.Headers[i]);
-                LogWriteNoTime("");
-                LogWriteNoTime(data);
-                LogWriteNoTime("");
+                    Console.WriteLine(wReq.Headers.Keys[i] + ": " + wReq.Headers[i]);
+                Console.WriteLine("");
+                Console.WriteLine(data);
+                Console.WriteLine("");
 
-                LogWrite("----------Response from oneM2M Log----------");
                 wReq.Timeout = 20000;          // 서버 응답을 20초동안 기다림
                 using (wRes = (HttpWebResponse)wReq.GetResponse())
                 {
-                    LogWriteNoTime("HTTP/1.1 " + (int)wRes.StatusCode + " " + wRes.StatusCode.ToString());
-                    LogWriteNoTime("");
+                    Console.WriteLine("HTTP/1.1 " + (int)wRes.StatusCode + " " + wRes.StatusCode.ToString());
+                    Console.WriteLine("");
                     for (int i = 0; i < wRes.Headers.Count; ++i)
-                        LogWriteNoTime("[" + wRes.Headers.Keys[i] + "] " + wRes.Headers[i]);
-                    LogWriteNoTime("");
+                        Console.WriteLine("[" + wRes.Headers.Keys[i] + "] " + wRes.Headers[i]);
+                    Console.WriteLine("");
 
                     Stream respPostStream = wRes.GetResponseStream();
                     StreamReader readerPost = new StreamReader(respPostStream, Encoding.GetEncoding("UTF-8"), true);
                     resResult = readerPost.ReadToEnd();
-                    LogWriteNoTime(resResult);
-                    LogWriteNoTime("");
+                    Console.WriteLine(resResult);
+                    Console.WriteLine("");
                 }
             }
             catch (WebException ex)
@@ -5415,22 +5412,22 @@ namespace WindowsFormsApp2
                 if (ex.Status == WebExceptionStatus.ProtocolError && ex.Response != null)
                 {
                     var resp = (HttpWebResponse)ex.Response;
-                    LogWriteNoTime("HTTP/1.1 " + (int)resp.StatusCode + " " + resp.StatusCode.ToString());
-                    LogWriteNoTime("");
+                    Console.WriteLine("HTTP/1.1 " + (int)resp.StatusCode + " " + resp.StatusCode.ToString());
+                    Console.WriteLine("");
                     for (int i = 0; i < resp.Headers.Count; ++i)
-                        LogWriteNoTime(" " + resp.Headers.Keys[i] + ": " + resp.Headers[i]);
-                    LogWriteNoTime("");
+                        Console.WriteLine(" " + resp.Headers.Keys[i] + ": " + resp.Headers[i]);
+                    Console.WriteLine("");
 
                     Stream respPostStream = resp.GetResponseStream();
                     StreamReader readerPost = new StreamReader(respPostStream, Encoding.GetEncoding("UTF-8"), true);
                     string resError = readerPost.ReadToEnd();
-                    LogWriteNoTime(resError);
-                    LogWriteNoTime("");
-                    //LogWrite("[" + (int)resp.StatusCode + "] " + resp.StatusCode.ToString());
+                    Console.WriteLine(resError);
+                    Console.WriteLine("");
+                    Console.WriteLine("[" + (int)resp.StatusCode + "] " + resp.StatusCode.ToString());
                 }
                 else
                 {
-                    LogWrite(ex.ToString());
+                    Console.WriteLine(ex.ToString());
                 }
             }
             return resResult;

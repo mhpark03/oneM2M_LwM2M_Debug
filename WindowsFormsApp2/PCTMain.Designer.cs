@@ -41,6 +41,7 @@
             this.groupBox11 = new System.Windows.Forms.GroupBox();
             this.btnMEFAuthS = new System.Windows.Forms.Button();
             this.gbLwM2MServer = new System.Windows.Forms.GroupBox();
+            this.tBResultCode = new System.Windows.Forms.TextBox();
             this.button4 = new System.Windows.Forms.Button();
             this.label19 = new System.Windows.Forms.Label();
             this.label12 = new System.Windows.Forms.Label();
@@ -139,7 +140,6 @@
             this.groupBox12 = new System.Windows.Forms.GroupBox();
             this.tBoxDataIN = new System.Windows.Forms.TextBox();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
-            this.tBResultCode = new System.Windows.Forms.TextBox();
             this.panel1.SuspendLayout();
             this.gbTCResult.SuspendLayout();
             this.gbServerLog.SuspendLayout();
@@ -273,6 +273,15 @@
             this.gbLwM2MServer.TabStop = false;
             this.gbLwM2MServer.Text = "LwM2M Device DATA";
             // 
+            // tBResultCode
+            // 
+            this.tBResultCode.Location = new System.Drawing.Point(95, 150);
+            this.tBResultCode.Name = "tBResultCode";
+            this.tBResultCode.Size = new System.Drawing.Size(88, 21);
+            this.tBResultCode.TabIndex = 53;
+            this.tBResultCode.Text = "20000000";
+            this.tBResultCode.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            // 
             // button4
             // 
             this.button4.Location = new System.Drawing.Point(192, 151);
@@ -298,9 +307,9 @@
             this.label12.AutoSize = true;
             this.label12.Location = new System.Drawing.Point(6, 43);
             this.label12.Name = "label12";
-            this.label12.Size = new System.Drawing.Size(288, 12);
+            this.label12.Size = new System.Drawing.Size(298, 12);
             this.label12.TabIndex = 50;
-            this.label12.Text = "Time        ID         Type       Result       Comment";
+            this.label12.Text = "Time        ID         Type       Result       ResultCode";
             this.label12.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // textBox1
@@ -1311,15 +1320,6 @@
             // 
             this.timer1.Interval = 10000;
             this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
-            // 
-            // tBResultCode
-            // 
-            this.tBResultCode.Location = new System.Drawing.Point(95, 150);
-            this.tBResultCode.Name = "tBResultCode";
-            this.tBResultCode.Size = new System.Drawing.Size(88, 21);
-            this.tBResultCode.TabIndex = 53;
-            this.tBResultCode.Text = "20000000";
-            this.tBResultCode.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // Form1
             // 
