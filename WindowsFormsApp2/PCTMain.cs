@@ -1162,14 +1162,40 @@ namespace WindowsFormsApp2
         // 플랫폼 서버에 등록된 디바이스 리소스 확인 (oneM2M 플랫폼 DB)
         private void btnDeviceCheck_Click(object sender, EventArgs e)
         {
-            if (svr.enrmtKeyId != string.Empty)
+            //RetrivePoaToPlatform();
+            //RetriveDverToPlatform();
+            //RetriveMverToPlatform();
+
+            ReqHeader header = new ReqHeader();
+            //header.Url = logUrl + "/Firmware?entityId=" + dev.entityId;
+            header.Url = logUrl + "/Firmware?entityId=ASN_CSE-D-71221153fb-T001";
+            header.Method = "GET";
+            header.ContentType = "application/json";
+            header.X_M2M_RI = DateTime.Now.ToString("yyyyMMddHHmmss") + "FWVerGet";
+            header.X_M2M_Origin = svr.entityId;
+            header.X_MEF_TK = svr.token;
+            header.X_MEF_EKI = svr.enrmtKeyId;
+            string retStr = GetHttpLog(header, string.Empty);
+
+            if (retStr != string.Empty)
             {
-                RetrivePoaToPlatform();
-                RetriveDverToPlatform();
-                RetriveMverToPlatform();
+                LogWriteNoTime(retStr);
+
+                try
+                {
+                    JObject obj = JObject.Parse(retStr);
+
+                    var deviceVer = obj["deviceVersion"] ?? "unknown";
+                    lbdevicever.Text = deviceVer.ToString();
+
+                    var modemVer = obj["modemVersion"] ?? "unknown";
+                    lbmodemfwrver.Text = modemVer.ToString();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.ToString());
+                }
             }
-            else
-                LogWrite("서버인증파라미터 세팅하세요");
         }
 
         // 데이터 수신 (oneM2M 플랫폼 DB)
@@ -5126,7 +5152,37 @@ namespace WindowsFormsApp2
 
         private void btnTCResultSave_Click(object sender, EventArgs e)
         {
-            oneM2MLoglistGET();
+            ReqHeader header = new ReqHeader();
+            //header.Url = logUrl + "/logs?entityId=" + dev.entityId+"&ctn="+dev.imsi;
+            header.Url = logUrl + "/logs?entityId=ASN_CSE-D-71221153fb-T001";
+            header.Method = "GET";
+            header.ContentType = "application/json";
+            header.X_M2M_RI = DateTime.Now.ToString("yyyyMMddHHmmss") + "LogList";
+            header.X_M2M_Origin = svr.entityId;
+            header.X_MEF_TK = svr.token;
+            header.X_MEF_EKI = svr.enrmtKeyId;
+            string retStr = GetHttpLog(header, string.Empty);
+
+            if (retStr != string.Empty)
+            {
+                LogWriteNoTime(retStr);
+                try
+                {
+                    JArray jarr = JArray.Parse(retStr); //json 객체로
+
+                    listBox1.Items.Clear();
+                    foreach (JObject jobj in jarr)
+                    {
+                        string time = jobj["logTime"].ToString();
+                        string logtime = time.Substring(8, 2) + ":" + time.Substring(10, 2) + ":" + time.Substring(12, 2);
+                        listBox1.Items.Add(logtime + "\t" + jobj["logId"].ToString() + "\t" + jobj["pathInfo"].ToString() + "\t" + jobj["codeName"].ToString() + "\t" + jobj["resultCode"].ToString());
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.ToString());
+                }
+            }
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -5252,51 +5308,9 @@ namespace WindowsFormsApp2
 
             tBResultCode.Text = values[4];
 
-            oneM2MLogDetailGET(values[1]);
-        }
-
-
-        // oneM2M log server 응답 확인 (resultcode)
-        private void oneM2MLoglistGET()
-        {
+            // oneM2M log server 응답 확인 (resultcode)
             ReqHeader header = new ReqHeader();
-            //header.Url = logUrl + "/logs?entityId=" + dev.entityId+"&ctn="+dev.imsi;
-            header.Url = logUrl + "/logs?entityId=ASN_CSE-D-71221153fb-T001";
-            header.Method = "GET";
-            header.ContentType = "application/json";
-            header.X_M2M_RI = DateTime.Now.ToString("yyyyMMddHHmmss") + "LogList";
-            header.X_M2M_Origin = svr.entityId;
-            header.X_MEF_TK = svr.token;
-            header.X_MEF_EKI = svr.enrmtKeyId;
-            string retStr = GetHttpLog(header, string.Empty);
-            
-            if (retStr != string.Empty)
-            {
-                //Console.WriteLine(retStr);
-                try
-                {
-                    JArray jarr = JArray.Parse(retStr); //json 객체로
-
-                    listBox1.Items.Clear();
-                    foreach (JObject jobj in jarr)
-                    {
-                        string time = jobj["logTime"].ToString();
-                        string logtime = time.Substring(8, 2) + ":" + time.Substring(10, 2) + ":" + time.Substring(12, 2);
-                        listBox1.Items.Add(logtime + "\t" + jobj["logId"].ToString() + "\t" + jobj["pathInfo"].ToString() + "\t" + jobj["codeName"].ToString() + "\t" + jobj["resultCode"].ToString());
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.ToString());
-                }
-            }
-        }
-
-        // oneM2M log server 응답 확인 (resultcode)
-        private void oneM2MLogDetailGET(string code)
-        {
-            ReqHeader header = new ReqHeader();
-            //header.Url = logUrl + "/log?Id=" + code;
+            //header.Url = logUrl + "/log?Id=" + values[1];
             header.Url = logUrl + "/log?Id=61";
             header.Method = "GET";
             header.ContentType = "application/json";
@@ -5307,10 +5321,10 @@ namespace WindowsFormsApp2
             string retStr = GetHttpLog(header, string.Empty);
 
             textBox1.Text = string.Empty;
-            textBox1.AppendText(DateTime.Now.ToString("hh:mm:ss.fff") + " : " + code);
+            textBox1.AppendText(DateTime.Now.ToString("hh:mm:ss.fff") + " : " + values[1]);
             if (retStr != string.Empty)
             {
-                //Console.WriteLine(retStr);
+                LogWriteNoTime(retStr);
                 try
                 {
                     JArray jarr = JArray.Parse(retStr); //json 객체로
@@ -5322,16 +5336,9 @@ namespace WindowsFormsApp2
                     Console.WriteLine(ex.ToString());
                 }
             }
-           
         }
 
         private void button4_Click_1(object sender, EventArgs e)
-        {
-            ResultCodeGET();
-        }
-
-        // oneM2M log server 응답 확인 (resultcode)
-        private void ResultCodeGET()
         {
             ReqHeader header = new ReqHeader();
             header.Url = logUrl + "/resultCode?value=" + tBResultCode.Text;
@@ -5344,7 +5351,7 @@ namespace WindowsFormsApp2
             string retStr = GetHttpLog(header, string.Empty);
             if (retStr != string.Empty)
             {
-                //Console.WriteLine(retStr);
+                LogWriteNoTime(retStr);
                 try
                 {
                     JObject obj = JObject.Parse(retStr);
@@ -5431,6 +5438,40 @@ namespace WindowsFormsApp2
                 }
             }
             return resResult;
+        }
+
+        private void button5_Click(object sender, EventArgs e)
+        {
+            ReqHeader header = new ReqHeader();
+            //header.Url = logUrl + "/initFirmware?entityId=" + dev.entityId;
+            header.Url = logUrl + "/initFirmware?entityId=ASN_CSE-D-71221153fb-T001";
+            header.Method = "GET";
+            header.ContentType = "application/json";
+            header.X_M2M_RI = DateTime.Now.ToString("yyyyMMddHHmmss") + "FWVerInit";
+            header.X_M2M_Origin = svr.entityId;
+            header.X_MEF_TK = svr.token;
+            header.X_MEF_EKI = svr.enrmtKeyId;
+            string retStr = GetHttpLog(header, string.Empty);
+
+            if (retStr != string.Empty)
+            {
+                LogWriteNoTime(retStr);
+                
+                try
+                {
+                    JObject obj = JObject.Parse(retStr);
+
+                    var deviceVer = obj["deviceVersion"] ?? "unknown";
+                    lbdevicever.Text = deviceVer.ToString();
+
+                    var modemVer = obj["modemVersion"] ?? "unknown";
+                    lbmodemfwrver.Text = modemVer.ToString();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.ToString());
+                }
+            }
         }
     }
 

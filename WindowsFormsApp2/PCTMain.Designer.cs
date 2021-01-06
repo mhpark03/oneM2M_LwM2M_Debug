@@ -41,6 +41,7 @@
             this.groupBox11 = new System.Windows.Forms.GroupBox();
             this.btnMEFAuthS = new System.Windows.Forms.Button();
             this.gbLwM2MServer = new System.Windows.Forms.GroupBox();
+            this.button5 = new System.Windows.Forms.Button();
             this.tBResultCode = new System.Windows.Forms.TextBox();
             this.button4 = new System.Windows.Forms.Button();
             this.label19 = new System.Windows.Forms.Label();
@@ -259,6 +260,7 @@
             // 
             // gbLwM2MServer
             // 
+            this.gbLwM2MServer.Controls.Add(this.button5);
             this.gbLwM2MServer.Controls.Add(this.tBResultCode);
             this.gbLwM2MServer.Controls.Add(this.button4);
             this.gbLwM2MServer.Controls.Add(this.label19);
@@ -272,6 +274,16 @@
             this.gbLwM2MServer.TabIndex = 33;
             this.gbLwM2MServer.TabStop = false;
             this.gbLwM2MServer.Text = "LwM2M Device DATA";
+            // 
+            // button5
+            // 
+            this.button5.Location = new System.Drawing.Point(187, 21);
+            this.button5.Name = "button5";
+            this.button5.Size = new System.Drawing.Size(131, 19);
+            this.button5.TabIndex = 54;
+            this.button5.Text = "펌웨어 이력초기화";
+            this.button5.UseVisualStyleBackColor = true;
+            this.button5.Click += new System.EventHandler(this.button5_Click);
             // 
             // tBResultCode
             // 
@@ -356,7 +368,6 @@
             this.gbOneM2MServer.Controls.Add(this.lboneM2MRxData);
             this.gbOneM2MServer.Controls.Add(this.btnDataRetrive);
             this.gbOneM2MServer.Controls.Add(this.btnSendtoDeviceoneM2M);
-            this.gbOneM2MServer.Enabled = false;
             this.gbOneM2MServer.Location = new System.Drawing.Point(13, 48);
             this.gbOneM2MServer.Name = "gbOneM2MServer";
             this.gbOneM2MServer.Size = new System.Drawing.Size(416, 163);
@@ -445,7 +456,7 @@
             this.btnDeviceCheck.Name = "btnDeviceCheck";
             this.btnDeviceCheck.Size = new System.Drawing.Size(116, 32);
             this.btnDeviceCheck.TabIndex = 40;
-            this.btnDeviceCheck.Text = "디바이스 리소스";
+            this.btnDeviceCheck.Text = "펌웨어 버전";
             this.btnDeviceCheck.UseVisualStyleBackColor = true;
             this.btnDeviceCheck.Click += new System.EventHandler(this.btnDeviceCheck_Click);
             // 
@@ -1475,6 +1486,7 @@
         private System.Windows.Forms.Button button4;
         private System.Windows.Forms.Label label19;
         private System.Windows.Forms.TextBox tBResultCode;
+        private System.Windows.Forms.Button button5;
     }
 }
 
