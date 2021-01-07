@@ -4088,7 +4088,7 @@ namespace WindowsFormsApp2
             }
             else if (model == "BG96")                                                                   //쿼텔/LwM2M 모듈
             {
-                tbSvcCd.Text = "CATM";
+                tbSvcCd.Text = "CATO";
                 tBoxDeviceModel.Text = "LWEMG";
                 dev.type = "LwM2M";
             }
