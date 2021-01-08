@@ -1183,6 +1183,7 @@ namespace WindowsFormsApp2
 
                 try
                 {
+                    string state = "대기중";
                     JObject obj = JObject.Parse(retStr);
 
                     var deviceVer = obj["deviceVersion"] ?? "unknown";
@@ -1190,6 +1191,18 @@ namespace WindowsFormsApp2
 
                     var modemVer = obj["modemVersion"] ?? "unknown";
                     lbmodemfwrver.Text = modemVer.ToString();
+
+                    var inProgress = obj["inProgress"] ?? "unknown";
+                    if (inProgress.ToString() == "true")
+                        state = "진행 중";
+                    var deviceModel = obj["deviceModel"] ?? "unknown";
+                    var lastCheckTime = obj["lastCheckTime"] ?? "unknown";
+                    var lastDeviceCheckTime = obj["lastDeviceCheckTime"] ?? "unknown";
+                    var lastUpdateTime = obj["lastUpdateTime"] ?? "unknown";
+
+                    MessageBox.Show("디바이스 모델명 : " + deviceModel.ToString() + "\n진행상태 : " + state + "\n\n디바이스 버전 : " + deviceVer.ToString()
+                        + "\n디바이스 체크시간 : " + lastDeviceCheckTime.ToString() + "\n\n모듈 버전 : " + modemVer.ToString() 
+                        + "\n모듈 체크시간 : " + lastCheckTime.ToString() + "\n\n업데이트 시간 : " + lastUpdateTime.ToString(), "펌웨어 업데이트 진행 상태");
                 }
                 catch (Exception ex)
                 {
@@ -1198,8 +1211,8 @@ namespace WindowsFormsApp2
             }
         }
 
-        // 데이터 수신 (oneM2M 플랫폼 DB)
-        private void btnDataRetrive_Click(object sender, EventArgs e)
+// 데이터 수신 (oneM2M 플랫폼 DB)
+private void btnDataRetrive_Click(object sender, EventArgs e)
         {
             LogWrite("----------DATA RECIEVE----------");
             if (svr.enrmtKeyId != string.Empty)
@@ -5459,6 +5472,7 @@ namespace WindowsFormsApp2
                 
                 try
                 {
+                    string state = "대기중";
                     JObject obj = JObject.Parse(retStr);
 
                     var deviceVer = obj["deviceVersion"] ?? "unknown";
@@ -5466,6 +5480,18 @@ namespace WindowsFormsApp2
 
                     var modemVer = obj["modemVersion"] ?? "unknown";
                     lbmodemfwrver.Text = modemVer.ToString();
+
+                    var inProgress = obj["inProgress"] ?? "unknown";
+                    if (inProgress.ToString() == "true")
+                        state = "진행 중";
+                    var deviceModel = obj["deviceModel"] ?? "unknown";
+                    var lastCheckTime = obj["lastCheckTime"] ?? "unknown";
+                    var lastDeviceCheckTime = obj["lastDeviceCheckTime"] ?? "unknown";
+                    var lastUpdateTime = obj["lastUpdateTime"] ?? "unknown";
+
+                    MessageBox.Show("디바이스 모델명 : " + deviceModel.ToString() + "\n진행상태 : " + state + "\n\n디바이스 버전 : " + deviceVer.ToString()
+                        + "\n디바이스 체크시간 : " + lastDeviceCheckTime.ToString() + "\n\n모듈 버전 : " + modemVer.ToString()
+                        + "\n모듈 체크시간 : " + lastCheckTime.ToString() + "\n\n업데이트 시간 : " + lastUpdateTime.ToString(), "펌웨어 업데이트 진행 상태");
                 }
                 catch (Exception ex)
                 {
