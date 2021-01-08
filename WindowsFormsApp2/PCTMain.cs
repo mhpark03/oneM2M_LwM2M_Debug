@@ -5473,6 +5473,47 @@ namespace WindowsFormsApp2
                 }
             }
         }
+
+        private void button6_Click(object sender, EventArgs e)
+        {
+            ReqHeader header = new ReqHeader();
+            //header.Url = logUrl + "/device?ctn=" + dev.imsi;
+            header.Url = logUrl + "/device?ctn=99977665825";
+            header.Method = "GET";
+            header.ContentType = "application/json";
+            header.X_M2M_RI = DateTime.Now.ToString("yyyyMMddHHmmss") + "DeviceGet";
+            header.X_M2M_Origin = svr.entityId;
+            header.X_MEF_TK = svr.token;
+            header.X_MEF_EKI = svr.enrmtKeyId;
+            string retStr = GetHttpLog(header, string.Empty);
+            if (retStr != string.Empty)
+            {
+                LogWriteNoTime(retStr);
+                try
+                {
+                    JArray jarr = JArray.Parse(retStr); //json 객체로
+
+                    JObject obj = JObject.Parse(jarr[0].ToString());
+
+                    var ctn = obj["ctn"] ?? dev.imsi;
+                    var deviceModel = obj["deviceModel"] ?? "NULL";
+                    var modemModel = obj["modemModel"] ?? "NULL";
+                    var serviceCode = obj["serviceCode"] ?? "NULL";
+                    var deviceSerialNo = obj["deviceSerialNo"] ?? "NULL";
+                    var iccId = obj["iccId"] ?? "NULL";
+
+                    MessageBox.Show("디바이스 모델명 : "+deviceModel.ToString()+"\n모듈 모델명 : "+modemModel.ToString()+"\n서비스코드 : "
+                        + serviceCode.ToString()+"\n디바이스 일련번호 : "+deviceSerialNo.ToString()+"\nICCID : "+ iccId.ToString(), ctn.ToString()+" DEVICE 상태 정보");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.ToString());
+                    MessageBox.Show("DEVICE 정보가 존재하지 않습니다.", dev.imsi + " DEVICE 상태 정보");
+                }
+            }
+            else
+                MessageBox.Show("DEVICE 정보가 존재하지 않습니다.", dev.imsi + " DEVICE 상태 정보");
+        }
     }
 
     public class TCResult

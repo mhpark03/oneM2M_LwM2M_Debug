@@ -141,6 +141,7 @@
             this.groupBox12 = new System.Windows.Forms.GroupBox();
             this.tBoxDataIN = new System.Windows.Forms.TextBox();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
+            this.button6 = new System.Windows.Forms.Button();
             this.panel1.SuspendLayout();
             this.gbTCResult.SuspendLayout();
             this.gbServerLog.SuspendLayout();
@@ -260,6 +261,7 @@
             // 
             // gbLwM2MServer
             // 
+            this.gbLwM2MServer.Controls.Add(this.button6);
             this.gbLwM2MServer.Controls.Add(this.button5);
             this.gbLwM2MServer.Controls.Add(this.tBResultCode);
             this.gbLwM2MServer.Controls.Add(this.button4);
@@ -277,7 +279,7 @@
             // 
             // button5
             // 
-            this.button5.Location = new System.Drawing.Point(187, 21);
+            this.button5.Location = new System.Drawing.Point(261, 21);
             this.button5.Name = "button5";
             this.button5.Size = new System.Drawing.Size(131, 19);
             this.button5.TabIndex = 54;
@@ -1332,6 +1334,16 @@
             this.timer1.Interval = 10000;
             this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
             // 
+            // button6
+            // 
+            this.button6.Location = new System.Drawing.Point(138, 19);
+            this.button6.Name = "button6";
+            this.button6.Size = new System.Drawing.Size(117, 19);
+            this.button6.TabIndex = 55;
+            this.button6.Text = "Device 정보 조회";
+            this.button6.UseVisualStyleBackColor = true;
+            this.button6.Click += new System.EventHandler(this.button6_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 12F);
@@ -1487,6 +1499,7 @@
         private System.Windows.Forms.Label label19;
         private System.Windows.Forms.TextBox tBResultCode;
         private System.Windows.Forms.Button button5;
+        private System.Windows.Forms.Button button6;
     }
 }
 
