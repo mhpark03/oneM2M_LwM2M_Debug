@@ -331,9 +331,9 @@
             this.label12.AutoSize = true;
             this.label12.Location = new System.Drawing.Point(6, 43);
             this.label12.Name = "label12";
-            this.label12.Size = new System.Drawing.Size(274, 12);
+            this.label12.Size = new System.Drawing.Size(258, 12);
             this.label12.TabIndex = 50;
-            this.label12.Text = "Time        ID         Result       ResultCode  Path";
+            this.label12.Text = "Time        ID         ResultCode   Result  Path";
             this.label12.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // textBox1

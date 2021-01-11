@@ -5192,9 +5192,9 @@ private void btnDataRetrive_Click(object sender, EventArgs e)
                         var trgAddr = jobj["trgAddr"] ?? "NULL";
                         string path = pathInfo.ToString();
                         if (path == "NULL")
-                            path = trgAddr.ToString();
+                            path = jobj["resType"].ToString() + " : " + trgAddr.ToString();
 
-                        listBox1.Items.Add(logtime + "\t" + jobj["logId"].ToString() + "\t" + jobj["codeName"].ToString() + "\t" + jobj["resultCode"].ToString() + "\t   " + path);
+                        listBox1.Items.Add(logtime + "\t" + jobj["logId"].ToString() + "\t" + jobj["resultCode"].ToString() + "\t   " + jobj["codeName"].ToString() + "\t" + path);
                     }
                 }
                 catch (Exception ex)
@@ -5325,7 +5325,7 @@ private void btnDataRetrive_Click(object sender, EventArgs e)
             string selected_msg = listBox1.SelectedItem.ToString();
             string[] values = selected_msg.Split('\t');    // 수신한 데이터를 한 문장씩 나누어 array에 저장
 
-            tBResultCode.Text = values[4];
+            tBResultCode.Text = values[2];
 
             // oneM2M log server 응답 확인 (resultcode)
             ReqHeader header = new ReqHeader();
