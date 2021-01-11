@@ -1167,8 +1167,8 @@ namespace WindowsFormsApp2
             //RetriveMverToPlatform();
 
             ReqHeader header = new ReqHeader();
-            //header.Url = logUrl + "/Firmware?entityId=" + dev.entityId;
-            header.Url = logUrl + "/Firmware?entityId=ASN_CSE-D-71221153fb-T001";
+            header.Url = logUrl + "/Firmware?entityId=" + dev.entityId;
+            //header.Url = logUrl + "/Firmware?entityId=ASN_CSE-D-71221153fb-T001";
             header.Method = "GET";
             header.ContentType = "application/json";
             header.X_M2M_RI = DateTime.Now.ToString("yyyyMMddHHmmss") + "FWVerGet";
@@ -5167,7 +5167,7 @@ private void btnDataRetrive_Click(object sender, EventArgs e)
         {
             ReqHeader header = new ReqHeader();
             //header.Url = logUrl + "/logs?entityId=" + dev.entityId+"&ctn="+dev.imsi;
-            header.Url = logUrl + "/logs?entityId=ASN_CSE-D-71221153fb-T001";
+            header.Url = logUrl + "/logs?type=onem2m";
             header.Method = "GET";
             header.ContentType = "application/json";
             header.X_M2M_RI = DateTime.Now.ToString("yyyyMMddHHmmss") + "LogList";
@@ -5188,7 +5188,13 @@ private void btnDataRetrive_Click(object sender, EventArgs e)
                     {
                         string time = jobj["logTime"].ToString();
                         string logtime = time.Substring(8, 2) + ":" + time.Substring(10, 2) + ":" + time.Substring(12, 2);
-                        listBox1.Items.Add(logtime + "\t" + jobj["logId"].ToString() + "\t" + jobj["pathInfo"].ToString() + "\t" + jobj["codeName"].ToString() + "\t" + jobj["resultCode"].ToString());
+                        var pathInfo = jobj["pathInfo"] ?? "NULL";
+                        var trgAddr = jobj["trgAddr"] ?? "NULL";
+                        string path = pathInfo.ToString();
+                        if (path == "NULL")
+                            path = trgAddr.ToString();
+
+                        listBox1.Items.Add(logtime + "\t" + jobj["logId"].ToString() + "\t" + jobj["codeName"].ToString() + "\t" + jobj["resultCode"].ToString() + "\t   " + path);
                     }
                 }
                 catch (Exception ex)
@@ -5323,8 +5329,8 @@ private void btnDataRetrive_Click(object sender, EventArgs e)
 
             // oneM2M log server 응답 확인 (resultcode)
             ReqHeader header = new ReqHeader();
-            //header.Url = logUrl + "/log?Id=" + values[1];
-            header.Url = logUrl + "/log?Id=61";
+            header.Url = logUrl + "/log?Id=" + values[1];
+            //header.Url = logUrl + "/log?Id=61";
             header.Method = "GET";
             header.ContentType = "application/json";
             header.X_M2M_RI = DateTime.Now.ToString("yyyyMMddHHmmss") + "LogDetail";
@@ -5456,8 +5462,8 @@ private void btnDataRetrive_Click(object sender, EventArgs e)
         private void button5_Click(object sender, EventArgs e)
         {
             ReqHeader header = new ReqHeader();
-            //header.Url = logUrl + "/initFirmware?entityId=" + dev.entityId;
-            header.Url = logUrl + "/initFirmware?entityId=ASN_CSE-D-71221153fb-T001";
+            header.Url = logUrl + "/initFirmware?entityId=" + dev.entityId;
+            //header.Url = logUrl + "/initFirmware?entityId=ASN_CSE-D-71221153fb-T001";
             header.Method = "GET";
             header.ContentType = "application/json";
             header.X_M2M_RI = DateTime.Now.ToString("yyyyMMddHHmmss") + "FWVerInit";
@@ -5503,8 +5509,8 @@ private void btnDataRetrive_Click(object sender, EventArgs e)
         private void button6_Click(object sender, EventArgs e)
         {
             ReqHeader header = new ReqHeader();
-            //header.Url = logUrl + "/device?ctn=" + dev.imsi;
-            header.Url = logUrl + "/device?ctn=99977665825";
+            header.Url = logUrl + "/device?ctn=" + dev.imsi;
+            //header.Url = logUrl + "/device?ctn=99977665825";
             header.Method = "GET";
             header.ContentType = "application/json";
             header.X_M2M_RI = DateTime.Now.ToString("yyyyMMddHHmmss") + "DeviceGet";
