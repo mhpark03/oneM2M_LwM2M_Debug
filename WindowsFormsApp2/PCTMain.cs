@@ -5167,7 +5167,7 @@ private void btnDataRetrive_Click(object sender, EventArgs e)
         {
             ReqHeader header = new ReqHeader();
             //header.Url = logUrl + "/logs?entityId=" + dev.entityId+"&ctn="+dev.imsi;
-            header.Url = logUrl + "/logs?type=onem2m";
+            header.Url = logUrl + "/logs?type=lwm2m";
             header.Method = "GET";
             header.ContentType = "application/json";
             header.X_M2M_RI = DateTime.Now.ToString("yyyyMMddHHmmss") + "LogList";
@@ -5194,7 +5194,7 @@ private void btnDataRetrive_Click(object sender, EventArgs e)
                         if (path == "NULL")
                             path = jobj["resType"].ToString() + " : " + trgAddr.ToString();
 
-                        listBox1.Items.Add(logtime + "\t" + jobj["logId"].ToString() + "\t" + jobj["resultCode"].ToString() + "\t   " + jobj["codeName"].ToString() + "\t" + path);
+                        listBox1.Items.Add(logtime + "\t" + jobj["logId"].ToString() + "\t" + jobj["resultCode"].ToString() + "\t   " + jobj["resultCodeName"].ToString() + " (" + path+")");
                     }
                 }
                 catch (Exception ex)

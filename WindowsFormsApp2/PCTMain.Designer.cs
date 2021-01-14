@@ -331,9 +331,9 @@
             this.label12.AutoSize = true;
             this.label12.Location = new System.Drawing.Point(6, 43);
             this.label12.Name = "label12";
-            this.label12.Size = new System.Drawing.Size(258, 12);
+            this.label12.Size = new System.Drawing.Size(279, 12);
             this.label12.TabIndex = 50;
-            this.label12.Text = "Time        ID         ResultCode   Result  Path";
+            this.label12.Text = "요청시간      ID      ResultCode  결과 (요청  내용)";
             this.label12.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // textBox1
@@ -380,6 +380,7 @@
             this.gbOneM2MServer.Controls.Add(this.lboneM2MRxData);
             this.gbOneM2MServer.Controls.Add(this.btnDataRetrive);
             this.gbOneM2MServer.Controls.Add(this.btnSendtoDeviceoneM2M);
+            this.gbOneM2MServer.Enabled = false;
             this.gbOneM2MServer.Location = new System.Drawing.Point(13, 48);
             this.gbOneM2MServer.Name = "gbOneM2MServer";
             this.gbOneM2MServer.Size = new System.Drawing.Size(558, 163);
