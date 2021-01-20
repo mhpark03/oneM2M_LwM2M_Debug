@@ -47,7 +47,6 @@
             this.button4 = new System.Windows.Forms.Button();
             this.label19 = new System.Windows.Forms.Label();
             this.label12 = new System.Windows.Forms.Label();
-            this.textBox1 = new System.Windows.Forms.TextBox();
             this.listBox1 = new System.Windows.Forms.ListBox();
             this.btnTCResultSave = new System.Windows.Forms.Button();
             this.gbOneM2MServer = new System.Windows.Forms.GroupBox();
@@ -142,6 +141,7 @@
             this.groupBox12 = new System.Windows.Forms.GroupBox();
             this.tBoxDataIN = new System.Windows.Forms.TextBox();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
+            this.listBox2 = new System.Windows.Forms.ListBox();
             this.panel1.SuspendLayout();
             this.gbTCResult.SuspendLayout();
             this.gbServerLog.SuspendLayout();
@@ -261,13 +261,13 @@
             // 
             // gbLwM2MServer
             // 
+            this.gbLwM2MServer.Controls.Add(this.listBox2);
             this.gbLwM2MServer.Controls.Add(this.button6);
             this.gbLwM2MServer.Controls.Add(this.button5);
             this.gbLwM2MServer.Controls.Add(this.tBResultCode);
             this.gbLwM2MServer.Controls.Add(this.button4);
             this.gbLwM2MServer.Controls.Add(this.label19);
             this.gbLwM2MServer.Controls.Add(this.label12);
-            this.gbLwM2MServer.Controls.Add(this.textBox1);
             this.gbLwM2MServer.Controls.Add(this.listBox1);
             this.gbLwM2MServer.Controls.Add(this.btnTCResultSave);
             this.gbLwM2MServer.Location = new System.Drawing.Point(15, 217);
@@ -299,7 +299,7 @@
             // 
             // tBResultCode
             // 
-            this.tBResultCode.Location = new System.Drawing.Point(95, 150);
+            this.tBResultCode.Location = new System.Drawing.Point(95, 191);
             this.tBResultCode.Name = "tBResultCode";
             this.tBResultCode.Size = new System.Drawing.Size(88, 21);
             this.tBResultCode.TabIndex = 53;
@@ -308,7 +308,7 @@
             // 
             // button4
             // 
-            this.button4.Location = new System.Drawing.Point(192, 151);
+            this.button4.Location = new System.Drawing.Point(192, 192);
             this.button4.Name = "button4";
             this.button4.Size = new System.Drawing.Size(64, 19);
             this.button4.TabIndex = 52;
@@ -319,7 +319,7 @@
             // label19
             // 
             this.label19.AutoSize = true;
-            this.label19.Location = new System.Drawing.Point(12, 157);
+            this.label19.Location = new System.Drawing.Point(12, 198);
             this.label19.Name = "label19";
             this.label19.Size = new System.Drawing.Size(82, 12);
             this.label19.TabIndex = 51;
@@ -336,22 +336,13 @@
             this.label12.Text = "요청시간      ID      ResultCode  결과 (요청  내용)";
             this.label12.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
-            // textBox1
-            // 
-            this.textBox1.Location = new System.Drawing.Point(7, 175);
-            this.textBox1.Multiline = true;
-            this.textBox1.Name = "textBox1";
-            this.textBox1.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.textBox1.Size = new System.Drawing.Size(543, 190);
-            this.textBox1.TabIndex = 45;
-            // 
             // listBox1
             // 
             this.listBox1.FormattingEnabled = true;
             this.listBox1.ItemHeight = 12;
             this.listBox1.Location = new System.Drawing.Point(7, 58);
             this.listBox1.Name = "listBox1";
-            this.listBox1.Size = new System.Drawing.Size(543, 88);
+            this.listBox1.Size = new System.Drawing.Size(543, 124);
             this.listBox1.TabIndex = 44;
             this.listBox1.SelectedIndexChanged += new System.EventHandler(this.listBox1_SelectedIndexChanged);
             // 
@@ -1345,6 +1336,15 @@
             this.timer1.Interval = 10000;
             this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
             // 
+            // listBox2
+            // 
+            this.listBox2.FormattingEnabled = true;
+            this.listBox2.ItemHeight = 12;
+            this.listBox2.Location = new System.Drawing.Point(8, 221);
+            this.listBox2.Name = "listBox2";
+            this.listBox2.Size = new System.Drawing.Size(543, 148);
+            this.listBox2.TabIndex = 56;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 12F);
@@ -1494,13 +1494,13 @@
         private System.Windows.Forms.Label lbdevicever;
         private System.Windows.Forms.Label label16;
         private System.Windows.Forms.Label label12;
-        private System.Windows.Forms.TextBox textBox1;
         private System.Windows.Forms.ListBox listBox1;
         private System.Windows.Forms.Button button4;
         private System.Windows.Forms.Label label19;
         private System.Windows.Forms.TextBox tBResultCode;
         private System.Windows.Forms.Button button5;
         private System.Windows.Forms.Button button6;
+        private System.Windows.Forms.ListBox listBox2;
     }
 }
 

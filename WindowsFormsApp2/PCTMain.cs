@@ -5329,8 +5329,8 @@ private void btnDataRetrive_Click(object sender, EventArgs e)
 
             // oneM2M log server 응답 확인 (resultcode)
             ReqHeader header = new ReqHeader();
-            header.Url = logUrl + "/log?Id=" + values[1];
-            //header.Url = logUrl + "/log?Id=61";
+            header.Url = logUrl + "/apilog?Id=" + values[1];
+            //header.Url = logUrl + "/apilog?Id=61";
             header.Method = "GET";
             header.ContentType = "application/json";
             header.X_M2M_RI = DateTime.Now.ToString("yyyyMMddHHmmss") + "LogDetail";
@@ -5339,8 +5339,9 @@ private void btnDataRetrive_Click(object sender, EventArgs e)
             header.X_MEF_EKI = svr.enrmtKeyId;
             string retStr = GetHttpLog(header, string.Empty);
 
-            textBox1.Text = string.Empty;
-            textBox1.AppendText(DateTime.Now.ToString("hh:mm:ss.fff") + " : " + values[1]);
+            listBox2.Items.Clear();
+            listBox2.Items.Add(DateTime.Now.ToString("hh:mm:ss.fff") + " : " + values[1]);
+
             if (retStr != string.Empty)
             {
                 LogWriteNoTime(retStr);
@@ -5348,7 +5349,7 @@ private void btnDataRetrive_Click(object sender, EventArgs e)
                 {
                     JArray jarr = JArray.Parse(retStr); //json 객체로
 
-                    textBox1.AppendText(jarr.ToString());
+                    listBox2.Items.Add(jarr.ToString());
                 }
                 catch (Exception ex)
                 {
