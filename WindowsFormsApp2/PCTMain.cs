@@ -5326,10 +5326,11 @@ private void btnDataRetrive_Click(object sender, EventArgs e)
             string[] values = selected_msg.Split('\t');    // 수신한 데이터를 한 문장씩 나누어 array에 저장
 
             tBResultCode.Text = values[2];
+            label21.Text = "서버로그 ID : " + values[1] + " 상세내역";
 
             // oneM2M log server 응답 확인 (resultcode)
             ReqHeader header = new ReqHeader();
-            header.Url = logUrl + "/apilog?Id=" + values[1];
+            header.Url = logUrl + "/apilog?logId=" + values[1];
             //header.Url = logUrl + "/apilog?Id=61";
             header.Method = "GET";
             header.ContentType = "application/json";
@@ -5340,8 +5341,6 @@ private void btnDataRetrive_Click(object sender, EventArgs e)
             string retStr = GetHttpLog(header, string.Empty);
 
             listBox2.Items.Clear();
-            listBox2.Items.Add(DateTime.Now.ToString("hh:mm:ss.fff") + " : " + values[1]);
-
             if (retStr != string.Empty)
             {
                 LogWriteNoTime(retStr);
@@ -5349,7 +5348,18 @@ private void btnDataRetrive_Click(object sender, EventArgs e)
                 {
                     JArray jarr = JArray.Parse(retStr); //json 객체로
 
-                    listBox2.Items.Add(jarr.ToString());
+                    foreach (JObject jobj in jarr)
+                    {
+                        string time = jobj["logTime"].ToString();
+                        string logtime = time.Substring(8, 2) + ":" + time.Substring(10, 2) + ":" + time.Substring(12, 2);
+                        var pathInfo = jobj["pathInfo"] ?? "NULL";
+                        var trgAddr = jobj["trgAddr"] ?? "NULL";
+                        string path = pathInfo.ToString();
+                        if (path == "NULL")
+                            path = jobj["resType"].ToString() + " : " + trgAddr.ToString();
+
+                        listBox2.Items.Add(logtime + "\t" + jobj["logId"].ToString() + "\t" + jobj["resultCode"].ToString() + "\t   " + jobj["resultCodeName"].ToString() + " (" + path + ")");
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -5401,6 +5411,7 @@ private void btnDataRetrive_Click(object sender, EventArgs e)
                 wReq.Method = header.Method;
                 if (header.ContentType != string.Empty)
                     wReq.ContentType = header.ContentType;
+                /*
                 if (header.X_M2M_RI != string.Empty)
                     wReq.Headers.Add("X-M2M-RI", header.X_M2M_RI);
                 if (header.X_M2M_Origin != string.Empty)
@@ -5409,6 +5420,7 @@ private void btnDataRetrive_Click(object sender, EventArgs e)
                     wReq.Headers.Add("X-MEF-TK", header.X_MEF_TK);
                 if (header.X_MEF_EKI != string.Empty)
                     wReq.Headers.Add("X-MEF-EKI", header.X_MEF_EKI);
+                */
 
                 Console.WriteLine(wReq.Method + " " + wReq.RequestUri + " HTTP/1.1");
                 Console.WriteLine("");
@@ -5546,6 +5558,104 @@ private void btnDataRetrive_Click(object sender, EventArgs e)
             }
             else
                 MessageBox.Show("DEVICE 정보가 존재하지 않습니다.", dev.imsi + " DEVICE 상태 정보");
+        }
+
+        private void listBox2_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            string selected_msg = listBox2.SelectedItem.ToString();
+            string[] values = selected_msg.Split('\t');    // 수신한 데이터를 한 문장씩 나누어 array에 저장
+
+            tBResultCode.Text = values[2];
+            label22.Text = "ID : " + values[1] + " 상세내역";
+
+            // oneM2M log server 응답 확인 (resultcode)
+            ReqHeader header = new ReqHeader();
+            header.Url = logUrl + "/log?logId=" + values[1];
+            header.Method = "GET";
+            header.ContentType = "application/json";
+            header.X_M2M_RI = DateTime.Now.ToString("yyyyMMddHHmmss") + "LogDetail";
+            header.X_M2M_Origin = svr.entityId;
+            header.X_MEF_TK = svr.token;
+            header.X_MEF_EKI = svr.enrmtKeyId;
+            string retStr = GetHttpLog(header, string.Empty);
+
+            listBox3.Items.Clear();
+            //listBox3.Items.Add(DateTime.Now.ToString("hh:mm:ss.fff") + " : " + values[1]);
+
+            if (retStr != string.Empty)
+            {
+                LogWriteNoTime(retStr);
+                
+                try
+                {
+                    JArray jarr = JArray.Parse(retStr); //json 객체로
+
+                    foreach (JObject jobj in jarr)
+                    {
+                        string methodName = jobj["methodName"].ToString();
+                        string logType = jobj["logType"].ToString();
+                        string svrType = jobj["svrType"].ToString();
+
+                        string message = " \t \t ";
+
+                        if (logType == "COAP")
+                        {
+                            var coapType = jobj["coapType"] ?? " ";
+                            var coapPayload = jobj["coapPayload"] ?? " ";
+                            message = coapType + "\t \t" + coapPayload;
+                        }
+                        else if (logType == "API_LOG")            //  서버 API LOG
+                        {
+                            var resultCode = jobj["resultCode"] ?? " ";
+                            var trgAddr = jobj["trgAddr"] ?? " ";
+
+                            message = resultCode + "\t \t" + trgAddr;
+                        }
+                        else if (logType == "HTTP")
+                        {
+                            //JObject obj = JObject.Parse(jobj["data"].ToString());
+                            //message = obj["host"].ToString() + " " + obj["uri"].ToString() + "\t" + obj["respCode"].ToString() + "\t" + obj["stringBody"].ToString();
+                        }
+                        else if (logType == "HTTP_CLIENT")
+                        {
+                            logType = "COMD";
+                            //JObject obj = JObject.Parse(jobj["data"].ToString());
+                            //JObject uri = JObject.Parse(obj["uri"].ToString());
+                            //JObject resp = JObject.Parse(obj["respCode"].ToString());
+                            //message = obj["requestMethod"].ToString() + " " + uri["uri"].ToString() + "\t" + resp["respCode"].ToString() + "\t ";
+                        }
+                        else if (logType == "RUNTIME_LOG")
+                        {
+                            logType = "RUN";
+                            //JObject obj = JObject.Parse(jobj["data"].ToString());
+                            //message = obj["topicOrEntityId"].ToString() + "\t \t" + obj["requestEntity"].ToString()+"\n"+obj["responseEntity"].ToString();
+                        }
+
+                        if (svrType.Length < 9)
+                        {
+                            svrType += "        ";
+                        }
+                        if (methodName.Length < 8)
+                        {
+                            methodName += "                ";
+                        }
+
+                        listBox3.Items.Add(logType + "\t" + svrType + "\t" + methodName + "\t" + message);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.ToString());
+                }
+            }
+        }
+
+        private void listBox3_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            string selected_msg = listBox3.SelectedItem.ToString();
+            string[] values = selected_msg.Split('\t');    // 수신한 데이터를 한 문장씩 나누어 array에 저장
+
+            MessageBox.Show(values[5],"상세내역");
         }
     }
 
