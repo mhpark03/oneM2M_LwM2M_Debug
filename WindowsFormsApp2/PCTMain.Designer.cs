@@ -304,9 +304,9 @@
             this.label24.AutoSize = true;
             this.label24.Location = new System.Drawing.Point(8, 280);
             this.label24.Name = "label24";
-            this.label24.Size = new System.Drawing.Size(358, 12);
+            this.label24.Size = new System.Drawing.Size(302, 12);
             this.label24.TabIndex = 61;
-            this.label24.Text = "     서버                  TYPE      Method                   Description";
+            this.label24.Text = "  서버       TYPE      Method                   Description";
             this.label24.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // label22

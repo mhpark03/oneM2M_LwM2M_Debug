@@ -5165,9 +5165,16 @@ private void btnDataRetrive_Click(object sender, EventArgs e)
 
         private void btnTCResultSave_Click(object sender, EventArgs e)
         {
+            string kind = "type=lwm2m";
+            if (dev.entityId != string.Empty)
+                kind += "&entityId=" + dev.entityId + "&ctn=" + dev.imsi;
+            getSvrLoglists(kind);
+        }
+
+        private void getSvrLoglists(string kind)
+        {
             ReqHeader header = new ReqHeader();
-            //header.Url = logUrl + "/logs?entityId=" + dev.entityId+"&ctn="+dev.imsi;
-            header.Url = logUrl + "/logs?type=lwm2m";
+            header.Url = logUrl + "/logs?"+kind;
             header.Method = "GET";
             header.ContentType = "application/json";
             header.X_M2M_RI = DateTime.Now.ToString("yyyyMMddHHmmss") + "LogList";
@@ -5194,7 +5201,13 @@ private void btnDataRetrive_Click(object sender, EventArgs e)
                         if (path == "NULL")
                             path = jobj["resType"].ToString() + " : " + trgAddr.ToString();
 
-                        listBox1.Items.Add(logtime + "\t" + jobj["logId"].ToString() + "\t" + jobj["resultCode"].ToString() + "\t   " + jobj["resultCodeName"].ToString() + " (" + path+")");
+                        listBox1.Items.Add(logtime + "\t" + jobj["logId"].ToString() + "\t" + jobj["resultCode"].ToString() + "\t   " + jobj["resultCodeName"].ToString() + " (" + path + ")");
+                    }
+
+                    if (listBox1.Items.Count != 0)
+                    {
+                        listBox1.SelectedIndex = 0;
+                        getSvrEventLog(listBox1.SelectedItem.ToString());
                     }
                 }
                 catch (Exception ex)
@@ -5322,7 +5335,11 @@ private void btnDataRetrive_Click(object sender, EventArgs e)
 
         private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
-            string selected_msg = listBox1.SelectedItem.ToString();
+            getSvrEventLog(listBox1.SelectedItem.ToString());
+        }
+
+        private void getSvrEventLog(string selected_msg)
+        {
             string[] values = selected_msg.Split('\t');    // 수신한 데이터를 한 문장씩 나누어 array에 저장
 
             tBResultCode.Text = values[2];
@@ -5359,6 +5376,12 @@ private void btnDataRetrive_Click(object sender, EventArgs e)
                             path = jobj["resType"].ToString() + " : " + trgAddr.ToString();
 
                         listBox2.Items.Add(logtime + "\t" + jobj["logId"].ToString() + "\t" + jobj["resultCode"].ToString() + "\t   " + jobj["resultCodeName"].ToString() + " (" + path + ")");
+                    }
+
+                    if (listBox2.Items.Count != 0)
+                    {
+                        listBox2.SelectedIndex = 0;
+                        getSvrDetailLog(listBox2.SelectedItem.ToString());
                     }
                 }
                 catch (Exception ex)
@@ -5562,7 +5585,11 @@ private void btnDataRetrive_Click(object sender, EventArgs e)
 
         private void listBox2_SelectedIndexChanged(object sender, EventArgs e)
         {
-            string selected_msg = listBox2.SelectedItem.ToString();
+            getSvrDetailLog(listBox2.SelectedItem.ToString());
+        }
+
+        private void getSvrDetailLog(string selected_msg)
+        {
             string[] values = selected_msg.Split('\t');    // 수신한 데이터를 한 문장씩 나누어 array에 저장
 
             tBResultCode.Text = values[2];
@@ -5585,20 +5612,21 @@ private void btnDataRetrive_Click(object sender, EventArgs e)
             if (retStr != string.Empty)
             {
                 LogWriteNoTime(retStr);
-                
+
                 try
                 {
                     JArray jarr = JArray.Parse(retStr); //json 객체로
 
                     foreach (JObject jobj in jarr)
                     {
-                        string methodName = jobj["methodName"].ToString();
-                        string logType = jobj["logType"].ToString();
-                        string svrType = jobj["svrType"].ToString();
+                        var methodName = jobj["methodName"] ?? " ";
+                        var logType = jobj["logType"] ?? " ";
+                        var svrType = jobj["svrType"] ?? " ";
 
                         string message = " \t ";
 
-                        if (logType == "COAP")
+                        string logtype = logType.ToString();
+                        if (logtype == "COAP")
                         {
                             var coapType = jobj["coapType"] ?? " ";
                             var coapPayload = jobj["coapPayload"] ?? " ";
@@ -5608,7 +5636,7 @@ private void btnDataRetrive_Click(object sender, EventArgs e)
                             {
                                 var uriPath = jobj["uriPath"] ?? " ";
                                 var code = jobj["code"] ?? " ";
-                                type += " (" + code.ToString() + " "+ uriPath.ToString() + ")";
+                                type += " (" + code.ToString() + " " + uriPath.ToString() + ")";
                             }
                             else if (type == "ACK")
                             {
@@ -5617,27 +5645,27 @@ private void btnDataRetrive_Click(object sender, EventArgs e)
                             }
                             message = type + "\t" + coapPayload.ToString();
                         }
-                        else if (logType == "API_LOG")            //  서버 API LOG
+                        else if (logtype == "API_LOG")            //  서버 API LOG
                         {
-                            logType = "API";
+                            logtype = "API";
                             var resultCode = jobj["resultCode"] ?? " ";
                             var trgAddr = jobj["trgAddr"] ?? " ";
                             var prtcType = jobj["prtcType"] ?? " ";
 
-                            message = resultCode.ToString() + " ("+ prtcType.ToString() +")\t" + trgAddr.ToString();
+                            message = resultCode.ToString() + " (" + prtcType.ToString() + ")\t" + trgAddr.ToString();
                         }
-                        else if (logType == "HTTP")
+                        else if (logtype == "HTTP")
                         {
                             var httpMethod = jobj["httpMethod"] ?? " ";
                             var uri = jobj["uri"] ?? " ";
                             var body = jobj["body"] ?? " ";
                             var responseBody = jobj["responseBody"] ?? " ";
 
-                            message = httpMethod.ToString() + " " + uri.ToString() + "\tREQUEST\n" + body +"\n\nRESPONSE\n"+ responseBody;
+                            message = httpMethod.ToString() + " " + uri.ToString() + "\tREQUEST\n" + body + "\n\nRESPONSE\n" + responseBody;
                         }
-                        else if (logType == "HTTP_CLIENT")
+                        else if (logtype == "HTTP_CLIENT")
                         {
-                            logType = "CLIENT";
+                            logtype = "CLIENT";
                             var responseCode = jobj["responseCode"] ?? " ";
                             string resp = responseCode.ToString();
 
@@ -5652,25 +5680,30 @@ private void btnDataRetrive_Click(object sender, EventArgs e)
                                 resp += "/" + rsc.ToString();
                             }
 
-                            message = resp + " (" + uri.ToString() + ")\tREQUEST\n" + reqheader + "\n\nRESPONSE\n"+ responseHeader;
+                            message = resp + " (" + uri.ToString() + ")\tREQUEST\n" + reqheader + "\n\nRESPONSE\n" + responseHeader;
                         }
-                        else if (logType == "RUNTIME_LOG")
+                        else if (logtype == "RUNTIME_LOG")
                         {
-                            logType = "RUN";
+                            logtype = "RUN";
                             var topicOrEntityId = jobj["topicOrEntityId"] ?? " ";
                             var requestEntity = jobj["requestEntity"] ?? " ";
                             var responseEntity = jobj["responseEntity"] ?? " ";
 
-                            message = topicOrEntityId.ToString() + "\tREQUEST\n" + requestEntity+"\n\nRESPONSE\n"+responseEntity;
+                            message = topicOrEntityId.ToString() + "\tREQUEST\n" + requestEntity + "\n\nRESPONSE\n" + responseEntity;
                         }
 
-                        if (svrType.Length < 9)
-                            svrType += "        ";
+                        string svrtype = svrType.ToString();
+                        if (svrtype == "CSE-NB01")
+                            svrtype = "CSNB01";
 
-                        if (methodName.Length < 8)
-                            methodName += "         ";
+                        string method = methodName.ToString();
+                        if (method == "httpClientRuntimeLog")
+                            method = "httpClientRuntime";
 
-                        listBox3.Items.Add(svrType  + "\t" + logType + "\t" + methodName + "\t" + message);
+                        if (method.Length < 8)
+                            method += "         ";
+
+                        listBox3.Items.Add(svrtype + "\t" + logtype + "\t" + method + "\t" + message);
                     }
                 }
                 catch (Exception ex)
@@ -5691,43 +5724,10 @@ private void btnDataRetrive_Click(object sender, EventArgs e)
 
         private void button7_Click(object sender, EventArgs e)
         {
-            ReqHeader header = new ReqHeader();
-            //header.Url = logUrl + "/logs?entityId=" + dev.entityId+"&ctn="+dev.imsi;
-            header.Url = logUrl + "/logs?type=onem2m";
-            header.Method = "GET";
-            header.ContentType = "application/json";
-            header.X_M2M_RI = DateTime.Now.ToString("yyyyMMddHHmmss") + "LogList";
-            header.X_M2M_Origin = svr.entityId;
-            header.X_MEF_TK = svr.token;
-            header.X_MEF_EKI = svr.enrmtKeyId;
-            string retStr = GetHttpLog(header, string.Empty);
-
-            if (retStr != string.Empty)
-            {
-                LogWriteNoTime(retStr);
-                try
-                {
-                    JArray jarr = JArray.Parse(retStr); //json 객체로
-
-                    listBox1.Items.Clear();
-                    foreach (JObject jobj in jarr)
-                    {
-                        string time = jobj["logTime"].ToString();
-                        string logtime = time.Substring(8, 2) + ":" + time.Substring(10, 2) + ":" + time.Substring(12, 2);
-                        var pathInfo = jobj["pathInfo"] ?? "NULL";
-                        var trgAddr = jobj["trgAddr"] ?? "NULL";
-                        string path = pathInfo.ToString();
-                        if (path == "NULL")
-                            path = jobj["resType"].ToString() + " : " + trgAddr.ToString();
-
-                        listBox1.Items.Add(logtime + "\t" + jobj["logId"].ToString() + "\t" + jobj["resultCode"].ToString() + "\t   " + jobj["resultCodeName"].ToString() + " (" + path + ")");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.ToString());
-                }
-            }
+            string kind = "type=onem2m";
+            if (dev.entityId != string.Empty)
+                kind += "&entityId=" + dev.entityId+"&ctn="+dev.imsi;
+            getSvrLoglists(kind);
         }
     }
 
