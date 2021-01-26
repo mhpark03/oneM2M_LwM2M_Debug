@@ -5596,49 +5596,57 @@ private void btnDataRetrive_Click(object sender, EventArgs e)
                         string logType = jobj["logType"].ToString();
                         string svrType = jobj["svrType"].ToString();
 
-                        string message = " \t \t ";
+                        string message = " \t ";
 
                         if (logType == "COAP")
                         {
                             var coapType = jobj["coapType"] ?? " ";
                             var coapPayload = jobj["coapPayload"] ?? " ";
-                            message = coapType + "\t \t" + coapPayload;
+                            message = coapType.ToString() + "\t" + coapPayload.ToString();
                         }
                         else if (logType == "API_LOG")            //  서버 API LOG
                         {
+                            logType = "API";
                             var resultCode = jobj["resultCode"] ?? " ";
                             var trgAddr = jobj["trgAddr"] ?? " ";
+                            var prtcType = jobj["prtcType"] ?? " ";
 
-                            message = resultCode + "\t \t" + trgAddr;
+                            message = resultCode.ToString() + "("+ prtcType.ToString() +")\t" + trgAddr.ToString();
                         }
                         else if (logType == "HTTP")
                         {
-                            //JObject obj = JObject.Parse(jobj["data"].ToString());
-                            //message = obj["host"].ToString() + " " + obj["uri"].ToString() + "\t" + obj["respCode"].ToString() + "\t" + obj["stringBody"].ToString();
+                            var httpMethod = jobj["httpMethod"] ?? " ";
+                            var uri = jobj["uri"] ?? " ";
+                            var body = jobj["body"] ?? " ";
+                            var responseBody = jobj["responseBody"] ?? " ";
+
+                            message = httpMethod.ToString() + " " + uri.ToString() + "\tREQUEST\n" + body +"\n\nRESPONSE\n"+ responseBody;
                         }
                         else if (logType == "HTTP_CLIENT")
                         {
-                            logType = "COMD";
-                            //JObject obj = JObject.Parse(jobj["data"].ToString());
-                            //JObject uri = JObject.Parse(obj["uri"].ToString());
-                            //JObject resp = JObject.Parse(obj["respCode"].ToString());
-                            //message = obj["requestMethod"].ToString() + " " + uri["uri"].ToString() + "\t" + resp["respCode"].ToString() + "\t ";
+                            logType = "CLIENT";
+                            var responseCode = jobj["responseCode"] ?? " ";
+                            var uri = jobj["uri"] ?? " ";
+                            var reqheader = jobj["header"] ?? " ";
+                            var responseHeader = jobj["responseHeader"] ?? " ";
+
+                            message = responseCode.ToString() + "(" + uri.ToString() + ")\tREQUEST\n" + reqheader + "\n\nRESPONSE\n"+ responseHeader;
                         }
                         else if (logType == "RUNTIME_LOG")
                         {
                             logType = "RUN";
-                            //JObject obj = JObject.Parse(jobj["data"].ToString());
-                            //message = obj["topicOrEntityId"].ToString() + "\t \t" + obj["requestEntity"].ToString()+"\n"+obj["responseEntity"].ToString();
+                            var topicOrEntityId = jobj["topicOrEntityId"] ?? " ";
+                            var requestEntity = jobj["requestEntity"] ?? " ";
+                            var responseEntity = jobj["responseEntity"] ?? " ";
+
+                            message = topicOrEntityId.ToString() + "\tREQUEST\n" + requestEntity+"\n\nRESPONSE\n"+responseEntity;
                         }
 
                         if (svrType.Length < 9)
-                        {
                             svrType += "        ";
-                        }
+
                         if (methodName.Length < 8)
-                        {
-                            methodName += "                ";
-                        }
+                            methodName += "         ";
 
                         listBox3.Items.Add(logType + "\t" + svrType + "\t" + methodName + "\t" + message);
                     }
@@ -5655,7 +5663,8 @@ private void btnDataRetrive_Click(object sender, EventArgs e)
             string selected_msg = listBox3.SelectedItem.ToString();
             string[] values = selected_msg.Split('\t');    // 수신한 데이터를 한 문장씩 나누어 array에 저장
 
-            MessageBox.Show(values[5],"상세내역");
+            if (values[4] != " ")
+                MessageBox.Show(values[4], "전문 상세내역");
         }
     }
 
