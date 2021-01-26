@@ -5602,7 +5602,20 @@ private void btnDataRetrive_Click(object sender, EventArgs e)
                         {
                             var coapType = jobj["coapType"] ?? " ";
                             var coapPayload = jobj["coapPayload"] ?? " ";
-                            message = coapType.ToString() + "\t" + coapPayload.ToString();
+
+                            string type = coapType.ToString();
+                            if (type == "CON")
+                            {
+                                var uriPath = jobj["uriPath"] ?? " ";
+                                var code = jobj["code"] ?? " ";
+                                type += " (" + code.ToString() + " "+ uriPath.ToString() + ")";
+                            }
+                            else if (type == "ACK")
+                            {
+                                var code = jobj["code"] ?? " ";
+                                type += " (" + code.ToString() + ")";
+                            }
+                            message = type + "\t" + coapPayload.ToString();
                         }
                         else if (logType == "API_LOG")            //  서버 API LOG
                         {
@@ -5611,7 +5624,7 @@ private void btnDataRetrive_Click(object sender, EventArgs e)
                             var trgAddr = jobj["trgAddr"] ?? " ";
                             var prtcType = jobj["prtcType"] ?? " ";
 
-                            message = resultCode.ToString() + "("+ prtcType.ToString() +")\t" + trgAddr.ToString();
+                            message = resultCode.ToString() + " ("+ prtcType.ToString() +")\t" + trgAddr.ToString();
                         }
                         else if (logType == "HTTP")
                         {
@@ -5626,11 +5639,20 @@ private void btnDataRetrive_Click(object sender, EventArgs e)
                         {
                             logType = "CLIENT";
                             var responseCode = jobj["responseCode"] ?? " ";
+                            string resp = responseCode.ToString();
+
                             var uri = jobj["uri"] ?? " ";
                             var reqheader = jobj["header"] ?? " ";
                             var responseHeader = jobj["responseHeader"] ?? " ";
 
-                            message = responseCode.ToString() + "(" + uri.ToString() + ")\tREQUEST\n" + reqheader + "\n\nRESPONSE\n"+ responseHeader;
+                            if (responseHeader.ToString() != " ")
+                            {
+                                JObject obj = JObject.Parse(responseHeader.ToString());
+                                var rsc = obj["X-M2M-RSC"] ?? " ";
+                                resp += "/" + rsc.ToString();
+                            }
+
+                            message = resp + " (" + uri.ToString() + ")\tREQUEST\n" + reqheader + "\n\nRESPONSE\n"+ responseHeader;
                         }
                         else if (logType == "RUNTIME_LOG")
                         {
@@ -5648,7 +5670,7 @@ private void btnDataRetrive_Click(object sender, EventArgs e)
                         if (methodName.Length < 8)
                             methodName += "         ";
 
-                        listBox3.Items.Add(logType + "\t" + svrType + "\t" + methodName + "\t" + message);
+                        listBox3.Items.Add(svrType  + "\t" + logType + "\t" + methodName + "\t" + message);
                     }
                 }
                 catch (Exception ex)
@@ -5665,6 +5687,47 @@ private void btnDataRetrive_Click(object sender, EventArgs e)
 
             if (values[4] != " ")
                 MessageBox.Show(values[4], "전문 상세내역");
+        }
+
+        private void button7_Click(object sender, EventArgs e)
+        {
+            ReqHeader header = new ReqHeader();
+            //header.Url = logUrl + "/logs?entityId=" + dev.entityId+"&ctn="+dev.imsi;
+            header.Url = logUrl + "/logs?type=onem2m";
+            header.Method = "GET";
+            header.ContentType = "application/json";
+            header.X_M2M_RI = DateTime.Now.ToString("yyyyMMddHHmmss") + "LogList";
+            header.X_M2M_Origin = svr.entityId;
+            header.X_MEF_TK = svr.token;
+            header.X_MEF_EKI = svr.enrmtKeyId;
+            string retStr = GetHttpLog(header, string.Empty);
+
+            if (retStr != string.Empty)
+            {
+                LogWriteNoTime(retStr);
+                try
+                {
+                    JArray jarr = JArray.Parse(retStr); //json 객체로
+
+                    listBox1.Items.Clear();
+                    foreach (JObject jobj in jarr)
+                    {
+                        string time = jobj["logTime"].ToString();
+                        string logtime = time.Substring(8, 2) + ":" + time.Substring(10, 2) + ":" + time.Substring(12, 2);
+                        var pathInfo = jobj["pathInfo"] ?? "NULL";
+                        var trgAddr = jobj["trgAddr"] ?? "NULL";
+                        string path = pathInfo.ToString();
+                        if (path == "NULL")
+                            path = jobj["resType"].ToString() + " : " + trgAddr.ToString();
+
+                        listBox1.Items.Add(logtime + "\t" + jobj["logId"].ToString() + "\t" + jobj["resultCode"].ToString() + "\t   " + jobj["resultCodeName"].ToString() + " (" + path + ")");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.ToString());
+                }
+            }
         }
     }
 

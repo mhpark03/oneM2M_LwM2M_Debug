@@ -41,6 +41,12 @@
             this.groupBox11 = new System.Windows.Forms.GroupBox();
             this.btnMEFAuthS = new System.Windows.Forms.Button();
             this.gbLwM2MServer = new System.Windows.Forms.GroupBox();
+            this.button7 = new System.Windows.Forms.Button();
+            this.label24 = new System.Windows.Forms.Label();
+            this.label22 = new System.Windows.Forms.Label();
+            this.label21 = new System.Windows.Forms.Label();
+            this.listBox3 = new System.Windows.Forms.ListBox();
+            this.label20 = new System.Windows.Forms.Label();
             this.listBox2 = new System.Windows.Forms.ListBox();
             this.button6 = new System.Windows.Forms.Button();
             this.button5 = new System.Windows.Forms.Button();
@@ -142,11 +148,6 @@
             this.groupBox12 = new System.Windows.Forms.GroupBox();
             this.tBoxDataIN = new System.Windows.Forms.TextBox();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
-            this.label20 = new System.Windows.Forms.Label();
-            this.listBox3 = new System.Windows.Forms.ListBox();
-            this.label21 = new System.Windows.Forms.Label();
-            this.label22 = new System.Windows.Forms.Label();
-            this.label24 = new System.Windows.Forms.Label();
             this.panel1.SuspendLayout();
             this.gbTCResult.SuspendLayout();
             this.gbServerLog.SuspendLayout();
@@ -201,15 +202,15 @@
             this.panel1.Location = new System.Drawing.Point(0, 0);
             this.panel1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(1542, 738);
+            this.panel1.Size = new System.Drawing.Size(1542, 725);
             this.panel1.TabIndex = 10;
             // 
             // gbTCResult
             // 
             this.gbTCResult.Controls.Add(this.tbTCResult);
-            this.gbTCResult.Location = new System.Drawing.Point(475, 511);
+            this.gbTCResult.Location = new System.Drawing.Point(475, 524);
             this.gbTCResult.Name = "gbTCResult";
-            this.gbTCResult.Size = new System.Drawing.Size(472, 186);
+            this.gbTCResult.Size = new System.Drawing.Size(472, 196);
             this.gbTCResult.TabIndex = 37;
             this.gbTCResult.TabStop = false;
             this.gbTCResult.Text = "TestCase Message";
@@ -249,7 +250,7 @@
             this.groupBox11.Controls.Add(this.gbOneM2MServer);
             this.groupBox11.Location = new System.Drawing.Point(953, 75);
             this.groupBox11.Name = "groupBox11";
-            this.groupBox11.Size = new System.Drawing.Size(577, 651);
+            this.groupBox11.Size = new System.Drawing.Size(577, 644);
             this.groupBox11.TabIndex = 34;
             this.groupBox11.TabStop = false;
             this.groupBox11.Text = "SERVER 동작";
@@ -266,6 +267,7 @@
             // 
             // gbLwM2MServer
             // 
+            this.gbLwM2MServer.Controls.Add(this.button7);
             this.gbLwM2MServer.Controls.Add(this.label24);
             this.gbLwM2MServer.Controls.Add(this.label22);
             this.gbLwM2MServer.Controls.Add(this.label21);
@@ -282,16 +284,78 @@
             this.gbLwM2MServer.Controls.Add(this.btnTCResultSave);
             this.gbLwM2MServer.Location = new System.Drawing.Point(15, 217);
             this.gbLwM2MServer.Name = "gbLwM2MServer";
-            this.gbLwM2MServer.Size = new System.Drawing.Size(556, 428);
+            this.gbLwM2MServer.Size = new System.Drawing.Size(556, 422);
             this.gbLwM2MServer.TabIndex = 33;
             this.gbLwM2MServer.TabStop = false;
             this.gbLwM2MServer.Text = "LwM2M Device DATA";
+            // 
+            // button7
+            // 
+            this.button7.Location = new System.Drawing.Point(141, 18);
+            this.button7.Name = "button7";
+            this.button7.Size = new System.Drawing.Size(121, 20);
+            this.button7.TabIndex = 62;
+            this.button7.Text = "oneM2M 로그 검색";
+            this.button7.UseVisualStyleBackColor = true;
+            this.button7.Click += new System.EventHandler(this.button7_Click);
+            // 
+            // label24
+            // 
+            this.label24.AutoSize = true;
+            this.label24.Location = new System.Drawing.Point(8, 280);
+            this.label24.Name = "label24";
+            this.label24.Size = new System.Drawing.Size(358, 12);
+            this.label24.TabIndex = 61;
+            this.label24.Text = "     서버                  TYPE      Method                   Description";
+            this.label24.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // label22
+            // 
+            this.label22.AutoSize = true;
+            this.label22.BackColor = System.Drawing.SystemColors.ControlLight;
+            this.label22.Location = new System.Drawing.Point(14, 265);
+            this.label22.Name = "label22";
+            this.label22.Size = new System.Drawing.Size(28, 12);
+            this.label22.TabIndex = 60;
+            this.label22.Text = "ID : ";
+            this.label22.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // label21
+            // 
+            this.label21.AutoSize = true;
+            this.label21.BackColor = System.Drawing.SystemColors.ControlLight;
+            this.label21.Location = new System.Drawing.Point(10, 154);
+            this.label21.Name = "label21";
+            this.label21.Size = new System.Drawing.Size(84, 12);
+            this.label21.TabIndex = 59;
+            this.label21.Text = "서버로그  ID : ";
+            this.label21.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // listBox3
+            // 
+            this.listBox3.FormattingEnabled = true;
+            this.listBox3.ItemHeight = 12;
+            this.listBox3.Location = new System.Drawing.Point(7, 298);
+            this.listBox3.Name = "listBox3";
+            this.listBox3.Size = new System.Drawing.Size(543, 88);
+            this.listBox3.TabIndex = 58;
+            this.listBox3.SelectedIndexChanged += new System.EventHandler(this.listBox3_SelectedIndexChanged);
+            // 
+            // label20
+            // 
+            this.label20.AutoSize = true;
+            this.label20.Location = new System.Drawing.Point(9, 174);
+            this.label20.Name = "label20";
+            this.label20.Size = new System.Drawing.Size(279, 12);
+            this.label20.TabIndex = 57;
+            this.label20.Text = "요청시간      ID      ResultCode  결과 (요청  내용)";
+            this.label20.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // listBox2
             // 
             this.listBox2.FormattingEnabled = true;
             this.listBox2.ItemHeight = 12;
-            this.listBox2.Location = new System.Drawing.Point(8, 198);
+            this.listBox2.Location = new System.Drawing.Point(8, 194);
             this.listBox2.Name = "listBox2";
             this.listBox2.Size = new System.Drawing.Size(543, 64);
             this.listBox2.TabIndex = 56;
@@ -299,7 +363,7 @@
             // 
             // button6
             // 
-            this.button6.Location = new System.Drawing.Point(138, 19);
+            this.button6.Location = new System.Drawing.Point(289, 19);
             this.button6.Name = "button6";
             this.button6.Size = new System.Drawing.Size(117, 19);
             this.button6.TabIndex = 55;
@@ -309,7 +373,7 @@
             // 
             // button5
             // 
-            this.button5.Location = new System.Drawing.Point(261, 21);
+            this.button5.Location = new System.Drawing.Point(412, 21);
             this.button5.Name = "button5";
             this.button5.Size = new System.Drawing.Size(131, 19);
             this.button5.TabIndex = 54;
@@ -319,7 +383,7 @@
             // 
             // tBResultCode
             // 
-            this.tBResultCode.Location = new System.Drawing.Point(94, 269);
+            this.tBResultCode.Location = new System.Drawing.Point(94, 394);
             this.tBResultCode.Name = "tBResultCode";
             this.tBResultCode.Size = new System.Drawing.Size(88, 21);
             this.tBResultCode.TabIndex = 53;
@@ -328,7 +392,7 @@
             // 
             // button4
             // 
-            this.button4.Location = new System.Drawing.Point(191, 271);
+            this.button4.Location = new System.Drawing.Point(191, 396);
             this.button4.Name = "button4";
             this.button4.Size = new System.Drawing.Size(64, 19);
             this.button4.TabIndex = 52;
@@ -339,7 +403,7 @@
             // label19
             // 
             this.label19.AutoSize = true;
-            this.label19.Location = new System.Drawing.Point(11, 276);
+            this.label19.Location = new System.Drawing.Point(11, 401);
             this.label19.Name = "label19";
             this.label19.Size = new System.Drawing.Size(82, 12);
             this.label19.TabIndex = 51;
@@ -372,7 +436,7 @@
             this.btnTCResultSave.Name = "btnTCResultSave";
             this.btnTCResultSave.Size = new System.Drawing.Size(121, 20);
             this.btnTCResultSave.TabIndex = 43;
-            this.btnTCResultSave.Text = "서버 로그 검색";
+            this.btnTCResultSave.Text = "LwM2M 로그 검색";
             this.btnTCResultSave.UseVisualStyleBackColor = true;
             this.btnTCResultSave.Click += new System.EventHandler(this.btnTCResultSave_Click);
             // 
@@ -529,9 +593,9 @@
             this.groupBox7.Controls.Add(this.groupBox5);
             this.groupBox7.Controls.Add(this.gbLwM2MDevice);
             this.groupBox7.Controls.Add(this.gbModule);
-            this.groupBox7.Location = new System.Drawing.Point(28, 72);
+            this.groupBox7.Location = new System.Drawing.Point(28, 74);
             this.groupBox7.Name = "groupBox7";
-            this.groupBox7.Size = new System.Drawing.Size(438, 633);
+            this.groupBox7.Size = new System.Drawing.Size(438, 645);
             this.groupBox7.TabIndex = 16;
             this.groupBox7.TabStop = false;
             this.groupBox7.Text = "DEVICE 동작";
@@ -563,7 +627,7 @@
             this.gbOneM2MDevice.Controls.Add(this.btnGetCSED);
             this.gbOneM2MDevice.Controls.Add(this.btnSendDataOneM2M);
             this.gbOneM2MDevice.Enabled = false;
-            this.gbOneM2MDevice.Location = new System.Drawing.Point(14, 205);
+            this.gbOneM2MDevice.Location = new System.Drawing.Point(14, 218);
             this.gbOneM2MDevice.Name = "gbOneM2MDevice";
             this.gbOneM2MDevice.Size = new System.Drawing.Size(413, 249);
             this.gbOneM2MDevice.TabIndex = 25;
@@ -924,7 +988,7 @@
             this.gbLwM2MDevice.Controls.Add(this.btnBootstrap);
             this.gbLwM2MDevice.Controls.Add(this.btnSendData);
             this.gbLwM2MDevice.Enabled = false;
-            this.gbLwM2MDevice.Location = new System.Drawing.Point(14, 460);
+            this.gbLwM2MDevice.Location = new System.Drawing.Point(14, 483);
             this.gbLwM2MDevice.Name = "gbLwM2MDevice";
             this.gbLwM2MDevice.Size = new System.Drawing.Size(413, 135);
             this.gbLwM2MDevice.TabIndex = 15;
@@ -1052,7 +1116,7 @@
             this.gbModule.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.gbModule.Name = "gbModule";
             this.gbModule.Padding = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.gbModule.Size = new System.Drawing.Size(413, 100);
+            this.gbModule.Size = new System.Drawing.Size(413, 109);
             this.gbModule.TabIndex = 11;
             this.gbModule.TabStop = false;
             this.gbModule.Text = "모듈 정보";
@@ -1063,7 +1127,7 @@
             this.lbDevEntityId.Name = "lbDevEntityId";
             this.lbDevEntityId.Size = new System.Drawing.Size(189, 16);
             this.lbDevEntityId.TabIndex = 35;
-            this.lbDevEntityId.Text = "dev.entityId";
+            this.lbDevEntityId.Text = "device entityId";
             this.lbDevEntityId.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // label18
@@ -1356,63 +1420,11 @@
             this.timer1.Interval = 10000;
             this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
             // 
-            // label20
-            // 
-            this.label20.AutoSize = true;
-            this.label20.Location = new System.Drawing.Point(9, 178);
-            this.label20.Name = "label20";
-            this.label20.Size = new System.Drawing.Size(279, 12);
-            this.label20.TabIndex = 57;
-            this.label20.Text = "요청시간      ID      ResultCode  결과 (요청  내용)";
-            this.label20.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            // 
-            // listBox3
-            // 
-            this.listBox3.FormattingEnabled = true;
-            this.listBox3.ItemHeight = 12;
-            this.listBox3.Location = new System.Drawing.Point(7, 330);
-            this.listBox3.Name = "listBox3";
-            this.listBox3.Size = new System.Drawing.Size(543, 88);
-            this.listBox3.TabIndex = 58;
-            this.listBox3.SelectedIndexChanged += new System.EventHandler(this.listBox3_SelectedIndexChanged);
-            // 
-            // label21
-            // 
-            this.label21.AutoSize = true;
-            this.label21.BackColor = System.Drawing.SystemColors.ControlLight;
-            this.label21.Location = new System.Drawing.Point(10, 158);
-            this.label21.Name = "label21";
-            this.label21.Size = new System.Drawing.Size(84, 12);
-            this.label21.TabIndex = 59;
-            this.label21.Text = "서버로그  ID : ";
-            this.label21.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            // 
-            // label22
-            // 
-            this.label22.AutoSize = true;
-            this.label22.BackColor = System.Drawing.SystemColors.ControlLight;
-            this.label22.Location = new System.Drawing.Point(14, 297);
-            this.label22.Name = "label22";
-            this.label22.Size = new System.Drawing.Size(28, 12);
-            this.label22.TabIndex = 60;
-            this.label22.Text = "ID : ";
-            this.label22.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            // 
-            // label24
-            // 
-            this.label24.AutoSize = true;
-            this.label24.Location = new System.Drawing.Point(8, 312);
-            this.label24.Name = "label24";
-            this.label24.Size = new System.Drawing.Size(358, 12);
-            this.label24.TabIndex = 61;
-            this.label24.Text = "  TYPE       서버                   Method                    Description";
-            this.label24.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1542, 738);
+            this.ClientSize = new System.Drawing.Size(1542, 725);
             this.Controls.Add(this.panel1);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.IsMdiContainer = true;
@@ -1569,6 +1581,7 @@
         private System.Windows.Forms.Label label21;
         private System.Windows.Forms.Label label22;
         private System.Windows.Forms.Label label24;
+        private System.Windows.Forms.Button button7;
     }
 }
 
