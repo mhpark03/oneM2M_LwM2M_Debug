@@ -148,6 +148,8 @@
             this.groupBox12 = new System.Windows.Forms.GroupBox();
             this.tBoxDataIN = new System.Windows.Forms.TextBox();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
+            this.button8 = new System.Windows.Forms.Button();
+            this.button9 = new System.Windows.Forms.Button();
             this.panel1.SuspendLayout();
             this.gbTCResult.SuspendLayout();
             this.gbServerLog.SuspendLayout();
@@ -226,21 +228,23 @@
             // 
             // gbServerLog
             // 
+            this.gbServerLog.Controls.Add(this.button8);
             this.gbServerLog.Controls.Add(this.tbLog);
             this.gbServerLog.Location = new System.Drawing.Point(475, 314);
             this.gbServerLog.Name = "gbServerLog";
-            this.gbServerLog.Size = new System.Drawing.Size(472, 182);
+            this.gbServerLog.Size = new System.Drawing.Size(472, 204);
             this.gbServerLog.TabIndex = 36;
             this.gbServerLog.TabStop = false;
             this.gbServerLog.Text = "Server Message";
             // 
             // tbLog
             // 
-            this.tbLog.Location = new System.Drawing.Point(0, 25);
+            this.tbLog.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.tbLog.Location = new System.Drawing.Point(3, 39);
             this.tbLog.Multiline = true;
             this.tbLog.Name = "tbLog";
             this.tbLog.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.tbLog.Size = new System.Drawing.Size(466, 146);
+            this.tbLog.Size = new System.Drawing.Size(466, 162);
             this.tbLog.TabIndex = 35;
             // 
             // groupBox11
@@ -1384,6 +1388,7 @@
             // 
             // gbDeviceLog
             // 
+            this.gbDeviceLog.Controls.Add(this.button9);
             this.gbDeviceLog.Controls.Add(this.groupBox12);
             this.gbDeviceLog.Controls.Add(this.tBoxDataIN);
             this.gbDeviceLog.Location = new System.Drawing.Point(472, 71);
@@ -1406,19 +1411,39 @@
             // 
             this.tBoxDataIN.BackColor = System.Drawing.SystemColors.ControlLightLight;
             this.tBoxDataIN.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.tBoxDataIN.Location = new System.Drawing.Point(3, 21);
+            this.tBoxDataIN.Location = new System.Drawing.Point(3, 43);
             this.tBoxDataIN.Margin = new System.Windows.Forms.Padding(4, 2, 4, 2);
             this.tBoxDataIN.Multiline = true;
             this.tBoxDataIN.Name = "tBoxDataIN";
             this.tBoxDataIN.ReadOnly = true;
             this.tBoxDataIN.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.tBoxDataIN.Size = new System.Drawing.Size(469, 213);
+            this.tBoxDataIN.Size = new System.Drawing.Size(469, 191);
             this.tBoxDataIN.TabIndex = 22;
             // 
             // timer1
             // 
             this.timer1.Interval = 10000;
             this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
+            // 
+            // button8
+            // 
+            this.button8.Location = new System.Drawing.Point(313, 14);
+            this.button8.Name = "button8";
+            this.button8.Size = new System.Drawing.Size(117, 19);
+            this.button8.TabIndex = 56;
+            this.button8.Text = "Clear";
+            this.button8.UseVisualStyleBackColor = true;
+            this.button8.Click += new System.EventHandler(this.button8_Click);
+            // 
+            // button9
+            // 
+            this.button9.Location = new System.Drawing.Point(346, 19);
+            this.button9.Name = "button9";
+            this.button9.Size = new System.Drawing.Size(117, 19);
+            this.button9.TabIndex = 57;
+            this.button9.Text = "Clear";
+            this.button9.UseVisualStyleBackColor = true;
+            this.button9.Click += new System.EventHandler(this.button9_Click);
             // 
             // Form1
             // 
@@ -1582,6 +1607,8 @@
         private System.Windows.Forms.Label label22;
         private System.Windows.Forms.Label label24;
         private System.Windows.Forms.Button button7;
+        private System.Windows.Forms.Button button8;
+        private System.Windows.Forms.Button button9;
     }
 }
 

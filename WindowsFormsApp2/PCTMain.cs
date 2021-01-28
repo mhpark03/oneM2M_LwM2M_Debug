@@ -1179,7 +1179,7 @@ namespace WindowsFormsApp2
 
             if (retStr != string.Empty)
             {
-                LogWriteNoTime(retStr);
+                //LogWriteNoTime(retStr);
 
                 try
                 {
@@ -5185,12 +5185,14 @@ private void btnDataRetrive_Click(object sender, EventArgs e)
 
             if (retStr != string.Empty)
             {
-                LogWriteNoTime(retStr);
+                //LogWriteNoTime(retStr);
                 try
                 {
                     JArray jarr = JArray.Parse(retStr); //json 객체로
 
                     listBox1.Items.Clear();
+                    listBox2.Items.Clear();
+                    listBox3.Items.Clear();
                     foreach (JObject jobj in jarr)
                     {
                         string time = jobj["logTime"].ToString();
@@ -5207,7 +5209,7 @@ private void btnDataRetrive_Click(object sender, EventArgs e)
                     if (listBox1.Items.Count != 0)
                     {
                         listBox1.SelectedIndex = 0;
-                        getSvrEventLog(listBox1.SelectedItem.ToString());
+                        //getSvrEventLog(listBox1.SelectedItem.ToString());
                     }
                 }
                 catch (Exception ex)
@@ -5358,9 +5360,10 @@ private void btnDataRetrive_Click(object sender, EventArgs e)
             string retStr = GetHttpLog(header, string.Empty);
 
             listBox2.Items.Clear();
+            listBox3.Items.Clear();
             if (retStr != string.Empty)
             {
-                LogWriteNoTime(retStr);
+                //LogWriteNoTime(retStr);
                 try
                 {
                     JArray jarr = JArray.Parse(retStr); //json 객체로
@@ -5381,7 +5384,7 @@ private void btnDataRetrive_Click(object sender, EventArgs e)
                     if (listBox2.Items.Count != 0)
                     {
                         listBox2.SelectedIndex = 0;
-                        getSvrDetailLog(listBox2.SelectedItem.ToString());
+                        //getSvrDetailLog(listBox2.SelectedItem.ToString());
                     }
                 }
                 catch (Exception ex)
@@ -5404,7 +5407,7 @@ private void btnDataRetrive_Click(object sender, EventArgs e)
             string retStr = GetHttpLog(header, string.Empty);
             if (retStr != string.Empty)
             {
-                LogWriteNoTime(retStr);
+                //LogWriteNoTime(retStr);
                 try
                 {
                     JObject obj = JObject.Parse(retStr);
@@ -5445,6 +5448,7 @@ private void btnDataRetrive_Click(object sender, EventArgs e)
                     wReq.Headers.Add("X-MEF-EKI", header.X_MEF_EKI);
                 */
 
+                logPrintInTextBox(wReq.Method + " " + wReq.RequestUri + " HTTP/1.1","");
                 Console.WriteLine(wReq.Method + " " + wReq.RequestUri + " HTTP/1.1");
                 Console.WriteLine("");
                 for (int i = 0; i < wReq.Headers.Count; ++i)
@@ -5510,7 +5514,7 @@ private void btnDataRetrive_Click(object sender, EventArgs e)
 
             if (retStr != string.Empty)
             {
-                LogWriteNoTime(retStr);
+                //LogWriteNoTime(retStr);
                 
                 try
                 {
@@ -5556,7 +5560,7 @@ private void btnDataRetrive_Click(object sender, EventArgs e)
             string retStr = GetHttpLog(header, string.Empty);
             if (retStr != string.Empty)
             {
-                LogWriteNoTime(retStr);
+                //LogWriteNoTime(retStr);
                 try
                 {
                     JArray jarr = JArray.Parse(retStr); //json 객체로
@@ -5651,6 +5655,8 @@ private void btnDataRetrive_Click(object sender, EventArgs e)
                             var resultCode = jobj["resultCode"] ?? " ";
                             var trgAddr = jobj["trgAddr"] ?? " ";
                             var prtcType = jobj["prtcType"] ?? " ";
+                            if (resultCode.ToString() != " ")
+                                tBResultCode.Text = resultCode.ToString();
 
                             message = resultCode.ToString() + " (" + prtcType.ToString() + ")\t" + trgAddr.ToString();
                         }
@@ -5661,7 +5667,136 @@ private void btnDataRetrive_Click(object sender, EventArgs e)
                             var body = jobj["body"] ?? " ";
                             var responseBody = jobj["responseBody"] ?? " ";
 
-                            message = httpMethod.ToString() + " " + uri.ToString() + "\tREQUEST\n" + body + "\n\nRESPONSE\n" + responseBody;
+                            string decode = " ";
+                            string bodymsg = body.ToString();
+                            if (bodymsg.StartsWith("{", System.StringComparison.CurrentCultureIgnoreCase))
+                            {
+                                try
+                                {
+                                    JObject obj = JObject.Parse(bodymsg);
+
+                                    string format = obj["cnf"].ToString(); // data format
+                                    string value = obj["con"].ToString(); // data value
+
+                                    if (format == "application/octet-stream")
+                                    {
+                                        string hexOutput = string.Empty;
+                                        string ascii = "YES";
+                                        byte[] orgBytes = Convert.FromBase64String(value);
+                                        char[] orgChars = System.Text.Encoding.ASCII.GetString(orgBytes).ToCharArray();
+                                        foreach (char _eachChar in orgChars)
+                                        {
+                                            // Get the integral value of the character.
+                                            int intvalue = Convert.ToInt32(_eachChar);
+                                            // Convert the decimal value to a hexadecimal value in string form.
+                                            if (intvalue < 16)
+                                            {
+                                                hexOutput += "0";
+                                                ascii = "NO";
+                                            }
+                                            else if (intvalue < 32)
+                                            {
+                                                ascii = "NO";
+                                            }
+                                            hexOutput += String.Format("{0:X}", intvalue);
+                                        }
+                                        //logPrintInTextBox(hexOutput, "");
+
+                                        if (hexOutput != string.Empty)
+                                        {
+                                            decode = "\n\n( HEX DATA : " + hexOutput;
+
+                                            if (ascii == "YES")
+                                            {
+                                                string asciidata = Encoding.UTF8.GetString(orgBytes);
+                                                decode += "\nASCII DATA : " + asciidata;
+                                            }
+                                            decode += ")";
+                                        }
+                                    }
+                                    else
+                                    {
+                                        decode = "\n\n( DATA : " + value + " )";
+                                    }
+                                    //LogWrite("decode = " + decode);
+                                }
+                                catch (Exception ex)
+                                {
+                                    Console.WriteLine(ex.ToString());
+                                }
+                            }
+                            else if (bodymsg.StartsWith("<?xml", System.StringComparison.CurrentCultureIgnoreCase))
+                            {
+                                string format = string.Empty;
+                                string value = string.Empty;
+
+                                bodymsg = bodymsg.Replace("\\t", "");
+                                XmlDocument xDoc = new XmlDocument();
+                                xDoc.LoadXml(bodymsg);
+                                LogWrite(xDoc.OuterXml.ToString());
+
+                                XmlNodeList xnList = xDoc.SelectNodes("/*"); //접근할 노드
+                                foreach (XmlNode xn in xnList)
+                                {
+                                    try
+                                    {
+                                        if (xn["cnf"] != null)
+                                            format = xn["cnf"].InnerText; // data format
+                                        if (xn["con"] != null)
+                                            value = xn["con"].InnerText; // data value
+                                    }
+                                    catch(Exception ex)
+                                    {
+                                        Console.WriteLine(ex.ToString());
+                                    }
+                                }
+                                //LogWrite("value = " + value);
+                                //LogWrite("format = " + format);
+
+                                if (format == "application/octet-stream")
+                                {
+                                    string hexOutput = string.Empty;
+                                    string ascii = "YES";
+                                    byte[] orgBytes = Convert.FromBase64String(value);
+                                    char[] orgChars = System.Text.Encoding.ASCII.GetString(orgBytes).ToCharArray();
+                                    foreach (char _eachChar in orgChars)
+                                    {
+                                        // Get the integral value of the character.
+                                        int intvalue = Convert.ToInt32(_eachChar);
+                                        // Convert the decimal value to a hexadecimal value in string form.
+                                        if (intvalue < 16)
+                                        {
+                                            hexOutput += "0";
+                                            ascii = "NO";
+                                        }
+                                        else if (intvalue < 32)
+                                        {
+                                            ascii = "NO";
+                                        }
+                                        hexOutput += String.Format("{0:X}", intvalue);
+                                    }
+                                    //logPrintInTextBox(hexOutput, "");
+
+                                    if ( hexOutput != string.Empty)
+                                    {
+                                        decode = "\n\n( HEX DATA : " + hexOutput;
+                                        
+                                        if (ascii == "YES")
+                                        {
+                                            string asciidata = Encoding.UTF8.GetString(orgBytes);
+                                            decode += "\nASCII DATA : " + asciidata;
+                                        }
+                                        decode += ")";
+                                    }
+                                }
+                                else if (value != string.Empty)
+                                {
+                                    decode = "\n\n( DATA : " + value + " )";
+                                }
+                                //LogWrite("decode = " + decode);
+                           }
+
+                            message = httpMethod.ToString() + " " + uri.ToString() + "\tREQUEST\n" + body + decode + "\n\nRESPONSE\n" + responseBody;
                         }
                         else if (logtype == "HTTP_CLIENT")
                         {
@@ -5678,6 +5813,9 @@ private void btnDataRetrive_Click(object sender, EventArgs e)
                                 JObject obj = JObject.Parse(responseHeader.ToString());
                                 var rsc = obj["X-M2M-RSC"] ?? " ";
                                 resp += "/" + rsc.ToString();
+                                var resultcode = obj["X-LGU-RSC"] ?? " ";
+                                if (resultcode.ToString() != " ")
+                                    tBResultCode.Text = resultcode.ToString();
                             }
 
                             message = resp + " (" + uri.ToString() + ")\tREQUEST\n" + reqheader + "\n\nRESPONSE\n" + responseHeader;
@@ -5728,6 +5866,16 @@ private void btnDataRetrive_Click(object sender, EventArgs e)
             if (dev.entityId != string.Empty)
                 kind += "&entityId=" + dev.entityId+"&ctn="+dev.imsi;
             getSvrLoglists(kind);
+        }
+
+        private void button8_Click(object sender, EventArgs e)
+        {
+            tbLog.Text = string.Empty;
+        }
+
+        private void button9_Click(object sender, EventArgs e)
+        {
+            tBoxDataIN.Text = string.Empty;
         }
     }
 
