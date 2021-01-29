@@ -5374,11 +5374,13 @@ private void btnDataRetrive_Click(object sender, EventArgs e)
                         string logtime = time.Substring(8, 2) + ":" + time.Substring(10, 2) + ":" + time.Substring(12, 2);
                         var pathInfo = jobj["pathInfo"] ?? "NULL";
                         var trgAddr = jobj["trgAddr"] ?? "NULL";
+                        var logType = jobj["logType"] ?? " ";
+
                         string path = pathInfo.ToString();
                         if (path == "NULL")
                             path = jobj["resType"].ToString() + " : " + trgAddr.ToString();
 
-                        listBox2.Items.Add(logtime + "\t" + jobj["logId"].ToString() + "\t" + jobj["resultCode"].ToString() + "\t   " + jobj["resultCodeName"].ToString() + " (" + path + ")");
+                        listBox2.Items.Add(logtime + "\t" + jobj["logId"].ToString() + "\t" + jobj["resultCode"].ToString() + "\t   " + jobj["resultCodeName"].ToString() + " (" + logType.ToString() + " => " + path + ")");
                     }
 
                     if (listBox2.Items.Count != 0)
@@ -5733,7 +5735,7 @@ private void btnDataRetrive_Click(object sender, EventArgs e)
                                 bodymsg = bodymsg.Replace("\\t", "");
                                 XmlDocument xDoc = new XmlDocument();
                                 xDoc.LoadXml(bodymsg);
-                                LogWrite(xDoc.OuterXml.ToString());
+                                logPrintTC(xDoc.OuterXml.ToString());
 
                                 XmlNodeList xnList = xDoc.SelectNodes("/*"); //접근할 노드
                                 foreach (XmlNode xn in xnList)
@@ -5744,8 +5746,16 @@ private void btnDataRetrive_Click(object sender, EventArgs e)
                                             format = xn["cnf"].InnerText; // data format
                                         if (xn["con"] != null)
                                             value = xn["con"].InnerText; // data value
+
+                                        if (xn["nev"] != null)
+                                        {
+                                            if (xn["nev"]["rep"]["m2m:cin"]["cnf"] != null)
+                                                format = xn["nev"]["rep"]["m2m:cin"]["cnf"].InnerText; // data format
+                                            if (xn["nev"]["rep"]["m2m:cin"]["con"] != null)
+                                                value = xn["nev"]["rep"]["m2m:cin"]["con"].InnerText; // data value
+                                        }
                                     }
-                                    catch(Exception ex)
+                                    catch (Exception ex)
                                     {
                                         Console.WriteLine(ex.ToString());
                                     }
