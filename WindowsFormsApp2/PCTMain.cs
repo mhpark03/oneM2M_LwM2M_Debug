@@ -4153,7 +4153,7 @@ private void btnDataRetrive_Click(object sender, EventArgs e)
 
                 if (svr.enrmtKeyId != string.Empty)
                 {
-                    gbLwM2MServer.Enabled = true;
+                    gbOneM2MServer.Enabled = true;
                     gbLwM2MServer.Enabled = true;
                 }
             }
@@ -5165,7 +5165,8 @@ private void btnDataRetrive_Click(object sender, EventArgs e)
 
         private void btnTCResultSave_Click(object sender, EventArgs e)
         {
-            string kind = "type=lwm2m";
+            string kind = string.Empty;
+            //string kind = "type=lwm2m";
             if (dev.entityId != string.Empty)
                 kind += "&entityId=" + dev.entityId + "&ctn=" + dev.imsi;
             getSvrLoglists(kind);
@@ -5635,21 +5636,27 @@ private void btnDataRetrive_Click(object sender, EventArgs e)
                         if (logtype == "COAP")
                         {
                             var coapType = jobj["coapType"] ?? " ";
-                            var coapPayload = jobj["coapPayload"] ?? " ";
+                            message = coapType.ToString() + " (";
 
-                            string type = coapType.ToString();
-                            if (type == "CON")
+
+                            var code = jobj["code"] ?? " ";
+                            message += code.ToString();
+
+                            var uriPath = jobj["uriPath"] ?? "";
+                            if (uriPath.ToString() != "")
+                                message += " " + uriPath.ToString();
+
+                            message += ")\t ";
+
+                            var coapPayload = jobj["coapPayload"] ?? "";
+                            if (coapPayload.ToString() != "")
                             {
-                                var uriPath = jobj["uriPath"] ?? " ";
-                                var code = jobj["code"] ?? " ";
-                                type += " (" + code.ToString() + " " + uriPath.ToString() + ")";
+                                var uriQuery = jobj["uriQuery"] ?? "";
+                                if (uriQuery.ToString() == "")
+                                    message += coapPayload.ToString();
+                                else
+                                    message += uriQuery.ToString() + "\n\n" + coapPayload.ToString();
                             }
-                            else if (type == "ACK")
-                            {
-                                var code = jobj["code"] ?? " ";
-                                type += " (" + code.ToString() + ")";
-                            }
-                            message = type + "\t" + coapPayload.ToString();
                         }
                         else if (logtype == "API_LOG")            //  서버 API LOG
                         {
@@ -5657,8 +5664,8 @@ private void btnDataRetrive_Click(object sender, EventArgs e)
                             var resultCode = jobj["resultCode"] ?? " ";
                             var trgAddr = jobj["trgAddr"] ?? " ";
                             var prtcType = jobj["prtcType"] ?? " ";
-                            if (resultCode.ToString() != " ")
-                                tBResultCode.Text = resultCode.ToString();
+                            //if (resultCode.ToString() != " ")
+                            //    tBResultCode.Text = resultCode.ToString();
 
                             message = resultCode.ToString() + " (" + prtcType.ToString() + ")\t" + trgAddr.ToString();
                         }
@@ -5671,6 +5678,9 @@ private void btnDataRetrive_Click(object sender, EventArgs e)
 
                             string decode = " ";
                             string bodymsg = body.ToString();
+                            bodymsg = bodymsg.Replace("\t", "");
+                            Console.WriteLine(bodymsg);
+
                             if (bodymsg.StartsWith("{", System.StringComparison.CurrentCultureIgnoreCase))
                             {
                                 try
@@ -5732,7 +5742,7 @@ private void btnDataRetrive_Click(object sender, EventArgs e)
                                 string format = string.Empty;
                                 string value = string.Empty;
 
-                                bodymsg = bodymsg.Replace("\\t", "");
+                                //bodymsg = bodymsg.Replace("\\t", "");
                                 XmlDocument xDoc = new XmlDocument();
                                 xDoc.LoadXml(bodymsg);
                                 logPrintTC(xDoc.OuterXml.ToString());
@@ -5805,8 +5815,78 @@ private void btnDataRetrive_Click(object sender, EventArgs e)
                                 }
                                 //LogWrite("decode = " + decode);
                            }
+                            else if (bodymsg.StartsWith("<m2m", System.StringComparison.CurrentCultureIgnoreCase))
+                            {
+                                string format = string.Empty;
+                                string value = string.Empty;
 
-                            message = httpMethod.ToString() + " " + uri.ToString() + "\tREQUEST\n" + body + decode + "\n\nRESPONSE\n" + responseBody;
+                                //bodymsg = bodymsg.Replace("\\t", "");
+                                XmlDocument xDoc = new XmlDocument();
+                                xDoc.LoadXml(bodymsg);
+                                logPrintTC(xDoc.OuterXml.ToString());
+
+                                XmlNodeList xnList = xDoc.SelectNodes("/*"); //접근할 노드
+                                foreach (XmlNode xn in xnList)
+                                {
+                                    try
+                                    {
+                                        if (xn["cnf"] != null)
+                                            format = xn["cnf"].InnerText; // data format
+                                        if (xn["con"] != null)
+                                            value = xn["con"].InnerText; // data value
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        Console.WriteLine(ex.ToString());
+                                    }
+                                }
+                                //LogWrite("value = " + value);
+                                //LogWrite("format = " + format);
+
+                                if (format == "application/octet-stream")
+                                {
+                                    string hexOutput = string.Empty;
+                                    string ascii = "YES";
+                                    byte[] orgBytes = Convert.FromBase64String(value);
+                                    char[] orgChars = System.Text.Encoding.ASCII.GetString(orgBytes).ToCharArray();
+                                    foreach (char _eachChar in orgChars)
+                                    {
+                                        // Get the integral value of the character.
+                                        int intvalue = Convert.ToInt32(_eachChar);
+                                        // Convert the decimal value to a hexadecimal value in string form.
+                                        if (intvalue < 16)
+                                        {
+                                            hexOutput += "0";
+                                            ascii = "NO";
+                                        }
+                                        else if (intvalue < 32)
+                                        {
+                                            ascii = "NO";
+                                        }
+                                        hexOutput += String.Format("{0:X}", intvalue);
+                                    }
+                                    //logPrintInTextBox(hexOutput, "");
+
+                                    if (hexOutput != string.Empty)
+                                    {
+                                        decode = "\n\n( HEX DATA : " + hexOutput;
+
+                                        if (ascii == "YES")
+                                        {
+                                            string asciidata = Encoding.UTF8.GetString(orgBytes);
+                                            decode += "\nASCII DATA : " + asciidata;
+                                        }
+                                        decode += ")";
+                                    }
+                                }
+                                else if (value != string.Empty)
+                                {
+                                    decode = "\n\n( DATA : " + value + " )";
+                                }
+                                //LogWrite("decode = " + decode);
+                            }
+
+                            message = httpMethod.ToString() + " " + uri.ToString() + "\tREQUEST\n" + bodymsg + decode + "\n\nRESPONSE\n" + responseBody;
                         }
                         else if (logtype == "HTTP_CLIENT")
                         {
@@ -5823,9 +5903,9 @@ private void btnDataRetrive_Click(object sender, EventArgs e)
                                 JObject obj = JObject.Parse(responseHeader.ToString());
                                 var rsc = obj["X-M2M-RSC"] ?? " ";
                                 resp += "/" + rsc.ToString();
-                                var resultcode = obj["X-LGU-RSC"] ?? " ";
-                                if (resultcode.ToString() != " ")
-                                    tBResultCode.Text = resultcode.ToString();
+                                //var resultcode = obj["X-LGU-RSC"] ?? " ";
+                                //if (resultcode.ToString() != " ")
+                                //    tBResultCode.Text = resultcode.ToString();
                             }
 
                             message = resp + " (" + uri.ToString() + ")\tREQUEST\n" + reqheader + "\n\nRESPONSE\n" + responseHeader;
