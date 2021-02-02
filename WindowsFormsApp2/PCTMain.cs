@@ -5655,7 +5655,18 @@ private void btnDataRetrive_Click(object sender, EventArgs e)
                                 if (uriQuery.ToString() == "")
                                     message += coapPayload.ToString();
                                 else
-                                    message += uriQuery.ToString() + "\n\n" + coapPayload.ToString();
+                                {
+                                    message += uriQuery.ToString() + "\n";
+                                    if (uriPath.ToString() == "rd")
+                                    {
+                                        var others = jobj["others"] ?? "";
+                                        if (others.ToString() == "")
+                                        {
+                                            message += "\n2048(EKI), 2049(TOKEN) 정보가 없습니다\n";
+                                        }
+                                    }
+                                    message += "\n" + coapPayload.ToString();
+                                }
                             }
                         }
                         else if (logtype == "API_LOG")            //  서버 API LOG
