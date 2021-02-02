@@ -5656,7 +5656,9 @@ private void btnDataRetrive_Click(object sender, EventArgs e)
                                     message += coapPayload.ToString();
                                 else
                                 {
-                                    message += uriQuery.ToString() + "\n";
+                                    if(uriQuery.HasValues)
+                                        message += uriQuery.ToString() + "\n";
+
                                     if (uriPath.ToString() == "rd")
                                     {
                                         var others = jobj["others"] ?? "";
