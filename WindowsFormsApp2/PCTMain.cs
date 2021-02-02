@@ -5643,31 +5643,38 @@ private void btnDataRetrive_Click(object sender, EventArgs e)
                             message += code.ToString();
 
                             var uriPath = jobj["uriPath"] ?? "";
-                            if (uriPath.ToString() != "")
-                                message += " " + uriPath.ToString();
+                            string path = uriPath.ToString();
+                            if (path != "")
+                                message += " " + path;
 
                             message += ")\t ";
 
                             var coapPayload = jobj["coapPayload"] ?? "";
                             if (coapPayload.ToString() != "")
                             {
-                                var uriQuery = jobj["uriQuery"] ?? "";
-                                if (uriQuery.ToString() == "")
+                                var uriQuery = jobj["uriQuery"] ?? " ";
+                                if (uriQuery.ToString() == " ")
                                     message += coapPayload.ToString();
                                 else
                                 {
-                                    if(uriQuery.HasValues)
+                                    if( path.StartsWith("rd/", System.StringComparison.CurrentCultureIgnoreCase))
+                                    {
+                                        message += coapPayload.ToString();
+                                    }
+                                    else
+                                    {
                                         message += uriQuery.ToString() + "\n";
 
-                                    if (uriPath.ToString() == "rd")
-                                    {
-                                        var others = jobj["others"] ?? "";
-                                        if (others.ToString() == "")
+                                        if (uriPath.ToString() == "rd")
                                         {
-                                            message += "\n2048(EKI), 2049(TOKEN) 정보가 없습니다\n";
+                                            var others = jobj["others"] ?? "";
+                                            if (others.ToString() == "")
+                                            {
+                                                message += "\n2048(EKI), 2049(TOKEN) 정보가 없습니다\n";
+                                            }
                                         }
+                                        message += "\n" + coapPayload.ToString();
                                     }
-                                    message += "\n" + coapPayload.ToString();
                                 }
                             }
                         }
