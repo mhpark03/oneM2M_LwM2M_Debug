@@ -37,11 +37,11 @@
             this.gbTCResult = new System.Windows.Forms.GroupBox();
             this.tbTCResult = new System.Windows.Forms.TextBox();
             this.gbServerLog = new System.Windows.Forms.GroupBox();
+            this.button8 = new System.Windows.Forms.Button();
             this.tbLog = new System.Windows.Forms.TextBox();
             this.groupBox11 = new System.Windows.Forms.GroupBox();
             this.btnMEFAuthS = new System.Windows.Forms.Button();
             this.gbLwM2MServer = new System.Windows.Forms.GroupBox();
-            this.button7 = new System.Windows.Forms.Button();
             this.label24 = new System.Windows.Forms.Label();
             this.label22 = new System.Windows.Forms.Label();
             this.label21 = new System.Windows.Forms.Label();
@@ -145,11 +145,11 @@
             this.tbSvcSvrNum = new System.Windows.Forms.TextBox();
             this.tbSvcSvrCd = new System.Windows.Forms.TextBox();
             this.gbDeviceLog = new System.Windows.Forms.GroupBox();
+            this.button9 = new System.Windows.Forms.Button();
             this.groupBox12 = new System.Windows.Forms.GroupBox();
             this.tBoxDataIN = new System.Windows.Forms.TextBox();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
-            this.button8 = new System.Windows.Forms.Button();
-            this.button9 = new System.Windows.Forms.Button();
+            this.textBox1 = new System.Windows.Forms.TextBox();
             this.panel1.SuspendLayout();
             this.gbTCResult.SuspendLayout();
             this.gbServerLog.SuspendLayout();
@@ -237,6 +237,16 @@
             this.gbServerLog.TabStop = false;
             this.gbServerLog.Text = "Server Message";
             // 
+            // button8
+            // 
+            this.button8.Location = new System.Drawing.Point(313, 14);
+            this.button8.Name = "button8";
+            this.button8.Size = new System.Drawing.Size(117, 19);
+            this.button8.TabIndex = 56;
+            this.button8.Text = "Clear";
+            this.button8.UseVisualStyleBackColor = true;
+            this.button8.Click += new System.EventHandler(this.button8_Click);
+            // 
             // tbLog
             // 
             this.tbLog.Dock = System.Windows.Forms.DockStyle.Bottom;
@@ -271,7 +281,7 @@
             // 
             // gbLwM2MServer
             // 
-            this.gbLwM2MServer.Controls.Add(this.button7);
+            this.gbLwM2MServer.Controls.Add(this.textBox1);
             this.gbLwM2MServer.Controls.Add(this.label24);
             this.gbLwM2MServer.Controls.Add(this.label22);
             this.gbLwM2MServer.Controls.Add(this.label21);
@@ -292,16 +302,6 @@
             this.gbLwM2MServer.TabIndex = 33;
             this.gbLwM2MServer.TabStop = false;
             this.gbLwM2MServer.Text = "LwM2M Device DATA";
-            // 
-            // button7
-            // 
-            this.button7.Location = new System.Drawing.Point(141, 18);
-            this.button7.Name = "button7";
-            this.button7.Size = new System.Drawing.Size(121, 20);
-            this.button7.TabIndex = 62;
-            this.button7.Text = "oneM2M 로그 검색";
-            this.button7.UseVisualStyleBackColor = true;
-            this.button7.Click += new System.EventHandler(this.button7_Click);
             // 
             // label24
             // 
@@ -436,11 +436,11 @@
             // 
             // btnTCResultSave
             // 
-            this.btnTCResultSave.Location = new System.Drawing.Point(7, 20);
+            this.btnTCResultSave.Location = new System.Drawing.Point(162, 18);
             this.btnTCResultSave.Name = "btnTCResultSave";
             this.btnTCResultSave.Size = new System.Drawing.Size(121, 20);
             this.btnTCResultSave.TabIndex = 43;
-            this.btnTCResultSave.Text = "LwM2M 로그 검색";
+            this.btnTCResultSave.Text = "플랫폼 로그 조회";
             this.btnTCResultSave.UseVisualStyleBackColor = true;
             this.btnTCResultSave.Click += new System.EventHandler(this.btnTCResultSave_Click);
             // 
@@ -1398,6 +1398,16 @@
             this.gbDeviceLog.TabStop = false;
             this.gbDeviceLog.Text = "Device Message";
             // 
+            // button9
+            // 
+            this.button9.Location = new System.Drawing.Point(346, 19);
+            this.button9.Name = "button9";
+            this.button9.Size = new System.Drawing.Size(117, 19);
+            this.button9.TabIndex = 57;
+            this.button9.Text = "Clear";
+            this.button9.UseVisualStyleBackColor = true;
+            this.button9.Click += new System.EventHandler(this.button9_Click);
+            // 
             // groupBox12
             // 
             this.groupBox12.Location = new System.Drawing.Point(51, 241);
@@ -1425,25 +1435,13 @@
             this.timer1.Interval = 10000;
             this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
             // 
-            // button8
+            // textBox1
             // 
-            this.button8.Location = new System.Drawing.Point(313, 14);
-            this.button8.Name = "button8";
-            this.button8.Size = new System.Drawing.Size(117, 19);
-            this.button8.TabIndex = 56;
-            this.button8.Text = "Clear";
-            this.button8.UseVisualStyleBackColor = true;
-            this.button8.Click += new System.EventHandler(this.button8_Click);
-            // 
-            // button9
-            // 
-            this.button9.Location = new System.Drawing.Point(346, 19);
-            this.button9.Name = "button9";
-            this.button9.Size = new System.Drawing.Size(117, 19);
-            this.button9.TabIndex = 57;
-            this.button9.Text = "Clear";
-            this.button9.UseVisualStyleBackColor = true;
-            this.button9.Click += new System.EventHandler(this.button9_Click);
+            this.textBox1.Location = new System.Drawing.Point(14, 18);
+            this.textBox1.Name = "textBox1";
+            this.textBox1.Size = new System.Drawing.Size(131, 21);
+            this.textBox1.TabIndex = 62;
+            this.textBox1.Text = "01222991234";
             // 
             // Form1
             // 
@@ -1606,9 +1604,9 @@
         private System.Windows.Forms.Label label21;
         private System.Windows.Forms.Label label22;
         private System.Windows.Forms.Label label24;
-        private System.Windows.Forms.Button button7;
         private System.Windows.Forms.Button button8;
         private System.Windows.Forms.Button button9;
+        private System.Windows.Forms.TextBox textBox1;
     }
 }
 
