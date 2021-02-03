@@ -5923,9 +5923,9 @@ private void btnDataRetrive_Click(object sender, EventArgs e)
                                 JObject obj = JObject.Parse(responseHeader.ToString());
                                 var rsc = obj["X-M2M-RSC"] ?? " ";
                                 resp += "/" + rsc.ToString();
-                                //var resultcode = obj["X-LGU-RSC"] ?? " ";
-                                //if (resultcode.ToString() != " ")
-                                //    tBResultCode.Text = resultcode.ToString();
+                                var resultcode = obj["X-LGU-RSC"] ?? " ";
+                                if (resultcode.ToString() != " ")
+                                    tBResultCode.Text = resultcode.ToString();
                             }
 
                             message = resp + " (" + uri.ToString() + ")\tREQUEST\n" + reqheader + "\n\nRESPONSE\n" + responseHeader;
