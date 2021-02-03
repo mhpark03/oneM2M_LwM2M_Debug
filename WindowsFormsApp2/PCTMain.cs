@@ -1165,7 +1165,11 @@ namespace WindowsFormsApp2
             //RetrivePoaToPlatform();
             //RetriveDverToPlatform();
             //RetriveMverToPlatform();
+            GetPlatformFWVer();
+        }
 
+        private void GetPlatformFWVer()
+        {
             ReqHeader header = new ReqHeader();
             header.Url = logUrl + "/Firmware?entityId=" + dev.entityId;
             //header.Url = logUrl + "/Firmware?entityId=ASN_CSE-D-71221153fb-T001";
@@ -1201,7 +1205,7 @@ namespace WindowsFormsApp2
                     var lastUpdateTime = obj["lastUpdateTime"] ?? "unknown";
 
                     MessageBox.Show("디바이스 모델명 : " + deviceModel.ToString() + "\n진행상태 : " + state + "\n\n디바이스 버전 : " + deviceVer.ToString()
-                        + "\n디바이스 체크시간 : " + lastDeviceCheckTime.ToString() + "\n\n모듈 버전 : " + modemVer.ToString() 
+                        + "\n디바이스 체크시간 : " + lastDeviceCheckTime.ToString() + "\n\n모듈 버전 : " + modemVer.ToString()
                         + "\n모듈 체크시간 : " + lastCheckTime.ToString() + "\n\n업데이트 시간 : " + lastUpdateTime.ToString(), "펌웨어 업데이트 진행 상태");
                 }
                 catch (Exception ex)
@@ -1211,8 +1215,8 @@ namespace WindowsFormsApp2
             }
         }
 
-// 데이터 수신 (oneM2M 플랫폼 DB)
-private void btnDataRetrive_Click(object sender, EventArgs e)
+        // 데이터 수신 (oneM2M 플랫폼 DB)
+        private void btnDataRetrive_Click(object sender, EventArgs e)
         {
             LogWrite("----------DATA RECIEVE----------");
             if (svr.enrmtKeyId != string.Empty)
@@ -5591,11 +5595,37 @@ private void btnDataRetrive_Click(object sender, EventArgs e)
 
                         if (iccId.ToString() != " ")
                         {
+
                             lbIMSI.Text = ctn.ToString();
                             dev.imsi = ctn.ToString();
                             lbIccid.Text = iccId.ToString();
                             lbModel.Text = deviceModel.ToString();
+                            tbSvcCd.Text = serviceCode.ToString();
                             setDeviceEntityID(lbIccid.Text);
+                            if (tbSvcCd.Text == "CATM")
+                            {
+                                tbSvcSvrCd.Text = "300";
+                                tbSvcSvrNum.Text = "1";
+
+                                svr.svcSvrCd = tbSvcSvrCd.Text; // 서비스 서버의 시퀀스
+                                svr.svcCd = tbSvcCd.Text; // 서비스 서버의 서비스코드
+                                svr.svcSvrNum = tbSvcSvrNum.Text; // 서비스 서버의 Number
+                                RequestMEF();
+                            }
+                            else if (tbSvcCd.Text == "CATO")
+                            {
+                                tbSvcSvrCd.Text = "365";
+                                tbSvcSvrNum.Text = "1";
+
+                                svr.svcSvrCd = tbSvcSvrCd.Text; // 서비스 서버의 시퀀스
+                                svr.svcCd = tbSvcCd.Text; // 서비스 서버의 서비스코드
+                                svr.svcSvrNum = tbSvcSvrNum.Text; // 서비스 서버의 Number
+                                RequestMEF();
+                            }
+
+                            GetPlatformFWVer();
+                            tBoxDeviceVer.Text = lbdevicever.Text;
+                            lbModemVer.Text = lbmodemfwrver.Text;
 
                             MessageBox.Show("디바이스 모델명 : " + deviceModel.ToString() + "\n모듈 모델명 : " + modemModel.ToString() + "\n서비스코드 : "
                                 + serviceCode.ToString() + "\n디바이스 일련번호 : " + deviceSerialNo.ToString() + "\nICCID : " + iccId.ToString(), ctn.ToString() + " DEVICE 상태 정보");
@@ -5950,9 +5980,9 @@ private void btnDataRetrive_Click(object sender, EventArgs e)
                                 JObject obj = JObject.Parse(responseHeader.ToString());
                                 var rsc = obj["X-M2M-RSC"] ?? " ";
                                 resp += "/" + rsc.ToString();
-                                var resultcode = obj["X-LGU-RSC"] ?? " ";
-                                if (resultcode.ToString() != " ")
-                                    tBResultCode.Text = resultcode.ToString();
+                                //var resultcode = obj["X-LGU-RSC"] ?? " ";
+                                //if (resultcode.ToString() != " ")
+                                //    tBResultCode.Text = resultcode.ToString();
                             }
 
                             message = resp + " (" + uri.ToString() + ")\tREQUEST\n" + reqheader + "\n\nRESPONSE\n" + responseHeader;
