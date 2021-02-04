@@ -41,7 +41,8 @@
             this.tbLog = new System.Windows.Forms.TextBox();
             this.groupBox11 = new System.Windows.Forms.GroupBox();
             this.btnMEFAuthS = new System.Windows.Forms.Button();
-            this.gbLwM2MServer = new System.Windows.Forms.GroupBox();
+            this.gbPlatformLog = new System.Windows.Forms.GroupBox();
+            this.textBox1 = new System.Windows.Forms.TextBox();
             this.label24 = new System.Windows.Forms.Label();
             this.label22 = new System.Windows.Forms.Label();
             this.label21 = new System.Windows.Forms.Label();
@@ -55,7 +56,7 @@
             this.label19 = new System.Windows.Forms.Label();
             this.label12 = new System.Windows.Forms.Label();
             this.listBox1 = new System.Windows.Forms.ListBox();
-            this.btnTCResultSave = new System.Windows.Forms.Button();
+            this.btnGetLogList = new System.Windows.Forms.Button();
             this.gbOneM2MServer = new System.Windows.Forms.GroupBox();
             this.lbDirectRxData = new System.Windows.Forms.Label();
             this.label13 = new System.Windows.Forms.Label();
@@ -149,12 +150,11 @@
             this.groupBox12 = new System.Windows.Forms.GroupBox();
             this.tBoxDataIN = new System.Windows.Forms.TextBox();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
-            this.textBox1 = new System.Windows.Forms.TextBox();
             this.panel1.SuspendLayout();
             this.gbTCResult.SuspendLayout();
             this.gbServerLog.SuspendLayout();
             this.groupBox11.SuspendLayout();
-            this.gbLwM2MServer.SuspendLayout();
+            this.gbPlatformLog.SuspendLayout();
             this.gbOneM2MServer.SuspendLayout();
             this.groupBox7.SuspendLayout();
             this.gbOneM2MDevice.SuspendLayout();
@@ -260,7 +260,7 @@
             // groupBox11
             // 
             this.groupBox11.Controls.Add(this.btnMEFAuthS);
-            this.groupBox11.Controls.Add(this.gbLwM2MServer);
+            this.groupBox11.Controls.Add(this.gbPlatformLog);
             this.groupBox11.Controls.Add(this.gbOneM2MServer);
             this.groupBox11.Location = new System.Drawing.Point(953, 75);
             this.groupBox11.Name = "groupBox11";
@@ -279,29 +279,37 @@
             this.btnMEFAuthS.UseVisualStyleBackColor = true;
             this.btnMEFAuthS.Click += new System.EventHandler(this.btnMEFAuthS_Click);
             // 
-            // gbLwM2MServer
+            // gbPlatformLog
             // 
-            this.gbLwM2MServer.Controls.Add(this.textBox1);
-            this.gbLwM2MServer.Controls.Add(this.label24);
-            this.gbLwM2MServer.Controls.Add(this.label22);
-            this.gbLwM2MServer.Controls.Add(this.label21);
-            this.gbLwM2MServer.Controls.Add(this.listBox3);
-            this.gbLwM2MServer.Controls.Add(this.label20);
-            this.gbLwM2MServer.Controls.Add(this.listBox2);
-            this.gbLwM2MServer.Controls.Add(this.button6);
-            this.gbLwM2MServer.Controls.Add(this.button5);
-            this.gbLwM2MServer.Controls.Add(this.tBResultCode);
-            this.gbLwM2MServer.Controls.Add(this.button4);
-            this.gbLwM2MServer.Controls.Add(this.label19);
-            this.gbLwM2MServer.Controls.Add(this.label12);
-            this.gbLwM2MServer.Controls.Add(this.listBox1);
-            this.gbLwM2MServer.Controls.Add(this.btnTCResultSave);
-            this.gbLwM2MServer.Location = new System.Drawing.Point(15, 217);
-            this.gbLwM2MServer.Name = "gbLwM2MServer";
-            this.gbLwM2MServer.Size = new System.Drawing.Size(556, 422);
-            this.gbLwM2MServer.TabIndex = 33;
-            this.gbLwM2MServer.TabStop = false;
-            this.gbLwM2MServer.Text = "LwM2M Device DATA";
+            this.gbPlatformLog.Controls.Add(this.textBox1);
+            this.gbPlatformLog.Controls.Add(this.label24);
+            this.gbPlatformLog.Controls.Add(this.label22);
+            this.gbPlatformLog.Controls.Add(this.label21);
+            this.gbPlatformLog.Controls.Add(this.listBox3);
+            this.gbPlatformLog.Controls.Add(this.label20);
+            this.gbPlatformLog.Controls.Add(this.listBox2);
+            this.gbPlatformLog.Controls.Add(this.button6);
+            this.gbPlatformLog.Controls.Add(this.button5);
+            this.gbPlatformLog.Controls.Add(this.tBResultCode);
+            this.gbPlatformLog.Controls.Add(this.button4);
+            this.gbPlatformLog.Controls.Add(this.label19);
+            this.gbPlatformLog.Controls.Add(this.label12);
+            this.gbPlatformLog.Controls.Add(this.listBox1);
+            this.gbPlatformLog.Controls.Add(this.btnGetLogList);
+            this.gbPlatformLog.Location = new System.Drawing.Point(15, 217);
+            this.gbPlatformLog.Name = "gbPlatformLog";
+            this.gbPlatformLog.Size = new System.Drawing.Size(556, 422);
+            this.gbPlatformLog.TabIndex = 33;
+            this.gbPlatformLog.TabStop = false;
+            this.gbPlatformLog.Text = "LwM2M Device DATA";
+            // 
+            // textBox1
+            // 
+            this.textBox1.Location = new System.Drawing.Point(14, 18);
+            this.textBox1.Name = "textBox1";
+            this.textBox1.Size = new System.Drawing.Size(131, 21);
+            this.textBox1.TabIndex = 62;
+            this.textBox1.Text = "01222991234";
             // 
             // label24
             // 
@@ -434,15 +442,15 @@
             this.listBox1.TabIndex = 44;
             this.listBox1.SelectedIndexChanged += new System.EventHandler(this.listBox1_SelectedIndexChanged);
             // 
-            // btnTCResultSave
+            // btnGetLogList
             // 
-            this.btnTCResultSave.Location = new System.Drawing.Point(162, 18);
-            this.btnTCResultSave.Name = "btnTCResultSave";
-            this.btnTCResultSave.Size = new System.Drawing.Size(121, 20);
-            this.btnTCResultSave.TabIndex = 43;
-            this.btnTCResultSave.Text = "플랫폼 로그 조회";
-            this.btnTCResultSave.UseVisualStyleBackColor = true;
-            this.btnTCResultSave.Click += new System.EventHandler(this.btnTCResultSave_Click);
+            this.btnGetLogList.Location = new System.Drawing.Point(162, 18);
+            this.btnGetLogList.Name = "btnGetLogList";
+            this.btnGetLogList.Size = new System.Drawing.Size(121, 20);
+            this.btnGetLogList.TabIndex = 43;
+            this.btnGetLogList.Text = "플랫폼 로그 조회";
+            this.btnGetLogList.UseVisualStyleBackColor = true;
+            this.btnGetLogList.Click += new System.EventHandler(this.btnGetLogList_Click);
             // 
             // gbOneM2MServer
             // 
@@ -1435,14 +1443,6 @@
             this.timer1.Interval = 10000;
             this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
             // 
-            // textBox1
-            // 
-            this.textBox1.Location = new System.Drawing.Point(14, 18);
-            this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(131, 21);
-            this.textBox1.TabIndex = 62;
-            this.textBox1.Text = "01222991234";
-            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 12F);
@@ -1465,8 +1465,8 @@
             this.gbServerLog.ResumeLayout(false);
             this.gbServerLog.PerformLayout();
             this.groupBox11.ResumeLayout(false);
-            this.gbLwM2MServer.ResumeLayout(false);
-            this.gbLwM2MServer.PerformLayout();
+            this.gbPlatformLog.ResumeLayout(false);
+            this.gbPlatformLog.PerformLayout();
             this.gbOneM2MServer.ResumeLayout(false);
             this.gbOneM2MServer.PerformLayout();
             this.groupBox7.ResumeLayout(false);
@@ -1540,7 +1540,7 @@
         private System.Windows.Forms.Button btnCreateDeviceCSR;
         private System.Windows.Forms.Label lboneM2MRcvData;
         private System.Windows.Forms.Button btnDeviceUpdateCSR;
-        private System.Windows.Forms.GroupBox gbLwM2MServer;
+        private System.Windows.Forms.GroupBox gbPlatformLog;
         private System.Windows.Forms.GroupBox gbOneM2MServer;
         private System.Windows.Forms.Label lboneM2MRxData;
         private System.Windows.Forms.Button btnDataRetrive;
@@ -1574,7 +1574,7 @@
         private System.Windows.Forms.Button btnoneM2MFullTest;
         private System.Windows.Forms.Button btnLwM2MFullTest;
         private System.Windows.Forms.Timer timer1;
-        private System.Windows.Forms.Button btnTCResultSave;
+        private System.Windows.Forms.Button btnGetLogList;
         private System.Windows.Forms.Label label13;
         private System.Windows.Forms.Button button3;
         private System.Windows.Forms.Button button2;

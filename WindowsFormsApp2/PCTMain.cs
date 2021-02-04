@@ -698,8 +698,8 @@ namespace WindowsFormsApp2
             svr.entityId = string.Empty;
 
             tc.state = string.Empty;
-            tc.lwm2m = new string[(int)lwm2mtc.tc0603+1];
-            tc.onem2m = new string[(int)onem2mtc.tc021401+1];
+            tc.lwm2m = new string[(int)lwm2mtc.tc0603+1,2];
+            tc.onem2m = new string[(int)onem2mtc.tc021401+1,2];
 
             tbTCResult.Text = string.Empty;
             tBoxDataIN.Text = string.Empty;
@@ -1136,7 +1136,7 @@ namespace WindowsFormsApp2
             if (svr.svcCd != string.Empty && svr.svcSvrCd != string.Empty && svr.svcSvrNum != string.Empty)
                 RequestMEF();
             else
-                LogWrite("서버인증파라미터 세팅하세요");
+                MessageBox.Show("서버인증파라미터 세팅하세요");
         }
 
         // CSE Base Get
@@ -1146,7 +1146,7 @@ namespace WindowsFormsApp2
             if (svr.enrmtKeyId != string.Empty)
                 ReqCSEBaseGET();
             else
-                LogWrite("서버인증파라미터 세팅하세요");
+                MessageBox.Show("서버인증파라미터 세팅하세요");
         }
 
         // RemoteCSE-GET
@@ -1156,7 +1156,7 @@ namespace WindowsFormsApp2
             if (svr.enrmtKeyId != string.Empty)
                 ReqRemoteCSEGet();
             else
-                LogWrite("서버인증파라미터 세팅하세요");
+                MessageBox.Show("서버인증파라미터 세팅하세요");
         }
 
         // 플랫폼 서버에 등록된 디바이스 리소스 확인 (oneM2M 플랫폼 DB)
@@ -1225,7 +1225,7 @@ namespace WindowsFormsApp2
             if (svr.enrmtKeyId != string.Empty)
             {
                 if (dev.type == "lwm2m")
-                    LogWrite("LwM2M에서는 지원하지 않습니다.");
+                    MessageBox.Show("LwM2M에서는 지원하지 않습니다.");
                 else
                     RetriveDataToPlatform();
             }
@@ -1241,7 +1241,7 @@ namespace WindowsFormsApp2
             if (svr.enrmtKeyId != string.Empty)
             {
                 if (dev.type == "lwm2m")
-                    LogWrite("LwM2M에서는 지원하지 않습니다.");
+                    MessageBox.Show("LwM2M에서는 지원하지 않습니다.");
                 else
                 {
                     startoneM2MTC("tc020601");
@@ -1251,7 +1251,7 @@ namespace WindowsFormsApp2
                 }
             }
             else
-                LogWrite("서버인증파라미터 세팅하세요");
+                MessageBox.Show("서버인증파라미터 세팅하세요");
         }
 
         // serial port에서 data 수신이 될 때, 발생하는 이벤트 함수
@@ -2488,7 +2488,7 @@ namespace WindowsFormsApp2
                                 lbActionState.Text = states.onem2mtc0213031.ToString();
                             }
                             else
-                                LogWrite("서버인증파라미터 세팅하세요");
+                                MessageBox.Show("서버인증파라미터 세팅하세요");
                         }
 
                         lboneM2MRcvData.Text = rx_svrdatas[2];
@@ -3265,14 +3265,25 @@ namespace WindowsFormsApp2
             tc.state = tcindex;
             logPrintTC(lwm2mtclist[tcindex] + " [시작]");
             lwm2mtc index = (lwm2mtc)Enum.Parse(typeof(lwm2mtc), tcindex);
-            tc.lwm2m[(int)index] = "FAIL";             // 시험 결과 초기 값(FAIL) 설정, 테스트 후 결과 수정
+            tc.lwm2m[(int)index,0] = "FAIL";             // 시험 결과 초기 값(FAIL) 설정, 테스트 후 결과 수정
+            tc.lwm2m[(int)index,1] = string.Empty;
         }
 
         private void endLwM2MTC(string tcindex)
         {
-            lwm2mtc state = (lwm2mtc)Enum.Parse(typeof(lwm2mtc), tcindex);
-            logPrintTC(lwm2mtclist[state.ToString()] + " [성공]");
-            tc.lwm2m[(int) state] = "PASS";             // 시험 결과 저장
+            logPrintTC(lwm2mtclist[tcindex] + " [성공]");
+            lwm2mtc index = (lwm2mtc)Enum.Parse(typeof(lwm2mtc), tcindex);
+            if (tc.lwm2m[(int)index, 1] == string.Empty)
+                tc.lwm2m[(int)index, 0] = "PASS";             // 시험 결과 저장
+            tc.state = string.Empty;
+        }
+
+        private void errLwM2MTC(string tcindex, string errmsg)
+        {
+            logPrintTC(lwm2mtclist[tcindex] + " [오류]");
+            lwm2mtc index = (lwm2mtc)Enum.Parse(typeof(lwm2mtc), tcindex);
+            tc.lwm2m[(int)index, 0] = "FAIL";             // 시험 결과 저장
+            tc.lwm2m[(int)index, 1] = errmsg;
             tc.state = string.Empty;
         }
 
@@ -3281,14 +3292,25 @@ namespace WindowsFormsApp2
             tc.state = tcindex;
             logPrintTC(onem2mtclist[tcindex] + " [시작]");
             onem2mtc index = (onem2mtc)Enum.Parse(typeof(onem2mtc), tcindex);
-            tc.onem2m[(int)index] = "FAIL";             // 시험 결과 초기 값(FAIL) 설정, 테스트 후 결과 수정
+            tc.onem2m[(int)index,0] = "FAIL";             // 시험 결과 초기 값(FAIL) 설정, 테스트 후 결과 수정
+            tc.onem2m[(int)index, 1] = string.Empty;
         }
 
         private void endoneM2MTC(string tcindex)
         {
-            onem2mtc state = (onem2mtc)Enum.Parse(typeof(onem2mtc), tcindex);
-            logPrintTC(onem2mtclist[state.ToString()] + " [성공]");
-            tc.onem2m[(int)state] = "PASS";             // 시험 결과 저장
+            logPrintTC(onem2mtclist[tcindex] + " [성공]");
+            onem2mtc index = (onem2mtc)Enum.Parse(typeof(onem2mtc), tcindex);
+            if (tc.onem2m[(int)index, 1] == string.Empty)
+                tc.onem2m[(int)index, 0] = "PASS";             // 시험 결과 저장
+            tc.state = string.Empty;
+        }
+
+        private void erroneM2MTC(string tcindex, string errmsg)
+        {
+            logPrintTC(onem2mtclist[tcindex] + " [오류]");
+            onem2mtc index = (onem2mtc)Enum.Parse(typeof(onem2mtc), tcindex);
+            tc.onem2m[(int)index, 0] = "FAIL";             // 시험 결과 저장
+            tc.onem2m[(int)index, 1] = errmsg;
             tc.state = string.Empty;
         }
 
@@ -4157,7 +4179,7 @@ namespace WindowsFormsApp2
             else                                    // Device information None
             {
                 gbLwM2MDevice.Enabled = false;
-                gbLwM2MServer.Enabled = false;
+                gbPlatformLog.Enabled = false;
             }
         }
 
@@ -4398,13 +4420,14 @@ namespace WindowsFormsApp2
                     {
                         devinfo = onem2mtclist[tcindex] + ",";
                         onem2mtc index = (onem2mtc)Enum.Parse(typeof(onem2mtc), tcindex);
-                        tcresult = tc.onem2m[(int)index];
+                        tcresult = tc.onem2m[(int)index,0];
                         if (tcresult == null)
                             devinfo += "Not TEST";
                         else
                             devinfo += tcresult;
-                        sw.WriteLine(devinfo);
 
+                        tcresult += "," + tc.onem2m[(int)index, 1];
+                        sw.WriteLine(devinfo);
                     }
                 }
                 else
@@ -4413,11 +4436,13 @@ namespace WindowsFormsApp2
                     {
                         devinfo = lwm2mtclist[tcindex] + ",";
                         lwm2mtc indexl = (lwm2mtc)Enum.Parse(typeof(lwm2mtc), tcindex);
-                        tcresult = tc.lwm2m[(int)indexl];
+                        tcresult = tc.lwm2m[(int)indexl,0];
                         if (tcresult == null)
                             devinfo += "Not TEST";
                         else
                             devinfo += tcresult;
+
+                        tcresult += "," + tc.lwm2m[(int)indexl, 1];
                         sw.WriteLine(devinfo);
                     }
                 }
@@ -4968,13 +4993,14 @@ namespace WindowsFormsApp2
                 if (header.X_MEF_EKI != string.Empty)
                     wReq.Headers.Add("X-MEF-EKI", header.X_MEF_EKI);
 
-                LogWriteNoTime(wReq.Method + " " + wReq.RequestUri + " HTTP/1.1");
-                LogWriteNoTime("");
+                LogWrite(wReq.Method + " " + wReq.RequestUri + " HTTP/1.1");
+                Console.WriteLine(wReq.Method + " " + wReq.RequestUri + " HTTP/1.1");
+                Console.WriteLine("");
                 for (int i = 0; i < wReq.Headers.Count; ++i)
-                    LogWriteNoTime(wReq.Headers.Keys[i] + ": " + wReq.Headers[i]);
-                LogWriteNoTime("");
-                LogWriteNoTime(data);
-                LogWriteNoTime("");
+                    Console.WriteLine(wReq.Headers.Keys[i] + ": " + wReq.Headers[i]);
+                Console.WriteLine("");
+                Console.WriteLine(data);
+                Console.WriteLine("");
 
                 // POST 전송일 경우      
                 if (header.Method == "POST")
@@ -4990,16 +5016,17 @@ namespace WindowsFormsApp2
                 using (wRes = (HttpWebResponse)wReq.GetResponse())
                 {
                     LogWriteNoTime("HTTP/1.1 " + (int)wRes.StatusCode + " " + wRes.StatusCode.ToString());
-                    LogWriteNoTime("");
+                    Console.WriteLine("HTTP/1.1 " + (int)wRes.StatusCode + " " + wRes.StatusCode.ToString());
+                    Console.WriteLine("");
                     for (int i = 0; i < wRes.Headers.Count; ++i)
-                        LogWriteNoTime("[" + wRes.Headers.Keys[i] + "] " + wRes.Headers[i]);
-                    LogWriteNoTime("");
+                        Console.WriteLine("[" + wRes.Headers.Keys[i] + "] " + wRes.Headers[i]);
+                    Console.WriteLine("");
 
                     Stream respPostStream = wRes.GetResponseStream();
                     StreamReader readerPost = new StreamReader(respPostStream, Encoding.GetEncoding("UTF-8"), true);
                     resResult = readerPost.ReadToEnd();
-                    LogWriteNoTime(resResult);
-                    LogWriteNoTime("");
+                    Console.WriteLine(resResult);
+                    Console.WriteLine("");
                 }
             }
             catch (WebException ex)
@@ -5007,22 +5034,23 @@ namespace WindowsFormsApp2
                 if (ex.Status == WebExceptionStatus.ProtocolError && ex.Response != null)
                 {
                     var resp = (HttpWebResponse)ex.Response;
-                    LogWriteNoTime("HTTP/1.1 " + (int)resp.StatusCode + " " + resp.StatusCode.ToString());
-                    LogWriteNoTime("");
+                    LogWrite("HTTP/1.1 " + (int)resp.StatusCode + " " + resp.StatusCode.ToString());
+                    Console.WriteLine("HTTP/1.1 " + (int)resp.StatusCode + " " + resp.StatusCode.ToString());
+                    Console.WriteLine("");
                     for (int i = 0; i < resp.Headers.Count; ++i)
-                        LogWriteNoTime(" " + resp.Headers.Keys[i] + ": " + resp.Headers[i]);
-                    LogWriteNoTime("");
+                        Console.WriteLine(" " + resp.Headers.Keys[i] + ": " + resp.Headers[i]);
+                    Console.WriteLine("");
 
                     Stream respPostStream = resp.GetResponseStream();
                     StreamReader readerPost = new StreamReader(respPostStream, Encoding.GetEncoding("UTF-8"), true);
                     string resError = readerPost.ReadToEnd();
-                    LogWriteNoTime(resError);
-                    LogWriteNoTime("");
-                    //LogWrite("[" + (int)resp.StatusCode + "] " + resp.StatusCode.ToString());
+                    Console.WriteLine(resError);
+                    Console.WriteLine("");
+                    //Console.WriteLine("[" + (int)resp.StatusCode + "] " + resp.StatusCode.ToString());
                 }
                 else
                 {
-                    LogWrite(ex.ToString());
+                    Console.WriteLine(ex.ToString());
                 }
             }
             return resResult;
@@ -5104,7 +5132,7 @@ namespace WindowsFormsApp2
             }
             catch (Exception ex)
             {
-                LogWrite(ex.ToString());
+                Console.WriteLine(ex.ToString());
             }
         }
 
@@ -5158,67 +5186,6 @@ namespace WindowsFormsApp2
             }
         }
 
-        private void btnTCResultSave_Click(object sender, EventArgs e)
-        {
-            string kind = string.Empty;
-            if (dev.type != string.Empty)
-                kind += "type=" + dev.type + "&";
-            if (textBox1.Text != string.Empty)
-                kind += "ctn=" + textBox1.Text;
-            getSvrLoglists(kind);
-        }
-
-        private void getSvrLoglists(string kind)
-        {
-            ReqHeader header = new ReqHeader();
-            header.Url = logUrl + "/logs?"+kind;
-            header.Method = "GET";
-            header.ContentType = "application/json";
-            header.X_M2M_RI = DateTime.Now.ToString("yyyyMMddHHmmss") + "LogList";
-            header.X_M2M_Origin = svr.entityId;
-            header.X_MEF_TK = svr.token;
-            header.X_MEF_EKI = svr.enrmtKeyId;
-            string retStr = GetHttpLog(header, string.Empty);
-
-            if (retStr != string.Empty)
-            {
-                //LogWriteNoTime(retStr);
-                try
-                {
-                    JArray jarr = JArray.Parse(retStr); //json 객체로
-
-                    listBox1.Items.Clear();
-                    listBox2.Items.Clear();
-                    listBox3.Items.Clear();
-                    foreach (JObject jobj in jarr)
-                    {
-                        string time = jobj["logTime"].ToString();
-                        string logtime = time.Substring(8, 2) + ":" + time.Substring(10, 2) + ":" + time.Substring(12, 2);
-                        var pathInfo = jobj["pathInfo"] ?? "NULL";
-                        var trgAddr = jobj["trgAddr"] ?? "NULL";
-                        string path = pathInfo.ToString();
-                        if (path == "NULL")
-                            path = jobj["resType"].ToString() + " : " + trgAddr.ToString();
-
-                        listBox1.Items.Add(logtime + "\t" + jobj["logId"].ToString() + "\t" + jobj["resultCode"].ToString() + "\t   " + jobj["resultCodeName"].ToString() + " (" + path + ")");
-                    }
-
-                    if (listBox1.Items.Count != 0)
-                    {
-                        listBox1.SelectedIndex = 0;
-                        //getSvrEventLog(listBox1.SelectedItem.ToString());
-                    }
-                    else
-                        MessageBox.Show("플랫폼 로그가 존재하지 않습니다.\nCTN을 확인하세요", textBox1.Text + " DEVICE 상태 정보");
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.ToString());
-                }
-            }
-            else
-                MessageBox.Show("플랫폼 로그가 존재하지 않습니다.\nCTN을 확인하세요", textBox1.Text + " DEVICE 상태 정보");
-        }
 
         private void button1_Click(object sender, EventArgs e)
         {
@@ -5236,7 +5203,7 @@ namespace WindowsFormsApp2
                 }
             }
             else
-                LogWrite("서버 연결 상태 확인하세요.");
+                MessageBox.Show("서버 연결 상태 확인하세요.");
         }
 
         private void button3_Click(object sender, EventArgs e)
@@ -5257,7 +5224,7 @@ namespace WindowsFormsApp2
                 rTh.Start(param);
             }
             else
-                LogWrite("서버인증파라미터 세팅하세요");
+                MessageBox.Show("서버인증파라미터 세팅하세요");
         }
 
         private void button2_Click(object sender, EventArgs e)
@@ -5270,7 +5237,7 @@ namespace WindowsFormsApp2
                 rTh.Start(param);
             }
             else
-                LogWrite("서버인증파라미터 세팅하세요");
+                MessageBox.Show("서버인증파라미터 세팅하세요");
         }
 
         private void btnLwM2MFullTest_Click(object sender, EventArgs e)
@@ -5309,7 +5276,7 @@ namespace WindowsFormsApp2
                 rTh.Start();
             }
             else
-                LogWrite("서버인증파라미터 세팅하세요");
+                MessageBox.Show("서버인증파라미터 세팅하세요");
         }
 
         private void ResetToDevice()
@@ -5451,7 +5418,7 @@ namespace WindowsFormsApp2
                     wReq.Headers.Add("X-MEF-EKI", header.X_MEF_EKI);
                 */
 
-                logPrintInTextBox(wReq.Method + " " + wReq.RequestUri + " HTTP/1.1","");
+                LogWrite(wReq.Method + " " + wReq.RequestUri + " HTTP/1.1");
                 Console.WriteLine(wReq.Method + " " + wReq.RequestUri + " HTTP/1.1");
                 Console.WriteLine("");
                 for (int i = 0; i < wReq.Headers.Count; ++i)
@@ -5680,7 +5647,7 @@ namespace WindowsFormsApp2
 
             if (retStr != string.Empty)
             {
-                LogWriteNoTime(retStr);
+                //LogWriteNoTime(retStr);
 
                 try
                 {
@@ -6049,13 +6016,75 @@ namespace WindowsFormsApp2
         {
             tBoxDataIN.Text = string.Empty;
         }
+
+        private void btnGetLogList_Click(object sender, EventArgs e)
+        {
+            string kind = string.Empty;
+            if (dev.type != string.Empty)
+                kind += "type=" + dev.type + "&";
+            if (textBox1.Text != string.Empty)
+                kind += "ctn=" + textBox1.Text;
+            getSvrLoglists(kind);
+        }
+
+        private void getSvrLoglists(string kind)
+        {
+            ReqHeader header = new ReqHeader();
+            header.Url = logUrl + "/logs?" + kind;
+            header.Method = "GET";
+            header.ContentType = "application/json";
+            header.X_M2M_RI = DateTime.Now.ToString("yyyyMMddHHmmss") + "LogList";
+            header.X_M2M_Origin = svr.entityId;
+            header.X_MEF_TK = svr.token;
+            header.X_MEF_EKI = svr.enrmtKeyId;
+            string retStr = GetHttpLog(header, string.Empty);
+
+            if (retStr != string.Empty)
+            {
+                //LogWriteNoTime(retStr);
+                try
+                {
+                    JArray jarr = JArray.Parse(retStr); //json 객체로
+
+                    listBox1.Items.Clear();
+                    listBox2.Items.Clear();
+                    listBox3.Items.Clear();
+                    foreach (JObject jobj in jarr)
+                    {
+                        string time = jobj["logTime"].ToString();
+                        string logtime = time.Substring(8, 2) + ":" + time.Substring(10, 2) + ":" + time.Substring(12, 2);
+                        var pathInfo = jobj["pathInfo"] ?? "NULL";
+                        var trgAddr = jobj["trgAddr"] ?? "NULL";
+                        string path = pathInfo.ToString();
+                        if (path == "NULL")
+                            path = jobj["resType"].ToString() + " : " + trgAddr.ToString();
+
+                        listBox1.Items.Add(logtime + "\t" + jobj["logId"].ToString() + "\t" + jobj["resultCode"].ToString() + "\t   " + jobj["resultCodeName"].ToString() + " (" + path + ")");
+                    }
+
+                    if (listBox1.Items.Count != 0)
+                    {
+                        listBox1.SelectedIndex = 0;
+                        //getSvrEventLog(listBox1.SelectedItem.ToString());
+                    }
+                    else
+                        MessageBox.Show("플랫폼 로그가 존재하지 않습니다.\nCTN을 확인하세요", textBox1.Text + " DEVICE 상태 정보");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.ToString());
+                }
+            }
+            else
+                MessageBox.Show("플랫폼 로그가 존재하지 않습니다.\nCTN을 확인하세요", textBox1.Text + " DEVICE 상태 정보");
+        }
     }
 
     public class TCResult
     {
         public string state { get; set; }            // 테스트 중인 항목
-        public string[] lwm2m { get; set; }           // LwM2M 항목별 시험결과
-        public string[] onem2m { get; set; }           // oneM2M 항목별 시험결과
+        public string[,] lwm2m { get; set; }           // LwM2M 항목별 시험결과
+        public string[,] onem2m { get; set; }           // oneM2M 항목별 시험결과
     }
 
     public class Device
