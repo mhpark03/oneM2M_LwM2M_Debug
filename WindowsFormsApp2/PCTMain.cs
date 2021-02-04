@@ -5305,19 +5305,20 @@ namespace WindowsFormsApp2
 
         private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
-            getSvrEventLog(listBox1.SelectedItem.ToString());
+            string[] values = listBox1.SelectedItem.ToString().Split('\t');    // 수신한 데이터를 한 문장씩 나누어 array에 저장
+            textBox2.Text = values[1];
+            tBResultCode.Text = values[2];
+
+            getSvrEventLog(values[1]);
         }
 
-        private void getSvrEventLog(string selected_msg)
+        private void getSvrEventLog(string logid)
         {
-            string[] values = selected_msg.Split('\t');    // 수신한 데이터를 한 문장씩 나누어 array에 저장
-
-            tBResultCode.Text = values[2];
-            label21.Text = "서버로그 ID : " + values[1] + " 상세내역";
+            label21.Text = "서버로그 ID : " + logid + " 상세내역";
 
             // oneM2M log server 응답 확인 (resultcode)
             ReqHeader header = new ReqHeader();
-            header.Url = logUrl + "/apilog?logId=" + values[1];
+            header.Url = logUrl + "/apilog?logId=" + logid;
             //header.Url = logUrl + "/apilog?Id=61";
             header.Method = "GET";
             header.ContentType = "application/json";
@@ -5621,19 +5622,20 @@ namespace WindowsFormsApp2
 
         private void listBox2_SelectedIndexChanged(object sender, EventArgs e)
         {
-            getSvrDetailLog(listBox2.SelectedItem.ToString());
+            string[] values = listBox2.SelectedItem.ToString().Split('\t');    // 수신한 데이터를 한 문장씩 나누어 array에 저장
+            tBResultCode.Text = values[2];
+            textBox3.Text = values[1];
+
+            getSvrDetailLog(values[1]);
         }
 
-        private void getSvrDetailLog(string selected_msg)
+        private void getSvrDetailLog(string logid)
         {
-            string[] values = selected_msg.Split('\t');    // 수신한 데이터를 한 문장씩 나누어 array에 저장
-
-            tBResultCode.Text = values[2];
-            label22.Text = "ID : " + values[1] + " 상세내역";
+            label22.Text = "ID : " + logid + " 상세내역";
 
             // oneM2M log server 응답 확인 (resultcode)
             ReqHeader header = new ReqHeader();
-            header.Url = logUrl + "/log?logId=" + values[1];
+            header.Url = logUrl + "/log?logId=" + logid;
             header.Method = "GET";
             header.ContentType = "application/json";
             header.X_M2M_RI = DateTime.Now.ToString("yyyyMMddHHmmss") + "LogDetail";
@@ -6077,6 +6079,16 @@ namespace WindowsFormsApp2
             }
             else
                 MessageBox.Show("플랫폼 로그가 존재하지 않습니다.\nCTN을 확인하세요", textBox1.Text + " DEVICE 상태 정보");
+        }
+
+        private void button7_Click_1(object sender, EventArgs e)
+        {
+            getSvrEventLog(textBox2.Text);
+        }
+
+        private void button10_Click(object sender, EventArgs e)
+        {
+            getSvrDetailLog(textBox3.Text);
         }
     }
 

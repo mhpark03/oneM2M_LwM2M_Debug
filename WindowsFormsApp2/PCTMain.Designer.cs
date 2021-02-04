@@ -42,6 +42,10 @@
             this.groupBox11 = new System.Windows.Forms.GroupBox();
             this.btnMEFAuthS = new System.Windows.Forms.Button();
             this.gbPlatformLog = new System.Windows.Forms.GroupBox();
+            this.label26 = new System.Windows.Forms.Label();
+            this.button7 = new System.Windows.Forms.Button();
+            this.textBox2 = new System.Windows.Forms.TextBox();
+            this.label25 = new System.Windows.Forms.Label();
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.label24 = new System.Windows.Forms.Label();
             this.label22 = new System.Windows.Forms.Label();
@@ -150,6 +154,9 @@
             this.groupBox12 = new System.Windows.Forms.GroupBox();
             this.tBoxDataIN = new System.Windows.Forms.TextBox();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
+            this.label27 = new System.Windows.Forms.Label();
+            this.button10 = new System.Windows.Forms.Button();
+            this.textBox3 = new System.Windows.Forms.TextBox();
             this.panel1.SuspendLayout();
             this.gbTCResult.SuspendLayout();
             this.gbServerLog.SuspendLayout();
@@ -281,6 +288,13 @@
             // 
             // gbPlatformLog
             // 
+            this.gbPlatformLog.Controls.Add(this.label27);
+            this.gbPlatformLog.Controls.Add(this.button10);
+            this.gbPlatformLog.Controls.Add(this.textBox3);
+            this.gbPlatformLog.Controls.Add(this.label26);
+            this.gbPlatformLog.Controls.Add(this.button7);
+            this.gbPlatformLog.Controls.Add(this.textBox2);
+            this.gbPlatformLog.Controls.Add(this.label25);
             this.gbPlatformLog.Controls.Add(this.textBox1);
             this.gbPlatformLog.Controls.Add(this.label24);
             this.gbPlatformLog.Controls.Add(this.label22);
@@ -303,11 +317,49 @@
             this.gbPlatformLog.TabStop = false;
             this.gbPlatformLog.Text = "LwM2M Device DATA";
             // 
+            // label26
+            // 
+            this.label26.AutoSize = true;
+            this.label26.Location = new System.Drawing.Point(263, 154);
+            this.label26.Name = "label26";
+            this.label26.Size = new System.Drawing.Size(37, 12);
+            this.label26.TabIndex = 66;
+            this.label26.Text = "LogID";
+            this.label26.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // button7
+            // 
+            this.button7.Location = new System.Drawing.Point(425, 149);
+            this.button7.Name = "button7";
+            this.button7.Size = new System.Drawing.Size(121, 20);
+            this.button7.TabIndex = 65;
+            this.button7.Text = "LOGID 로그 조회";
+            this.button7.UseVisualStyleBackColor = true;
+            this.button7.Click += new System.EventHandler(this.button7_Click_1);
+            // 
+            // textBox2
+            // 
+            this.textBox2.Location = new System.Drawing.Point(315, 150);
+            this.textBox2.Name = "textBox2";
+            this.textBox2.Size = new System.Drawing.Size(104, 21);
+            this.textBox2.TabIndex = 64;
+            this.textBox2.Text = "12345678";
+            // 
+            // label25
+            // 
+            this.label25.AutoSize = true;
+            this.label25.Location = new System.Drawing.Point(19, 23);
+            this.label25.Name = "label25";
+            this.label25.Size = new System.Drawing.Size(31, 12);
+            this.label25.TabIndex = 63;
+            this.label25.Text = "CTN";
+            this.label25.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
             // textBox1
             // 
-            this.textBox1.Location = new System.Drawing.Point(14, 18);
+            this.textBox1.Location = new System.Drawing.Point(53, 18);
             this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(131, 21);
+            this.textBox1.Size = new System.Drawing.Size(92, 21);
             this.textBox1.TabIndex = 62;
             this.textBox1.Text = "01222991234";
             // 
@@ -1443,6 +1495,34 @@
             this.timer1.Interval = 10000;
             this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
             // 
+            // label27
+            // 
+            this.label27.AutoSize = true;
+            this.label27.Location = new System.Drawing.Point(263, 266);
+            this.label27.Name = "label27";
+            this.label27.Size = new System.Drawing.Size(37, 12);
+            this.label27.TabIndex = 69;
+            this.label27.Text = "LogID";
+            this.label27.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // button10
+            // 
+            this.button10.Location = new System.Drawing.Point(425, 261);
+            this.button10.Name = "button10";
+            this.button10.Size = new System.Drawing.Size(121, 20);
+            this.button10.TabIndex = 68;
+            this.button10.Text = "상세 로그 조회";
+            this.button10.UseVisualStyleBackColor = true;
+            this.button10.Click += new System.EventHandler(this.button10_Click);
+            // 
+            // textBox3
+            // 
+            this.textBox3.Location = new System.Drawing.Point(315, 262);
+            this.textBox3.Name = "textBox3";
+            this.textBox3.Size = new System.Drawing.Size(104, 21);
+            this.textBox3.TabIndex = 67;
+            this.textBox3.Text = "12345678";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 12F);
@@ -1607,6 +1687,13 @@
         private System.Windows.Forms.Button button8;
         private System.Windows.Forms.Button button9;
         private System.Windows.Forms.TextBox textBox1;
+        private System.Windows.Forms.Label label26;
+        private System.Windows.Forms.Button button7;
+        private System.Windows.Forms.TextBox textBox2;
+        private System.Windows.Forms.Label label25;
+        private System.Windows.Forms.Label label27;
+        private System.Windows.Forms.Button button10;
+        private System.Windows.Forms.TextBox textBox3;
     }
 }
 
