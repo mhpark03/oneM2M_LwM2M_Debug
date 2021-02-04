@@ -1224,7 +1224,7 @@ namespace WindowsFormsApp2
             LogWrite("----------DATA RECIEVE----------");
             if (svr.enrmtKeyId != string.Empty)
             {
-                if (dev.type == "LwM2M")
+                if (dev.type == "lwm2m")
                     LogWrite("LwM2M에서는 지원하지 않습니다.");
                 else
                     RetriveDataToPlatform();
@@ -1240,7 +1240,7 @@ namespace WindowsFormsApp2
             LogWrite("----------DATA SEND----------");
             if (svr.enrmtKeyId != string.Empty)
             {
-                if (dev.type == "LwM2M")
+                if (dev.type == "lwm2m")
                     LogWrite("LwM2M에서는 지원하지 않습니다.");
                 else
                 {
@@ -3321,7 +3321,7 @@ namespace WindowsFormsApp2
 
                 if (tc.state == "tc0201")
                 {
-                    if (dev.type == "oneM2M")
+                    if (dev.type == "onem2m")
                     {
                         tbTCResult.Text = string.Empty;
                         tc.state = string.Empty;
@@ -4082,61 +4082,61 @@ namespace WindowsFormsApp2
             {
                 tbSvcCd.Text = "CATM";
                 tBoxDeviceModel.Text = "AMM5400LG";
-                dev.type = "oneM2M";
+                dev.type = "onem2m";
             }
             else if (dev.maker == "QUALCOMM INCORPORATED")        //텔라딘/oneM2M 모듈
             {
                 tbSvcCd.Text = "SMCL";
                 tBoxDeviceModel.Text = "TM800L";
-                dev.type = "oneM2M";
+                dev.type = "onem2m";
             }
             else if (dev.maker == "LIME-I Co., Ltd")        //라임아이/oneM2M 모듈
             {
                 tbSvcCd.Text = "CATM";
                 tBoxDeviceModel.Text = "LML-D";
-                dev.type = "oneM2M";
+                dev.type = "onem2m";
             }
             else if (model.StartsWith("NTLM3", System.StringComparison.CurrentCultureIgnoreCase))         //NTmore/oneM2M 모듈
             {
                 tbSvcCd.Text = "CATM";
                 tBoxDeviceModel.Text = "NTM_Simulator";
-                dev.type = "oneM2M";
+                dev.type = "onem2m";
             }
             else if (model == "EC25" || model == "EC21")                                                 //쿼텔/oneM2M 모듈
             {
                 tbSvcCd.Text = "CATO";
                 tBoxDeviceModel.Text = "EC25-E";
-                dev.type = "oneM2M";
+                dev.type = "onem2m";
             }
             else if (model == "BG96")                                                                   //쿼텔/LwM2M 모듈
             {
                 tbSvcCd.Text = "CATO";
                 tBoxDeviceModel.Text = "LWEMG";
-                dev.type = "LwM2M";
+                dev.type = "lwm2m";
             }
             else if (model.StartsWith("BC95", System.StringComparison.CurrentCultureIgnoreCase))         //쿼텔/LwM2M 모듈
             {
                 tbSvcCd.Text = "CATO";
                 tBoxDeviceModel.Text = "LWEMG";
-                dev.type = "LwM2M";
+                dev.type = "lwm2m";
             }
             else if (model == "TPB23")                                                                   //화웨이/LwM2M 모듈
             {
                 tbSvcCd.Text = "CATM";
                 tBoxDeviceModel.Text = "TPB23";
-                dev.type = "LwM2M";
+                dev.type = "lwm2m";
             }
             else if (model == "GDM7243R1")                                                                   //바인테크/GCT/LwM2M 모듈
             {
                 tbSvcCd.Text = "CATM";
                 tBoxDeviceModel.Text = "VTLM-102G";
-                dev.type = "LwM2M";
+                dev.type = "lwm2m";
             }
             else                                                                                        //default/LwM2M 메뉴 활성화
             {
                 tbSvcCd.Text = "CATM";
                 tBoxDeviceModel.Text = "LWEMG";
-                dev.type = "LwM2M";
+                dev.type = "lwm2m";
             }
 
             setControlPanel();
@@ -4144,34 +4144,20 @@ namespace WindowsFormsApp2
 
         private void setControlPanel()
         {
-            if (dev.type == "oneM2M")                     // oneM2M Device
+            if (dev.type == "onem2m")                     // oneM2M Device
             {
                 gbLwM2MDevice.Enabled = false;
                 gbOneM2MDevice.Enabled = true;
-
-                if (svr.enrmtKeyId != string.Empty)
-                {
-                    gbOneM2MServer.Enabled = true;
-                    gbLwM2MServer.Enabled = true;
-                }
             }
-            else if (dev.type == "LwM2M")                // LwM2M Device
+            else if (dev.type == "lwm2m")                // LwM2M Device
             {
                 gbLwM2MDevice.Enabled = true;
                 gbOneM2MDevice.Enabled = false;
-
-                if (svr.enrmtKeyId != string.Empty)
-                {
-                    gbOneM2MServer.Enabled = true;
-                    gbLwM2MServer.Enabled = true;
-                }
             }
             else                                    // Device information None
             {
                 gbLwM2MDevice.Enabled = false;
                 gbLwM2MServer.Enabled = false;
-                gbOneM2MDevice.Enabled = false;
-                gbOneM2MServer.Enabled = false;
             }
         }
 
@@ -4406,7 +4392,7 @@ namespace WindowsFormsApp2
                 sw.WriteLine(string.Empty);
 
                 string tcresult;
-                if (dev.type == "oneM2M")
+                if (dev.type == "onem2m")
                 {
                     foreach (string tcindex in Enum.GetNames(typeof(onem2mtc)))
                     {
@@ -4548,7 +4534,7 @@ namespace WindowsFormsApp2
                 svr.remoteCSEName = "csr-" + nameCSR;
                 //LogWrite("svr.remoteCSEName = " + svr.remoteCSEName);
 
-                setControlPanel();
+                gbOneM2MServer.Enabled = true;
             }
         }
 
@@ -5175,8 +5161,10 @@ namespace WindowsFormsApp2
         private void btnTCResultSave_Click(object sender, EventArgs e)
         {
             string kind = string.Empty;
+            if (dev.type != string.Empty)
+                kind += "type=" + dev.type + "&";
             if (textBox1.Text != string.Empty)
-                kind = "ctn=" + textBox1.Text;
+                kind += "ctn=" + textBox1.Text;
             getSvrLoglists(kind);
         }
 
@@ -5258,10 +5246,10 @@ namespace WindowsFormsApp2
                 LogWrite("----------DATA SEND----------");
                 string param1 = "oneDevice";
                 string param2 = "oneDevice";
-                if (dev.type == "LwM2M")
+                if (dev.type == "lwm2m")
                 {
                     startLwM2MTC("tc0502");
-                    param1 = "LwM2M";
+                    param1 = "lwm2m";
                     param2 = "tc0502";
                 }
                 string[] param = { param1, param2 };
@@ -5597,6 +5585,7 @@ namespace WindowsFormsApp2
                             var serviceCode = obj["serviceCode"] ?? " ";
                             var deviceSerialNo = obj["deviceSerialNo"] ?? " ";
                             var iccId = obj["iccId"] ?? " ";
+                            var m2mmType = obj["m2mmType"] ?? " ";
 
                             if (iccId.ToString() != " ")
                             {
@@ -5604,6 +5593,11 @@ namespace WindowsFormsApp2
                                 lbModel.Text = modemModel.ToString();
                                 tbSvcCd.Text = serviceCode.ToString();
                                 tBoxDeviceSN.Text = deviceSerialNo.ToString();
+
+                                if (m2mmType.ToString().StartsWith("ONEM2M"))
+                                    dev.type = "onem2m";
+                                else
+                                    dev.type = "lwm2m";
 
                                 lbIMSI.Text = ctn.ToString();
                                 dev.imsi = ctn.ToString();
@@ -5635,7 +5629,8 @@ namespace WindowsFormsApp2
                                 lbModemVer.Text = lbmodemfwrver.Text;
 
                                 MessageBox.Show("디바이스 모델명 : " + deviceModel.ToString() + "\n모듈 모델명 : " + modemModel.ToString() + "\n서비스코드 : "
-                                    + serviceCode.ToString() + "\n디바이스 일련번호 : " + deviceSerialNo.ToString() + "\nICCID : " + iccId.ToString(), ctn.ToString() + " DEVICE 상태 정보");
+                                    + serviceCode.ToString() + "\n디바이스 일련번호 : " + deviceSerialNo.ToString() + "\nICCID : " + iccId.ToString() + "\nTYPE : " + m2mmType.ToString(),
+                                    ctn.ToString() + " DEVICE 상태 정보");
                             }
                             else
                                 MessageBox.Show("디바이스 정보가 없습니다.\nhttps://testadm.onem2m.uplus.co.kr:8443 에서 확인바랍니다.", ctn.ToString() + " DEVICE 상태 정보");
