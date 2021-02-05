@@ -4144,8 +4144,8 @@ namespace WindowsFormsApp2
             }
             else if (model == "TPB23")                                                                   //화웨이/LwM2M 모듈
             {
-                tbSvcCd.Text = "CATM";
-                tBoxDeviceModel.Text = "TPB23";
+                tbSvcCd.Text = "CATO";
+                tBoxDeviceModel.Text = "LWEMG";
                 dev.type = "lwm2m";
             }
             else if (model == "GDM7243R1")                                                                   //바인테크/GCT/LwM2M 모듈
