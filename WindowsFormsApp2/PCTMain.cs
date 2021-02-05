@@ -139,6 +139,9 @@ namespace WindowsFormsApp2
             sendmsgvertpb23,
             sendmsgverbc95,
 
+            fotastarttpb23,
+            fotaupdatetpb23,
+
             geticcidamtel,
             autogeticcidamtel,
 
@@ -565,6 +568,9 @@ namespace WindowsFormsApp2
             commands.Add("sendmsgstbc95", "AT+QLWULDATA=0,");
             commands.Add("sendmsgvertpb23", "AT+MLWULDATA=1,");
             commands.Add("sendmsgverbc95", "AT+QLWULDATA=1,");
+
+            commands.Add("fotastarttpb23", "AT+MLWEVTIND=2");
+            commands.Add("fotaupdatetpb23", "AT+MLWEVTIND=4");
 
             commands.Add("holdoffbc95", "AT+QBOOTSTRAPHOLDOFF=0");
             commands.Add("lwm2mresetbc95", "AT+QREGSWT=2");
@@ -1162,10 +1168,14 @@ namespace WindowsFormsApp2
         // 플랫폼 서버에 등록된 디바이스 리소스 확인 (oneM2M 플랫폼 DB)
         private void btnDeviceCheck_Click(object sender, EventArgs e)
         {
-            //RetrivePoaToPlatform();
-            //RetriveDverToPlatform();
-            //RetriveMverToPlatform();
-            GetPlatformFWVer("YES");
+            if (dev.type == "onem2m")
+            {
+                //RetrivePoaToPlatform();
+                RetriveDverToPlatform();
+                RetriveMverToPlatform();
+            }
+            else
+                GetPlatformFWVer("YES");
         }
 
         private void GetPlatformFWVer(string mode)
@@ -3027,9 +3037,19 @@ namespace WindowsFormsApp2
                             break;
                         case "6":
                             logPrintInTextBox("fota downloading request", " ");
+                            //if (dev.model == "TPB23")
+                            //{
+                            //    this.sendDataOut(commands["fotastarttpb23"]);
+                            //    lbActionState.Text = states.fotastarttpb23.ToString();
+                            //}
                             break;
                         case "7":
                             logPrintInTextBox("fota update request", " ");
+                            //if (dev.model == "TPB23")
+                            //{
+                            //    this.sendDataOut(commands["fotaupdatetpb23"]);
+                            //    lbActionState.Text = states.fotaupdatetpb23.ToString();
+                            //}
                             break;
                         case "8":
                             logPrintInTextBox("26241 object subscription completed", " ");
@@ -5472,54 +5492,59 @@ namespace WindowsFormsApp2
 
         private void button5_Click(object sender, EventArgs e)
         {
-            if (dev.entityId != string.Empty)
+            if (dev.type == "lwm2m")
             {
-                ReqHeader header = new ReqHeader();
-                header.Url = logUrl + "/initFirmware?entityId=" + dev.entityId;
-                //header.Url = logUrl + "/initFirmware?entityId=ASN_CSE-D-71221153fb-T001";
-                header.Method = "GET";
-                header.ContentType = "application/json";
-                header.X_M2M_RI = DateTime.Now.ToString("yyyyMMddHHmmss") + "FWVerInit";
-                header.X_M2M_Origin = svr.entityId;
-                header.X_MEF_TK = svr.token;
-                header.X_MEF_EKI = svr.enrmtKeyId;
-                string retStr = GetHttpLog(header, string.Empty);
-
-                if (retStr != string.Empty)
+                if (dev.entityId != string.Empty)
                 {
-                    //LogWriteNoTime(retStr);
+                    ReqHeader header = new ReqHeader();
+                    header.Url = logUrl + "/initFirmware?entityId=" + dev.entityId;
+                    //header.Url = logUrl + "/initFirmware?entityId=ASN_CSE-D-71221153fb-T001";
+                    header.Method = "GET";
+                    header.ContentType = "application/json";
+                    header.X_M2M_RI = DateTime.Now.ToString("yyyyMMddHHmmss") + "FWVerInit";
+                    header.X_M2M_Origin = svr.entityId;
+                    header.X_MEF_TK = svr.token;
+                    header.X_MEF_EKI = svr.enrmtKeyId;
+                    string retStr = GetHttpLog(header, string.Empty);
 
-                    try
+                    if (retStr != string.Empty)
                     {
-                        string state = "대기중";
-                        JObject obj = JObject.Parse(retStr);
+                        //LogWriteNoTime(retStr);
 
-                        var deviceVer = obj["deviceVersion"] ?? "unknown";
-                        lbdevicever.Text = deviceVer.ToString();
+                        try
+                        {
+                            string state = "대기중";
+                            JObject obj = JObject.Parse(retStr);
 
-                        var modemVer = obj["modemVersion"] ?? "unknown";
-                        lbmodemfwrver.Text = modemVer.ToString();
+                            var deviceVer = obj["deviceVersion"] ?? "unknown";
+                            lbdevicever.Text = deviceVer.ToString();
 
-                        var inProgress = obj["inProgress"] ?? "unknown";
-                        if (inProgress.ToString() == "true")
-                            state = "진행 중";
-                        var deviceModel = obj["deviceModel"] ?? "unknown";
-                        var lastCheckTime = obj["lastCheckTime"] ?? "unknown";
-                        var lastDeviceCheckTime = obj["lastDeviceCheckTime"] ?? "unknown";
-                        var lastUpdateTime = obj["lastUpdateTime"] ?? "unknown";
+                            var modemVer = obj["modemVersion"] ?? "unknown";
+                            lbmodemfwrver.Text = modemVer.ToString();
 
-                        MessageBox.Show("디바이스 모델명 : " + deviceModel.ToString() + "\n진행상태 : " + state + "\n\n디바이스 버전 : " + deviceVer.ToString()
-                            + "\n디바이스 체크시간 : " + lastDeviceCheckTime.ToString() + "\n\n모듈 버전 : " + modemVer.ToString()
-                            + "\n모듈 체크시간 : " + lastCheckTime.ToString() + "\n\n업데이트 시간 : " + lastUpdateTime.ToString(), "펌웨어 업데이트 진행 상태");
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine(ex.ToString());
+                            var inProgress = obj["inProgress"] ?? "unknown";
+                            if (inProgress.ToString() == "true")
+                                state = "진행 중";
+                            var deviceModel = obj["deviceModel"] ?? "unknown";
+                            var lastCheckTime = obj["lastCheckTime"] ?? "unknown";
+                            var lastDeviceCheckTime = obj["lastDeviceCheckTime"] ?? "unknown";
+                            var lastUpdateTime = obj["lastUpdateTime"] ?? "unknown";
+
+                            MessageBox.Show("디바이스 모델명 : " + deviceModel.ToString() + "\n진행상태 : " + state + "\n\n디바이스 버전 : " + deviceVer.ToString()
+                                + "\n디바이스 체크시간 : " + lastDeviceCheckTime.ToString() + "\n\n모듈 버전 : " + modemVer.ToString()
+                                + "\n모듈 체크시간 : " + lastCheckTime.ToString() + "\n\n업데이트 시간 : " + lastUpdateTime.ToString(), "펌웨어 업데이트 진행 상태");
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine(ex.ToString());
+                        }
                     }
                 }
+                else
+                    MessageBox.Show("모듈 정보가 없습니다.\n모듈 EntityID를 확인하세요.");
             }
             else
-                MessageBox.Show("모듈 정보가 없습니다.\n모듈 EntityID를 확인하세요.");
+                MessageBox.Show("펌웨어 이력초기화는 LwM2M에서만 동작합니다.");
         }
 
         private void button6_Click(object sender, EventArgs e)
