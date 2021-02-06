@@ -5742,7 +5742,7 @@ namespace WindowsFormsApp2
                                     {
                                         var coapvalue = jcoapobj["value"] ?? " ";
                                         string hexdata = coapvalue.ToString();
-                                        if (hexdata.Length % 2 == 0)
+                                        if (hexdata.Length > 0 && hexdata.Length % 2 == 0)
                                         {
                                             string isascii = "YES";
                                             char[] orgChars = hexdata.ToCharArray();
@@ -5811,217 +5811,10 @@ namespace WindowsFormsApp2
                             var body = jobj["body"] ?? " ";
                             var responseBody = jobj["responseBody"] ?? " ";
 
-                            string decode = " ";
-                            string bodymsg = body.ToString();
-                            bodymsg = bodymsg.Replace("\t", "");
-                            Console.WriteLine(bodymsg);
+                            string bodymsg = ParsingBodyMsg(body.ToString());
+                            string resbodymsg = ParsingBodyMsg(responseBody.ToString());
 
-                            if (bodymsg.StartsWith("{", System.StringComparison.CurrentCultureIgnoreCase))
-                            {
-                                try
-                                {
-                                    JObject obj = JObject.Parse(bodymsg);
-
-                                    string format = obj["cnf"].ToString(); // data format
-                                    string value = obj["con"].ToString(); // data value
-
-                                    if (format == "application/octet-stream")
-                                    {
-                                        string hexOutput = string.Empty;
-                                        string ascii = "YES";
-                                        byte[] orgBytes = Convert.FromBase64String(value);
-                                        char[] orgChars = System.Text.Encoding.ASCII.GetString(orgBytes).ToCharArray();
-                                        foreach (char _eachChar in orgChars)
-                                        {
-                                            // Get the integral value of the character.
-                                            int intvalue = Convert.ToInt32(_eachChar);
-                                            // Convert the decimal value to a hexadecimal value in string form.
-                                            if (intvalue < 16)
-                                            {
-                                                hexOutput += "0";
-                                                ascii = "NO";
-                                            }
-                                            else if (intvalue < 32)
-                                            {
-                                                ascii = "NO";
-                                            }
-                                            hexOutput += String.Format("{0:X}", intvalue);
-                                        }
-                                        //logPrintInTextBox(hexOutput, "");
-
-                                        if (hexOutput != string.Empty)
-                                        {
-                                            decode = "\n\n( HEX DATA : " + hexOutput;
-
-                                            if (ascii == "YES")
-                                            {
-                                                string asciidata = Encoding.UTF8.GetString(orgBytes);
-                                                decode += "\nASCII DATA : " + asciidata;
-                                            }
-                                            decode += ")";
-                                        }
-                                    }
-                                    else
-                                    {
-                                        decode = "\n\n( DATA : " + value + " )";
-                                    }
-                                    //LogWrite("decode = " + decode);
-                                }
-                                catch (Exception ex)
-                                {
-                                    Console.WriteLine(ex.ToString());
-                                }
-                            }
-                            else if (bodymsg.StartsWith("<?xml", System.StringComparison.CurrentCultureIgnoreCase))
-                            {
-                                string format = string.Empty;
-                                string value = string.Empty;
-
-                                //bodymsg = bodymsg.Replace("\\t", "");
-                                XmlDocument xDoc = new XmlDocument();
-                                xDoc.LoadXml(bodymsg);
-                                //logPrintTC(xDoc.OuterXml.ToString());
-
-                                XmlNodeList xnList = xDoc.SelectNodes("/*"); //접근할 노드
-                                foreach (XmlNode xn in xnList)
-                                {
-                                    try
-                                    {
-                                        if (xn["cnf"] != null)
-                                            format = xn["cnf"].InnerText; // data format
-                                        if (xn["con"] != null)
-                                            value = xn["con"].InnerText; // data value
-
-                                        if (xn["nev"] != null)
-                                        {
-                                            if (xn["nev"]["rep"]["m2m:cin"]["cnf"] != null)
-                                                format = xn["nev"]["rep"]["m2m:cin"]["cnf"].InnerText; // data format
-                                            if (xn["nev"]["rep"]["m2m:cin"]["con"] != null)
-                                                value = xn["nev"]["rep"]["m2m:cin"]["con"].InnerText; // data value
-                                        }
-                                    }
-                                    catch (Exception ex)
-                                    {
-                                        Console.WriteLine(ex.ToString());
-                                    }
-                                }
-                                Console.WriteLine("value = " + value);
-                                Console.WriteLine("format = " + format);
-
-                                if (format == "application/octet-stream")
-                                {
-                                    string hexOutput = string.Empty;
-                                    string ascii = "YES";
-                                    byte[] orgBytes = Convert.FromBase64String(value);
-                                    char[] orgChars = System.Text.Encoding.ASCII.GetString(orgBytes).ToCharArray();
-                                    foreach (char _eachChar in orgChars)
-                                    {
-                                        // Get the integral value of the character.
-                                        int intvalue = Convert.ToInt32(_eachChar);
-                                        // Convert the decimal value to a hexadecimal value in string form.
-                                        if (intvalue < 16)
-                                        {
-                                            hexOutput += "0";
-                                            ascii = "NO";
-                                        }
-                                        else if (intvalue < 32)
-                                        {
-                                            ascii = "NO";
-                                        }
-                                        hexOutput += String.Format("{0:X}", intvalue);
-                                    }
-                                    //logPrintInTextBox(hexOutput, "");
-
-                                    if ( hexOutput != string.Empty)
-                                    {
-                                        decode = "\n\n( HEX DATA : " + hexOutput;
-                                        
-                                        if (ascii == "YES")
-                                        {
-                                            string asciidata = Encoding.UTF8.GetString(orgBytes);
-                                            decode += "\nASCII DATA : " + asciidata;
-                                        }
-                                        decode += ")";
-                                    }
-                                }
-                                else if (value != string.Empty)
-                                {
-                                    decode = "\n\n( DATA : " + value + " )";
-                                }
-                                //LogWrite("decode = " + decode);
-                           }
-                            else if (bodymsg.StartsWith("<m2m", System.StringComparison.CurrentCultureIgnoreCase))
-                            {
-                                string format = string.Empty;
-                                string value = string.Empty;
-
-                                //bodymsg = bodymsg.Replace("\\t", "");
-                                XmlDocument xDoc = new XmlDocument();
-                                xDoc.LoadXml(bodymsg);
-                                //logPrintTC(xDoc.OuterXml.ToString());
-
-                                XmlNodeList xnList = xDoc.SelectNodes("/*"); //접근할 노드
-                                foreach (XmlNode xn in xnList)
-                                {
-                                    try
-                                    {
-                                        if (xn["cnf"] != null)
-                                            format = xn["cnf"].InnerText; // data format
-                                        if (xn["con"] != null)
-                                            value = xn["con"].InnerText; // data value
-                                    }
-                                    catch (Exception ex)
-                                    {
-                                        Console.WriteLine(ex.ToString());
-                                    }
-                                }
-                                //LogWrite("value = " + value);
-                                //LogWrite("format = " + format);
-
-                                if (format == "application/octet-stream")
-                                {
-                                    string hexOutput = string.Empty;
-                                    string ascii = "YES";
-                                    byte[] orgBytes = Convert.FromBase64String(value);
-                                    char[] orgChars = System.Text.Encoding.ASCII.GetString(orgBytes).ToCharArray();
-                                    foreach (char _eachChar in orgChars)
-                                    {
-                                        // Get the integral value of the character.
-                                        int intvalue = Convert.ToInt32(_eachChar);
-                                        // Convert the decimal value to a hexadecimal value in string form.
-                                        if (intvalue < 16)
-                                        {
-                                            hexOutput += "0";
-                                            ascii = "NO";
-                                        }
-                                        else if (intvalue < 32)
-                                        {
-                                            ascii = "NO";
-                                        }
-                                        hexOutput += String.Format("{0:X}", intvalue);
-                                    }
-                                    //logPrintInTextBox(hexOutput, "");
-
-                                    if (hexOutput != string.Empty)
-                                    {
-                                        decode = "\n\n( HEX DATA : " + hexOutput;
-
-                                        if (ascii == "YES")
-                                        {
-                                            string asciidata = Encoding.UTF8.GetString(orgBytes);
-                                            decode += "\nASCII DATA : " + asciidata;
-                                        }
-                                        decode += ")";
-                                    }
-                                }
-                                else if (value != string.Empty)
-                                {
-                                    decode = "\n\n( DATA : " + value + " )";
-                                }
-                                //LogWrite("decode = " + decode);
-                            }
-
-                            message = httpMethod.ToString() + " " + uri.ToString() + "\tREQUEST\n" + bodymsg + decode + "\n\nRESPONSE\n" + responseBody;
+                            message = httpMethod.ToString() + " " + uri.ToString() + "\tREQUEST\n" + bodymsg + "\n\nRESPONSE\n" + responseBody + resbodymsg;
                         }
                         else if (logtype == "HTTP_CLIENT")
                         {
@@ -6074,6 +5867,221 @@ namespace WindowsFormsApp2
                     Console.WriteLine(ex.ToString());
                 }
             }
+        }
+
+        private string ParsingBodyMsg(string body)
+        {
+            string decode = " ";
+            string bodymsg = body.Replace("\t", "");
+            Console.WriteLine(bodymsg);
+
+            if (bodymsg.StartsWith("{", System.StringComparison.CurrentCultureIgnoreCase))
+            {
+                try
+                {
+                    JObject obj = JObject.Parse(bodymsg);
+
+                    string format = obj["cnf"].ToString(); // data format
+                    string value = obj["con"].ToString(); // data value
+
+                    if (format == "application/octet-stream")
+                    {
+                        string hexOutput = string.Empty;
+                        string ascii = "YES";
+                        byte[] orgBytes = Convert.FromBase64String(value);
+                        char[] orgChars = System.Text.Encoding.ASCII.GetString(orgBytes).ToCharArray();
+                        foreach (char _eachChar in orgChars)
+                        {
+                            // Get the integral value of the character.
+                            int intvalue = Convert.ToInt32(_eachChar);
+                            // Convert the decimal value to a hexadecimal value in string form.
+                            if (intvalue < 16)
+                            {
+                                hexOutput += "0";
+                                ascii = "NO";
+                            }
+                            else if (intvalue < 32)
+                            {
+                                ascii = "NO";
+                            }
+                            hexOutput += String.Format("{0:X}", intvalue);
+                        }
+                        //logPrintInTextBox(hexOutput, "");
+
+                        if (hexOutput != string.Empty)
+                        {
+                            decode = "\n\n( HEX DATA : " + hexOutput;
+
+                            if (ascii == "YES")
+                            {
+                                string asciidata = Encoding.UTF8.GetString(orgBytes);
+                                decode += "\nASCII DATA : " + asciidata;
+                            }
+                            decode += ")";
+                        }
+                    }
+                    else
+                    {
+                        decode = "\n\n( DATA : " + value + " )";
+                    }
+                    //LogWrite("decode = " + decode);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.ToString());
+                }
+            }
+            else if (bodymsg.StartsWith("<?xml", System.StringComparison.CurrentCultureIgnoreCase))
+            {
+                string format = string.Empty;
+                string value = string.Empty;
+
+                //bodymsg = bodymsg.Replace("\\t", "");
+                XmlDocument xDoc = new XmlDocument();
+                xDoc.LoadXml(bodymsg);
+                //logPrintTC(xDoc.OuterXml.ToString());
+
+                XmlNodeList xnList = xDoc.SelectNodes("/*"); //접근할 노드
+                foreach (XmlNode xn in xnList)
+                {
+                    try
+                    {
+                        if (xn["cnf"] != null)
+                            format = xn["cnf"].InnerText; // data format
+                        if (xn["con"] != null)
+                            value = xn["con"].InnerText; // data value
+
+                        if (xn["nev"] != null)
+                            if (xn["nev"]["rep"] != null)
+                                if (xn["nev"]["rep"]["m2m:cin"] != null)
+                                {
+                                    if (xn["nev"]["rep"]["m2m:cin"]["cnf"] != null)
+                                        format = xn["nev"]["rep"]["m2m:cin"]["cnf"].InnerText; // data format
+                                    if (xn["nev"]["rep"]["m2m:cin"]["con"] != null)
+                                        value = xn["nev"]["rep"]["m2m:cin"]["con"].InnerText; // data value
+                                }
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex.ToString());
+                    }
+                }
+                Console.WriteLine("value = " + value);
+                Console.WriteLine("format = " + format);
+
+                if (format == "application/octet-stream")
+                {
+                    string hexOutput = string.Empty;
+                    string ascii = "YES";
+                    byte[] orgBytes = Convert.FromBase64String(value);
+                    char[] orgChars = System.Text.Encoding.ASCII.GetString(orgBytes).ToCharArray();
+                    foreach (char _eachChar in orgChars)
+                    {
+                        // Get the integral value of the character.
+                        int intvalue = Convert.ToInt32(_eachChar);
+                        // Convert the decimal value to a hexadecimal value in string form.
+                        if (intvalue < 16)
+                        {
+                            hexOutput += "0";
+                            ascii = "NO";
+                        }
+                        else if (intvalue < 32)
+                        {
+                            ascii = "NO";
+                        }
+                        hexOutput += String.Format("{0:X}", intvalue);
+                    }
+                    //logPrintInTextBox(hexOutput, "");
+
+                    if (hexOutput != string.Empty)
+                    {
+                        decode = "\n\n( HEX DATA : " + hexOutput;
+
+                        if (ascii == "YES")
+                        {
+                            string asciidata = Encoding.UTF8.GetString(orgBytes);
+                            decode += "\nASCII DATA : " + asciidata;
+                        }
+                        decode += ")";
+                    }
+                }
+                else if (value != string.Empty)
+                {
+                    decode = "\n\n( DATA : " + value + " )";
+                }
+                //LogWrite("decode = " + decode);
+            }
+            else if (bodymsg.StartsWith("<m2m", System.StringComparison.CurrentCultureIgnoreCase))
+            {
+                string format = string.Empty;
+                string value = string.Empty;
+
+                //bodymsg = bodymsg.Replace("\\t", "");
+                XmlDocument xDoc = new XmlDocument();
+                xDoc.LoadXml(bodymsg);
+                //logPrintTC(xDoc.OuterXml.ToString());
+
+                XmlNodeList xnList = xDoc.SelectNodes("/*"); //접근할 노드
+                foreach (XmlNode xn in xnList)
+                {
+                    try
+                    {
+                        if (xn["cnf"] != null)
+                            format = xn["cnf"].InnerText; // data format
+                        if (xn["con"] != null)
+                            value = xn["con"].InnerText; // data value
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex.ToString());
+                    }
+                }
+                //LogWrite("value = " + value);
+                //LogWrite("format = " + format);
+
+                if (format == "application/octet-stream")
+                {
+                    string hexOutput = string.Empty;
+                    string ascii = "YES";
+                    byte[] orgBytes = Convert.FromBase64String(value);
+                    char[] orgChars = System.Text.Encoding.ASCII.GetString(orgBytes).ToCharArray();
+                    foreach (char _eachChar in orgChars)
+                    {
+                        // Get the integral value of the character.
+                        int intvalue = Convert.ToInt32(_eachChar);
+                        // Convert the decimal value to a hexadecimal value in string form.
+                        if (intvalue < 16)
+                        {
+                            hexOutput += "0";
+                            ascii = "NO";
+                        }
+                        else if (intvalue < 32)
+                        {
+                            ascii = "NO";
+                        }
+                        hexOutput += String.Format("{0:X}", intvalue);
+                    }
+                    //logPrintInTextBox(hexOutput, "");
+
+                    if (hexOutput != string.Empty)
+                    {
+                        decode = "\n\n( HEX DATA : " + hexOutput;
+
+                        if (ascii == "YES")
+                        {
+                            string asciidata = Encoding.UTF8.GetString(orgBytes);
+                            decode += "\nASCII DATA : " + asciidata;
+                        }
+                        decode += ")";
+                    }
+                }
+                else if (value != string.Empty)
+                {
+                    decode = "\n\n( DATA : " + value + " )";
+                }
+                //LogWrite("decode = " + decode);
+            }
+            return (bodymsg + decode);
         }
 
         private void listBox3_SelectedIndexChanged(object sender, EventArgs e)
