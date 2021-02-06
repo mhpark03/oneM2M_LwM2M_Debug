@@ -704,8 +704,8 @@ namespace WindowsFormsApp2
             svr.entityId = string.Empty;
 
             tc.state = string.Empty;
-            tc.lwm2m = new string[(int)lwm2mtc.tc0603+1,2];
-            tc.onem2m = new string[(int)onem2mtc.tc021401+1,2];
+            tc.lwm2m = new string[(int)lwm2mtc.tc0603+1,5];
+            tc.onem2m = new string[(int)onem2mtc.tc021401+1,5];
 
             tbTCResult.Text = string.Empty;
             tBoxDataIN.Text = string.Empty;
@@ -3287,6 +3287,9 @@ namespace WindowsFormsApp2
             lwm2mtc index = (lwm2mtc)Enum.Parse(typeof(lwm2mtc), tcindex);
             tc.lwm2m[(int)index,0] = "FAIL";             // 시험 결과 초기 값(FAIL) 설정, 테스트 후 결과 수정
             tc.lwm2m[(int)index,1] = string.Empty;
+            tc.lwm2m[(int)index, 2] = string.Empty;
+            tc.lwm2m[(int)index, 3] = string.Empty;
+            tc.lwm2m[(int)index, 4] = string.Empty;
         }
 
         private void endLwM2MTC(string tcindex)
@@ -3314,6 +3317,9 @@ namespace WindowsFormsApp2
             onem2mtc index = (onem2mtc)Enum.Parse(typeof(onem2mtc), tcindex);
             tc.onem2m[(int)index,0] = "FAIL";             // 시험 결과 초기 값(FAIL) 설정, 테스트 후 결과 수정
             tc.onem2m[(int)index, 1] = string.Empty;
+            tc.onem2m[(int)index, 2] = string.Empty;
+            tc.onem2m[(int)index, 3] = string.Empty;
+            tc.onem2m[(int)index, 4] = string.Empty;
         }
 
         private void endoneM2MTC(string tcindex)
@@ -4432,6 +4438,7 @@ namespace WindowsFormsApp2
                 sw.WriteLine("시험일," + DateTime.Now.ToString("MM/dd hh:mm:ss"));
                 sw.WriteLine("EntityID," + dev.entityId);
                 sw.WriteLine(string.Empty);
+                sw.WriteLine("시험 항목,결과,resultCode,logId,비고");
 
                 string tcresult;
                 if (dev.type == "onem2m")
@@ -4444,9 +4451,14 @@ namespace WindowsFormsApp2
                         if (tcresult == null)
                             devinfo += "Not TEST";
                         else
+                        {
                             devinfo += tcresult;
 
-                        tcresult += "," + tc.onem2m[(int)index, 1];
+                            devinfo += "," + tc.onem2m[(int)index, 1];
+                            devinfo += "," + tc.onem2m[(int)index, 2];
+                            devinfo += "," + tc.onem2m[(int)index, 3];
+                            devinfo += "," + tc.onem2m[(int)index, 4];
+                        }
                         sw.WriteLine(devinfo);
                     }
                 }
@@ -4460,9 +4472,14 @@ namespace WindowsFormsApp2
                         if (tcresult == null)
                             devinfo += "Not TEST";
                         else
+                        {
                             devinfo += tcresult;
 
-                        tcresult += "," + tc.lwm2m[(int)indexl, 1];
+                            devinfo += "," + tc.lwm2m[(int)indexl, 1];
+                            devinfo += "," + tc.lwm2m[(int)indexl, 2];
+                            devinfo += "," + tc.lwm2m[(int)indexl, 3];
+                            devinfo += "," + tc.lwm2m[(int)indexl, 4];
+                        }
                         sw.WriteLine(devinfo);
                     }
                 }
@@ -4599,7 +4616,9 @@ namespace WindowsFormsApp2
             Console.WriteLine("svr enrmtKey = " + svr.enrmtKey);
             Console.WriteLine("svr entityId = " + svr.entityId);
             Console.WriteLine("svr token = " + svr.token);
- 
+
+            label29.Text = svr.entityId;
+
             // EKI값 계산하기
             // short uuid구하기
             string suuid = svr.entityId.Substring(10, 10);
@@ -5821,7 +5840,7 @@ namespace WindowsFormsApp2
                                 //bodymsg = bodymsg.Replace("\\t", "");
                                 XmlDocument xDoc = new XmlDocument();
                                 xDoc.LoadXml(bodymsg);
-                                logPrintTC(xDoc.OuterXml.ToString());
+                                //logPrintTC(xDoc.OuterXml.ToString());
 
                                 XmlNodeList xnList = xDoc.SelectNodes("/*"); //접근할 노드
                                 foreach (XmlNode xn in xnList)
@@ -5846,8 +5865,8 @@ namespace WindowsFormsApp2
                                         Console.WriteLine(ex.ToString());
                                     }
                                 }
-                                //LogWrite("value = " + value);
-                                //LogWrite("format = " + format);
+                                Console.WriteLine("value = " + value);
+                                Console.WriteLine("format = " + format);
 
                                 if (format == "application/octet-stream")
                                 {
@@ -5899,7 +5918,7 @@ namespace WindowsFormsApp2
                                 //bodymsg = bodymsg.Replace("\\t", "");
                                 XmlDocument xDoc = new XmlDocument();
                                 xDoc.LoadXml(bodymsg);
-                                logPrintTC(xDoc.OuterXml.ToString());
+                                //logPrintTC(xDoc.OuterXml.ToString());
 
                                 XmlNodeList xnList = xDoc.SelectNodes("/*"); //접근할 노드
                                 foreach (XmlNode xn in xnList)
@@ -6026,14 +6045,6 @@ namespace WindowsFormsApp2
                 MessageBox.Show(values[4], "전문 상세내역");
         }
 
-        private void button7_Click(object sender, EventArgs e)
-        {
-            string kind = "type=onem2m";
-            if (dev.entityId != string.Empty)
-                kind += "&entityId=" + dev.entityId+"&ctn="+dev.imsi;
-            getSvrLoglists(kind);
-        }
-
         private void button8_Click(object sender, EventArgs e)
         {
             tbLog.Text = string.Empty;
@@ -6051,10 +6062,10 @@ namespace WindowsFormsApp2
                 kind += "type=" + dev.type + "&";
             if (textBox1.Text != string.Empty)
                 kind += "ctn=" + textBox1.Text;
-            getSvrLoglists(kind);
+            getSvrLoglists(kind,"man");
         }
 
-        private void getSvrLoglists(string kind)
+        private void getSvrLoglists(string kind, string mode)
         {
             ReqHeader header = new ReqHeader();
             header.Url = logUrl + "/logs?" + kind;
@@ -6089,7 +6100,7 @@ namespace WindowsFormsApp2
                         listBox1.Items.Add(logtime + "\t" + jobj["logId"].ToString() + "\t" + jobj["resultCode"].ToString() + "\t   " + jobj["resultCodeName"].ToString() + " (" + path + ")");
                     }
 
-                    if (listBox1.Items.Count != 0)
+                    if (listBox1.Items.Count != 0 && mode == "man")
                     {
                         listBox1.SelectedIndex = 0;
                         //getSvrEventLog(listBox1.SelectedItem.ToString());
@@ -6114,6 +6125,14 @@ namespace WindowsFormsApp2
         private void button10_Click(object sender, EventArgs e)
         {
             getSvrDetailLog(textBox3.Text);
+        }
+
+        private void button11_Click(object sender, EventArgs e)
+        {
+            if (svr.entityId != string.Empty)
+                getSvrLoglists("ctn=" + svr.entityId,"man");
+            else
+                MessageBox.Show("서비스서버 MEF인증 후 사용이 가능합니다");
         }
     }
 

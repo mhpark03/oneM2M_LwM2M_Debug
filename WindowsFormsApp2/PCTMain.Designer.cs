@@ -40,8 +40,12 @@
             this.button8 = new System.Windows.Forms.Button();
             this.tbLog = new System.Windows.Forms.TextBox();
             this.groupBox11 = new System.Windows.Forms.GroupBox();
+            this.button11 = new System.Windows.Forms.Button();
             this.btnMEFAuthS = new System.Windows.Forms.Button();
             this.gbPlatformLog = new System.Windows.Forms.GroupBox();
+            this.label27 = new System.Windows.Forms.Label();
+            this.button10 = new System.Windows.Forms.Button();
+            this.textBox3 = new System.Windows.Forms.TextBox();
             this.label26 = new System.Windows.Forms.Label();
             this.button7 = new System.Windows.Forms.Button();
             this.textBox2 = new System.Windows.Forms.TextBox();
@@ -154,9 +158,8 @@
             this.groupBox12 = new System.Windows.Forms.GroupBox();
             this.tBoxDataIN = new System.Windows.Forms.TextBox();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
-            this.label27 = new System.Windows.Forms.Label();
-            this.button10 = new System.Windows.Forms.Button();
-            this.textBox3 = new System.Windows.Forms.TextBox();
+            this.label29 = new System.Windows.Forms.Label();
+            this.label30 = new System.Windows.Forms.Label();
             this.panel1.SuspendLayout();
             this.gbTCResult.SuspendLayout();
             this.gbServerLog.SuspendLayout();
@@ -211,7 +214,7 @@
             this.panel1.Location = new System.Drawing.Point(0, 0);
             this.panel1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(1542, 725);
+            this.panel1.Size = new System.Drawing.Size(1540, 725);
             this.panel1.TabIndex = 10;
             // 
             // gbTCResult
@@ -266,6 +269,9 @@
             // 
             // groupBox11
             // 
+            this.groupBox11.Controls.Add(this.label29);
+            this.groupBox11.Controls.Add(this.label30);
+            this.groupBox11.Controls.Add(this.button11);
             this.groupBox11.Controls.Add(this.btnMEFAuthS);
             this.groupBox11.Controls.Add(this.gbPlatformLog);
             this.groupBox11.Controls.Add(this.gbOneM2MServer);
@@ -276,11 +282,21 @@
             this.groupBox11.TabStop = false;
             this.groupBox11.Text = "SERVER 동작";
             // 
+            // button11
+            // 
+            this.button11.Location = new System.Drawing.Point(155, 20);
+            this.button11.Name = "button11";
+            this.button11.Size = new System.Drawing.Size(130, 20);
+            this.button11.TabIndex = 44;
+            this.button11.Text = "서비스서버 로그 조회";
+            this.button11.UseVisualStyleBackColor = true;
+            this.button11.Click += new System.EventHandler(this.button11_Click);
+            // 
             // btnMEFAuthS
             // 
-            this.btnMEFAuthS.Location = new System.Drawing.Point(15, 20);
+            this.btnMEFAuthS.Location = new System.Drawing.Point(22, 19);
             this.btnMEFAuthS.Name = "btnMEFAuthS";
-            this.btnMEFAuthS.Size = new System.Drawing.Size(112, 19);
+            this.btnMEFAuthS.Size = new System.Drawing.Size(123, 19);
             this.btnMEFAuthS.TabIndex = 0;
             this.btnMEFAuthS.Text = "MEF 인증";
             this.btnMEFAuthS.UseVisualStyleBackColor = true;
@@ -315,7 +331,35 @@
             this.gbPlatformLog.Size = new System.Drawing.Size(556, 422);
             this.gbPlatformLog.TabIndex = 33;
             this.gbPlatformLog.TabStop = false;
-            this.gbPlatformLog.Text = "LwM2M Device DATA";
+            this.gbPlatformLog.Text = "Platform Log";
+            // 
+            // label27
+            // 
+            this.label27.AutoSize = true;
+            this.label27.Location = new System.Drawing.Point(263, 266);
+            this.label27.Name = "label27";
+            this.label27.Size = new System.Drawing.Size(37, 12);
+            this.label27.TabIndex = 69;
+            this.label27.Text = "LogID";
+            this.label27.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // button10
+            // 
+            this.button10.Location = new System.Drawing.Point(425, 261);
+            this.button10.Name = "button10";
+            this.button10.Size = new System.Drawing.Size(121, 20);
+            this.button10.TabIndex = 68;
+            this.button10.Text = "상세 로그 조회";
+            this.button10.UseVisualStyleBackColor = true;
+            this.button10.Click += new System.EventHandler(this.button10_Click);
+            // 
+            // textBox3
+            // 
+            this.textBox3.Location = new System.Drawing.Point(315, 262);
+            this.textBox3.Name = "textBox3";
+            this.textBox3.Size = new System.Drawing.Size(104, 21);
+            this.textBox3.TabIndex = 67;
+            this.textBox3.Text = "12345678";
             // 
             // label26
             // 
@@ -525,7 +569,7 @@
             this.gbOneM2MServer.Size = new System.Drawing.Size(558, 163);
             this.gbOneM2MServer.TabIndex = 32;
             this.gbOneM2MServer.TabStop = false;
-            this.gbOneM2MServer.Text = "Device Information";
+            this.gbOneM2MServer.Text = "Device Interface";
             // 
             // lbDirectRxData
             // 
@@ -1495,39 +1539,29 @@
             this.timer1.Interval = 10000;
             this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
             // 
-            // label27
+            // label29
             // 
-            this.label27.AutoSize = true;
-            this.label27.Location = new System.Drawing.Point(263, 266);
-            this.label27.Name = "label27";
-            this.label27.Size = new System.Drawing.Size(37, 12);
-            this.label27.TabIndex = 69;
-            this.label27.Text = "LogID";
-            this.label27.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.label29.Location = new System.Drawing.Point(361, 22);
+            this.label29.Name = "label29";
+            this.label29.Size = new System.Drawing.Size(189, 16);
+            this.label29.TabIndex = 46;
+            this.label29.Text = "server entityId";
+            this.label29.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
-            // button10
+            // label30
             // 
-            this.button10.Location = new System.Drawing.Point(425, 261);
-            this.button10.Name = "button10";
-            this.button10.Size = new System.Drawing.Size(121, 20);
-            this.button10.TabIndex = 68;
-            this.button10.Text = "상세 로그 조회";
-            this.button10.UseVisualStyleBackColor = true;
-            this.button10.Click += new System.EventHandler(this.button10_Click);
-            // 
-            // textBox3
-            // 
-            this.textBox3.Location = new System.Drawing.Point(315, 262);
-            this.textBox3.Name = "textBox3";
-            this.textBox3.Size = new System.Drawing.Size(104, 21);
-            this.textBox3.TabIndex = 67;
-            this.textBox3.Text = "12345678";
+            this.label30.Location = new System.Drawing.Point(291, 23);
+            this.label30.Name = "label30";
+            this.label30.Size = new System.Drawing.Size(65, 11);
+            this.label30.TabIndex = 45;
+            this.label30.Text = "entityId =";
+            this.label30.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1542, 725);
+            this.ClientSize = new System.Drawing.Size(1540, 725);
             this.Controls.Add(this.panel1);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.IsMdiContainer = true;
@@ -1694,6 +1728,9 @@
         private System.Windows.Forms.Label label27;
         private System.Windows.Forms.Button button10;
         private System.Windows.Forms.TextBox textBox3;
+        private System.Windows.Forms.Button button11;
+        private System.Windows.Forms.Label label29;
+        private System.Windows.Forms.Label label30;
     }
 }
 
