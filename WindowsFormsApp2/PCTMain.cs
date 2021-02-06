@@ -4361,6 +4361,8 @@ namespace WindowsFormsApp2
             {
                 // Get the integral value of the character.
                 int value = Convert.ToInt32(_eachChar);
+                if (value < 16)
+                    hexstring += "0";
                 // Convert the decimal value to a hexadecimal value in string form.
                 hexstring += String.Format("{0:X}", value);
             }
@@ -5727,14 +5729,52 @@ namespace WindowsFormsApp2
                             var coapPayload = jobj["coapPayload"] ?? "";
                             if (coapPayload.ToString() != "")
                             {
+                                string coapmsg = coapPayload.ToString();
+                                JArray jcoaparr = JArray.Parse(coapmsg); //json 객체로
+                                //Console.WriteLine(jcoaparr);
+
+                                foreach (JObject jcoapobj in jcoaparr)
+                                {
+                                    //Console.WriteLine(jcoapobj);
+
+                                    var type = jcoapobj["type"] ?? " ";
+                                    if (type.ToString() == "OPAQUE")
+                                    {
+                                        var coapvalue = jcoapobj["value"] ?? " ";
+                                        string hexdata = coapvalue.ToString();
+                                        if (hexdata.Length % 2 == 0)
+                                        {
+                                            string isascii = "YES";
+                                            char[] orgChars = hexdata.ToCharArray();
+                                            //Console.WriteLine(hexdata);
+                                            //Console.WriteLine(orgChars);
+
+                                            for (int i = 0; i < orgChars.Length; i += 2)
+                                            {
+                                                // Get the integral value of the character.
+                                                if (Convert.ToInt32(orgChars[i]) < 50)      // '2' = 50, 0x20=" "
+                                                {
+                                                    isascii = "NO";
+                                                    break;
+                                                }
+                                            }
+
+                                            if (isascii == "YES")
+                                            {
+                                                coapmsg += "\n\n(ASCII DATA : " + BcdToString(orgChars) + ")\n";
+                                            }
+                                        }
+                                    }
+                                }
+
                                 var uriQuery = jobj["uriQuery"] ?? " ";
                                 if (uriQuery.ToString() == " ")
-                                    message += coapPayload.ToString();
+                                    message += coapmsg;
                                 else
                                 {
                                     if( path.StartsWith("rd/", System.StringComparison.CurrentCultureIgnoreCase))
                                     {
-                                        message += coapPayload.ToString();
+                                        message += coapmsg;
                                     }
                                     else
                                     {
@@ -5748,7 +5788,7 @@ namespace WindowsFormsApp2
                                                 message += "\n2048(EKI), 2049(TOKEN) 정보가 없습니다\n";
                                             }
                                         }
-                                        message += "\n" + coapPayload.ToString();
+                                        message += "\n" + coapmsg;
                                     }
                                 }
                             }
