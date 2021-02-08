@@ -4397,6 +4397,39 @@ namespace WindowsFormsApp2
                 filename = "server_log_" + currenttime.ToString("MMdd_hhmmss") + ".txt";
                 logFileWrite(pathname, filename, tbLog.Text);
             }
+
+            if (listBox1.Items.Count != 0)
+            {
+                filename = "svrlog_log_" + currenttime.ToString("MMdd_hhmmss") + ".txt";
+                FileLogWrite(pathname, filename);
+            }
+        }
+
+        private void FileLogWrite(string path, string filename)
+        {
+            // Create a file to write to.
+            FileStream fs = null;
+            try
+            {
+                fs = new FileStream(path + filename, FileMode.Create, FileAccess.Write);
+                // Create a file to write to.
+                StreamWriter sw = new StreamWriter(fs, Encoding.UTF8);
+
+                foreach (var input_items in listBox1.Items)
+                {
+                    string result = string.Format("{0} ", input_items) + "\n";
+
+                    char[] logmsg = result.ToCharArray();
+                    sw.Write(logmsg, 0, result.Length);
+                }
+
+                sw.Close();
+                fs.Close();
+            }
+            catch (Exception err)
+            {
+                MessageBox.Show(err.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void logFileWrite(string path, string filename, string text)
@@ -5808,13 +5841,14 @@ namespace WindowsFormsApp2
                         {
                             var httpMethod = jobj["httpMethod"] ?? " ";
                             var uri = jobj["uri"] ?? " ";
+                            var httpheader = jobj["header"] ?? " ";
                             var body = jobj["body"] ?? " ";
                             var responseBody = jobj["responseBody"] ?? " ";
 
                             string bodymsg = ParsingBodyMsg(body.ToString());
                             string resbodymsg = ParsingBodyMsg(responseBody.ToString());
 
-                            message = httpMethod.ToString() + " " + uri.ToString() + "\tREQUEST\n" + bodymsg + "\n\nRESPONSE\n" + responseBody + resbodymsg;
+                            message = httpMethod.ToString() + " " + uri.ToString() + "\tREQUEST\n" + httpheader + "\n" + bodymsg + "\n\nRESPONSE\n" + responseBody + resbodymsg;
                         }
                         else if (logtype == "HTTP_CLIENT")
                         {
@@ -5889,45 +5923,48 @@ namespace WindowsFormsApp2
                         value = obj["con"].ToString(); // data value
                     }
 
-                    if (format == "application/octet-stream")
+                    if(value != string.Empty)
                     {
-                        string hexOutput = string.Empty;
-                        string ascii = "YES";
-                        byte[] orgBytes = Convert.FromBase64String(value);
-                        char[] orgChars = System.Text.Encoding.ASCII.GetString(orgBytes).ToCharArray();
-                        foreach (char _eachChar in orgChars)
+                        if (format == "application/octet-stream")
                         {
-                            // Get the integral value of the character.
-                            int intvalue = Convert.ToInt32(_eachChar);
-                            // Convert the decimal value to a hexadecimal value in string form.
-                            if (intvalue < 16)
+                            string hexOutput = string.Empty;
+                            string ascii = "YES";
+                            byte[] orgBytes = Convert.FromBase64String(value);
+                            char[] orgChars = System.Text.Encoding.ASCII.GetString(orgBytes).ToCharArray();
+                            foreach (char _eachChar in orgChars)
                             {
-                                hexOutput += "0";
-                                ascii = "NO";
+                                // Get the integral value of the character.
+                                int intvalue = Convert.ToInt32(_eachChar);
+                                // Convert the decimal value to a hexadecimal value in string form.
+                                if (intvalue < 16)
+                                {
+                                    hexOutput += "0";
+                                    ascii = "NO";
+                                }
+                                else if (intvalue < 32)
+                                {
+                                    ascii = "NO";
+                                }
+                                hexOutput += String.Format("{0:X}", intvalue);
                             }
-                            else if (intvalue < 32)
-                            {
-                                ascii = "NO";
-                            }
-                            hexOutput += String.Format("{0:X}", intvalue);
-                        }
-                        //logPrintInTextBox(hexOutput, "");
+                            //logPrintInTextBox(hexOutput, "");
 
-                        if (hexOutput != string.Empty)
+                            if (hexOutput != string.Empty)
+                            {
+                                decode = "\n\n( HEX DATA : " + hexOutput;
+
+                                if (ascii == "YES")
+                                {
+                                    string asciidata = Encoding.UTF8.GetString(orgBytes);
+                                    decode += "\nASCII DATA : " + asciidata;
+                                }
+                                decode += ")";
+                            }
+                        }
+                        else
                         {
-                            decode = "\n\n( HEX DATA : " + hexOutput;
-
-                            if (ascii == "YES")
-                            {
-                                string asciidata = Encoding.UTF8.GetString(orgBytes);
-                                decode += "\nASCII DATA : " + asciidata;
-                            }
-                            decode += ")";
+                            decode = "\n\n( DATA : " + value + " )";
                         }
-                    }
-                    else
-                    {
-                        decode = "\n\n( DATA : " + value + " )";
                     }
                     //LogWrite("decode = " + decode);
                 }
@@ -6095,7 +6132,7 @@ namespace WindowsFormsApp2
             string[] values = selected_msg.Split('\t');    // 수신한 데이터를 한 문장씩 나누어 array에 저장
 
             if (values[4] != " ")
-                MessageBox.Show(values[4], "전문 상세내역");
+                MessageBox.Show(values[3] + "\n\n" + values[4], "전문 상세내역");
         }
 
         private void button8_Click(object sender, EventArgs e)
