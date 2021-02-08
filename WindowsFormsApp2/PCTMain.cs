@@ -5880,9 +5880,14 @@ namespace WindowsFormsApp2
                 try
                 {
                     JObject obj = JObject.Parse(bodymsg);
+                    string format = string.Empty;
+                    string value = string.Empty;
 
-                    string format = obj["cnf"].ToString(); // data format
-                    string value = obj["con"].ToString(); // data value
+                    if (obj["cnf"] != null)
+                    {
+                        format = obj["cnf"].ToString(); // data format
+                        value = obj["con"].ToString(); // data value
+                    }
 
                     if (format == "application/octet-stream")
                     {
