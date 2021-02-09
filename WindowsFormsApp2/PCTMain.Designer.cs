@@ -40,6 +40,8 @@
             this.button8 = new System.Windows.Forms.Button();
             this.tbLog = new System.Windows.Forms.TextBox();
             this.groupBox11 = new System.Windows.Forms.GroupBox();
+            this.label29 = new System.Windows.Forms.Label();
+            this.label30 = new System.Windows.Forms.Label();
             this.button11 = new System.Windows.Forms.Button();
             this.btnMEFAuthS = new System.Windows.Forms.Button();
             this.gbPlatformLog = new System.Windows.Forms.GroupBox();
@@ -158,8 +160,6 @@
             this.groupBox12 = new System.Windows.Forms.GroupBox();
             this.tBoxDataIN = new System.Windows.Forms.TextBox();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
-            this.label29 = new System.Windows.Forms.Label();
-            this.label30 = new System.Windows.Forms.Label();
             this.panel1.SuspendLayout();
             this.gbTCResult.SuspendLayout();
             this.gbServerLog.SuspendLayout();
@@ -281,6 +281,24 @@
             this.groupBox11.TabIndex = 34;
             this.groupBox11.TabStop = false;
             this.groupBox11.Text = "SERVER 동작";
+            // 
+            // label29
+            // 
+            this.label29.Location = new System.Drawing.Point(361, 22);
+            this.label29.Name = "label29";
+            this.label29.Size = new System.Drawing.Size(189, 16);
+            this.label29.TabIndex = 46;
+            this.label29.Text = "server entityId";
+            this.label29.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // label30
+            // 
+            this.label30.Location = new System.Drawing.Point(291, 23);
+            this.label30.Name = "label30";
+            this.label30.Size = new System.Drawing.Size(65, 11);
+            this.label30.TabIndex = 45;
+            this.label30.Text = "entityId =";
+            this.label30.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // button11
             // 
@@ -1109,7 +1127,7 @@
             this.btnLwM2MFullTest.Name = "btnLwM2MFullTest";
             this.btnLwM2MFullTest.Size = new System.Drawing.Size(63, 20);
             this.btnLwM2MFullTest.TabIndex = 42;
-            this.btnLwM2MFullTest.Text = "TC전체";
+            this.btnLwM2MFullTest.Text = "TC시작";
             this.btnLwM2MFullTest.UseVisualStyleBackColor = true;
             this.btnLwM2MFullTest.Click += new System.EventHandler(this.btnLwM2MFullTest_Click);
             // 
@@ -1538,24 +1556,6 @@
             // 
             this.timer1.Interval = 10000;
             this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
-            // 
-            // label29
-            // 
-            this.label29.Location = new System.Drawing.Point(361, 22);
-            this.label29.Name = "label29";
-            this.label29.Size = new System.Drawing.Size(189, 16);
-            this.label29.TabIndex = 46;
-            this.label29.Text = "server entityId";
-            this.label29.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
-            // label30
-            // 
-            this.label30.Location = new System.Drawing.Point(291, 23);
-            this.label30.Name = "label30";
-            this.label30.Size = new System.Drawing.Size(65, 11);
-            this.label30.TabIndex = 45;
-            this.label30.Text = "entityId =";
-            this.label30.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // Form1
             // 

@@ -423,6 +423,8 @@ namespace WindowsFormsApp2
         string mefUrl = "https://testmef.onem2m.uplus.co.kr:443"; // MEF(개발기)
         string logUrl = "http://106.103.228.184/api/v1"; // oneM2M log(개발기)
 
+        string tcStartTime = string.Empty;
+
         ServiceServer svr = new ServiceServer();
         Device dev = new Device();
         TCResult tc = new TCResult();
@@ -5214,6 +5216,7 @@ namespace WindowsFormsApp2
         {
             if (isDeviceInfo())
             {
+                tcStartTime = DateTime.Now.ToString("yyyyMMddHHmmss");
                 // oneM2M 플랫폼 인증 요청
                 startoneM2MTC("tc020101");
                 //AT$OM_SVR_INFO=<svr>,<ip>,<port>
@@ -5316,7 +5319,8 @@ namespace WindowsFormsApp2
 
         private void btnLwM2MFullTest_Click(object sender, EventArgs e)
         {
-
+            if(dev.entityId != string.Empty)
+                tcStartTime = DateTime.Now.ToString("yyyyMMddHHmmss");
         }
 
         private void tbSvcCd_KeyDown(object sender, KeyEventArgs e)
@@ -6152,6 +6156,8 @@ namespace WindowsFormsApp2
                 kind += "type=" + dev.type + "&";
             if (textBox1.Text != string.Empty)
                 kind += "ctn=" + textBox1.Text;
+            if (tcStartTime != string.Empty)
+                kind += "&from=" + tcStartTime;
             getSvrLoglists(kind,"man");
         }
 
@@ -6220,7 +6226,7 @@ namespace WindowsFormsApp2
         private void button11_Click(object sender, EventArgs e)
         {
             if (svr.entityId != string.Empty)
-                getSvrLoglists("ctn=" + svr.entityId,"man");
+                getSvrLoglists("entityId=" + svr.entityId,"man");
             else
                 MessageBox.Show("서비스서버 MEF인증 후 사용이 가능합니다");
         }
