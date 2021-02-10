@@ -707,7 +707,11 @@ namespace WindowsFormsApp2
 
             tc.state = string.Empty;
             tc.lwm2m = new string[(int)lwm2mtc.tc0603+1,5];
+            for (int i = 0; i < (int)lwm2mtc.tc0603 + 1; i++)
+                tc.lwm2m[i, 1] = string.Empty;
             tc.onem2m = new string[(int)onem2mtc.tc021401+1,5];
+            for (int i = 0; i < (int)onem2mtc.tc021401 + 1; i++)
+                tc.onem2m[i, 1] = string.Empty;
 
             tbTCResult.Text = string.Empty;
             tBoxDataIN.Text = string.Empty;
@@ -3296,19 +3300,25 @@ namespace WindowsFormsApp2
 
         private void endLwM2MTC(string tcindex)
         {
-            logPrintTC(lwm2mtclist[tcindex] + " [성공]");
             lwm2mtc index = (lwm2mtc)Enum.Parse(typeof(lwm2mtc), tcindex);
+            Console.WriteLine(tc.lwm2m[(int)index, 1]);
             if (tc.lwm2m[(int)index, 1] == string.Empty)
+            {
+                logPrintTC(lwm2mtclist[tcindex] + " [성공]");
                 tc.lwm2m[(int)index, 0] = "PASS";             // 시험 결과 저장
+            }
             tc.state = string.Empty;
         }
 
-        private void errLwM2MTC(string tcindex, string errmsg)
+        private void errLwM2MTC(string tcindex, string logId, string resultCode, string resultCodeName)
         {
             logPrintTC(lwm2mtclist[tcindex] + " [오류]");
             lwm2mtc index = (lwm2mtc)Enum.Parse(typeof(lwm2mtc), tcindex);
             tc.lwm2m[(int)index, 0] = "FAIL";             // 시험 결과 저장
-            tc.lwm2m[(int)index, 1] = errmsg;
+            tc.lwm2m[(int)index, 1] = resultCode;
+            tc.lwm2m[(int)index, 2] = logId;
+            tc.lwm2m[(int)index, 3] = resultCodeName;
+            tc.lwm2m[(int)index, 4] = "";
             tc.state = string.Empty;
         }
 
@@ -5387,10 +5397,10 @@ namespace WindowsFormsApp2
             textBox2.Text = values[1];
             tBResultCode.Text = values[2];
 
-            getSvrEventLog(values[1]);
+            getSvrEventLog(values[1],string.Empty);
         }
 
-        private void getSvrEventLog(string logid)
+        private void getSvrEventLog(string logid, string kind)
         {
             label21.Text = "서버로그 ID : " + logid + " 상세내역";
 
@@ -5430,10 +5440,13 @@ namespace WindowsFormsApp2
                         listBox2.Items.Add(logtime + "\t" + jobj["logId"].ToString() + "\t" + jobj["resultCode"].ToString() + "\t   " + jobj["resultCodeName"].ToString() + " (" + logType.ToString() + " => " + path + ")");
                     }
 
-                    if (listBox2.Items.Count != 0)
+                    if (kind != string.Empty)
+                    {
+                        getSvrDetailLog(logid, kind);
+                    }
+                    else if (listBox2.Items.Count != 0)
                     {
                         listBox2.SelectedIndex = 0;
-                        //getSvrDetailLog(listBox2.SelectedItem.ToString());
                     }
                 }
                 catch (Exception ex)
@@ -5709,10 +5722,10 @@ namespace WindowsFormsApp2
             tBResultCode.Text = values[2];
             textBox3.Text = values[1];
 
-            getSvrDetailLog(values[1]);
+            getSvrDetailLog(values[1],string.Empty);
         }
 
-        private void getSvrDetailLog(string logid)
+        private void getSvrDetailLog(string logid,string kind)
         {
             label22.Text = "ID : " + logid + " 상세내역";
 
@@ -5799,6 +5812,16 @@ namespace WindowsFormsApp2
                                             if (isascii == "YES")
                                             {
                                                 coapmsg += "\n\n(ASCII DATA : " + BcdToString(orgChars) + ")\n";
+                                            }
+                                        }
+
+                                        if (kind == "tc0302")
+                                        {
+                                            if (code.ToString() == "NOT_FOUND")
+                                            {
+                                                var rdpath = jcoapobj["path"] ?? " ";
+
+                                                errLwM2MTC(kind, jobj["logId"].ToString(), rdpath.ToString(), code.ToString());
                                             }
                                         }
                                     }
@@ -6187,19 +6210,31 @@ namespace WindowsFormsApp2
                     {
                         string time = jobj["logTime"].ToString();
                         string logtime = time.Substring(8, 2) + ":" + time.Substring(10, 2) + ":" + time.Substring(12, 2);
-                        var pathInfo = jobj["pathInfo"] ?? "NULL";
-                        var trgAddr = jobj["trgAddr"] ?? "NULL";
+                        var pathInfo = jobj["pathInfo"] ?? " ";
+                        var trgAddr = jobj["trgAddr"] ?? " ";
+                        var resType = jobj["resType"] ?? " ";
+
                         string path = pathInfo.ToString();
-                        if (path == "NULL")
-                            path = jobj["resType"].ToString() + " : " + trgAddr.ToString();
+                        if (path == " ")
+                        {
+                            path = resType.ToString() + " : " + trgAddr.ToString();
+                        }
 
                         listBox1.Items.Add(logtime + "\t" + jobj["logId"].ToString() + "\t" + jobj["resultCode"].ToString() + "\t   " + jobj["resultCodeName"].ToString() + " (" + path + ")");
+
+                        if (dev.type == "lwm2m")
+                        {
+                            LwM2MTcResultReport(path,jobj["logId"].ToString(),jobj["resultCode"].ToString(),jobj["resultCodeName"].ToString());
+                        }
+                        else if (dev.type == "onem2m")
+                        {
+
+                        }
                     }
 
                     if (listBox1.Items.Count != 0 && mode == "man")
                     {
                         listBox1.SelectedIndex = 0;
-                        //getSvrEventLog(listBox1.SelectedItem.ToString());
                     }
                     else
                         MessageBox.Show("플랫폼 로그가 존재하지 않습니다.\nCTN을 확인하세요", textBox1.Text + " DEVICE 상태 정보");
@@ -6213,14 +6248,46 @@ namespace WindowsFormsApp2
                 MessageBox.Show("플랫폼 로그가 존재하지 않습니다.\nCTN을 확인하세요", textBox1.Text + " DEVICE 상태 정보");
         }
 
+        private void LwM2MTcResultReport(string path,string logId,string resultCode,string resultCodeName)
+        {
+            switch (path)
+            {
+                case "bs":
+                    if (resultCode == "20000000")
+                        endLwM2MTC("tc0203");
+                    else
+                        errLwM2MTC("tc0203", logId, resultCode, resultCodeName);
+                    break;
+                case "rd":
+                    if (resultCode == "20000000")
+                    {
+                        LogWrite("registration device parameter checking");
+                        getSvrEventLog(logId, "tc0302");
+                        endLwM2MTC("tc0302");
+                    }
+                    else
+                        errLwM2MTC("tc0302", logId, resultCode, resultCodeName);
+                    break;
+                default:
+                    if (path.StartsWith("rd/"))
+                    {
+                        if (resultCode == "20000000")
+                            endLwM2MTC("tc0401");
+                        else
+                            errLwM2MTC("tc0401", logId, resultCode, resultCodeName);
+                    }
+                    break;
+            }
+        }
+
         private void button7_Click_1(object sender, EventArgs e)
         {
-            getSvrEventLog(textBox2.Text);
+            getSvrEventLog(textBox2.Text,string.Empty);
         }
 
         private void button10_Click(object sender, EventArgs e)
         {
-            getSvrDetailLog(textBox3.Text);
+            getSvrDetailLog(textBox3.Text, string.Empty);
         }
 
         private void button11_Click(object sender, EventArgs e)
