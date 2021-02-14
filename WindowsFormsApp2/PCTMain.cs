@@ -5507,18 +5507,6 @@ namespace WindowsFormsApp2
                             path = jobj["resType"].ToString() + " : " + trgAddr.ToString();
 
                         listBox2.Items.Add(logtime + "\t" + logId.ToString() + "\t" + resultCode.ToString() + "\t   " + resultCodeName.ToString() + " (" + logType.ToString() + " => " + path + ")");
-
-                        if (kind == "tc0303")
-                        {
-                            if (resType.ToString() == "fwr" && resultCode.ToString() != "20000000")
-                            {
-                                if (trgAddr.ToString().EndsWith("_M", System.StringComparison.CurrentCultureIgnoreCase))
-                                    endLwM2MTC("tc0602", logId.ToString(), resultCode.ToString(), resultCodeName.ToString());
-                                else
-                                    endLwM2MTC("tc0603", logId.ToString(), resultCode.ToString(), resultCodeName.ToString());
-                                kind = string.Empty;
-                            }
-                        }
                     }
 
                     if (kind != string.Empty)
@@ -5858,14 +5846,9 @@ namespace WindowsFormsApp2
                                     endLwM2MTC("tc0401", tlogid, tresultCode, tresultCodeName);
                                     kind = string.Empty;
                                 }
-                                else if (rcode == "PUT")
-                                {
-                                    endLwM2MTC("tc0303", tlogid, tresultCode, tresultCodeName);
-                                    kind = string.Empty;
-                                }
                                 else if (rcode == "POST")
                                 {
-                                    endLwM2MTC("tc0302", tlogid, tresultCode, tresultCodeName);
+                                    endLwM2MTC("tc0303", tlogid, tresultCode, tresultCodeName);
                                     kind = string.Empty;
                                 }
                             }
