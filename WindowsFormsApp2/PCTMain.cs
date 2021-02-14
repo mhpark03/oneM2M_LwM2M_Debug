@@ -223,6 +223,7 @@ namespace WindowsFormsApp2
 
             lwm2mtc0501,
             lwm2mtc0502,
+            lwm2mtc0503,
 
             lwm2mtc0601,
             lwm2mtc0602,
@@ -328,6 +329,7 @@ namespace WindowsFormsApp2
 
             tc0501,
             tc0502,
+            tc0503,
 
             tc0601,
             tc0602,
@@ -656,6 +658,7 @@ namespace WindowsFormsApp2
             lwm2mtclist.Add("tc0401", "4.1 De-Register 절차 및 AT command 확인 시험");
             lwm2mtclist.Add("tc0501", "5.1 Data 송신 (Data Notification)");
             lwm2mtclist.Add("tc0502", "5.2 Data 수신 (Device Control)");
+            lwm2mtclist.Add("tc0503", "5.3 Device Staus Check");
             lwm2mtclist.Add("tc0601", "6.1 펌웨어 체크 동작 확인");
             lwm2mtclist.Add("tc0602", "6.2 모듈 펌웨어 업그레이드 시험");
             lwm2mtclist.Add("tc0603", "6.3 단말 펌웨어 업그레이드 시험");
@@ -3313,28 +3316,34 @@ namespace WindowsFormsApp2
         private void endLwM2MTC(string tcindex, string logId, string resultCode, string resultCodeName)
         {
             lwm2mtc index = (lwm2mtc)Enum.Parse(typeof(lwm2mtc), tcindex);
-            Console.WriteLine(tc.lwm2m[(int)index, 1]);
-            if (tc.lwm2m[(int)index, 0] != "FAIL")
+
+            if (resultCode == string.Empty || resultCode == "20000000")
             {
-                logPrintTC(lwm2mtclist[tcindex] + " [성공]");
-                tc.lwm2m[(int)index, 0] = "PASS";             // 시험 결과 저장
+                if (tc.lwm2m[(int)index, 0] != "FAIL")
+                {
+                    if(logId == string.Empty)
+                        logPrintTC(lwm2mtclist[tcindex] + " [성공]");
+                    else
+                        logPrintTC(lwm2mtclist[tcindex] + " [성공] - "+logId);
+                    tc.lwm2m[(int)index, 0] = "PASS";             // 시험 결과 저장
+                    tc.lwm2m[(int)index, 1] = resultCode;
+                    tc.lwm2m[(int)index, 2] = logId;
+                    tc.lwm2m[(int)index, 3] = resultCodeName;
+                    tc.lwm2m[(int)index, 4] = "";
+                }
+            }
+            else
+            {
+                if (logId == string.Empty)
+                    logPrintTC(lwm2mtclist[tcindex] + " [오류]");
+                else
+                    logPrintTC(lwm2mtclist[tcindex] + " [오류] - " + logId);
+                tc.lwm2m[(int)index, 0] = "FAIL";             // 시험 결과 저장
                 tc.lwm2m[(int)index, 1] = resultCode;
                 tc.lwm2m[(int)index, 2] = logId;
                 tc.lwm2m[(int)index, 3] = resultCodeName;
                 tc.lwm2m[(int)index, 4] = "";
             }
-            tc.state = string.Empty;
-        }
-
-        private void errLwM2MTC(string tcindex, string logId, string resultCode, string resultCodeName)
-        {
-            logPrintTC(lwm2mtclist[tcindex] + " [오류]");
-            lwm2mtc index = (lwm2mtc)Enum.Parse(typeof(lwm2mtc), tcindex);
-            tc.lwm2m[(int)index, 0] = "FAIL";             // 시험 결과 저장
-            tc.lwm2m[(int)index, 1] = resultCode;
-            tc.lwm2m[(int)index, 2] = logId;
-            tc.lwm2m[(int)index, 3] = resultCodeName;
-            tc.lwm2m[(int)index, 4] = "";
             tc.state = string.Empty;
         }
 
@@ -3353,27 +3362,34 @@ namespace WindowsFormsApp2
         private void endoneM2MTC(string tcindex, string logId, string resultCode, string resultCodeName)
         {
             onem2mtc index = (onem2mtc)Enum.Parse(typeof(onem2mtc), tcindex);
-            if (tc.onem2m[(int)index, 0] != "FAIL")
+
+            if(resultCode == string.Empty || resultCode == "20000000")
             {
-                logPrintTC(onem2mtclist[tcindex] + " [성공]");
-                tc.onem2m[(int)index, 0] = "PASS";             // 시험 결과 저장
+                if (tc.onem2m[(int)index, 0] != "FAIL")
+                {
+                    if (logId == string.Empty)
+                        logPrintTC(onem2mtclist[tcindex] + " [성공]");
+                    else
+                        logPrintTC(onem2mtclist[tcindex] + " [성공] - "+logId);
+                    tc.onem2m[(int)index, 0] = "PASS";             // 시험 결과 저장
+                    tc.onem2m[(int)index, 1] = resultCode;
+                    tc.onem2m[(int)index, 2] = logId;
+                    tc.onem2m[(int)index, 3] = resultCodeName;
+                    tc.onem2m[(int)index, 4] = "";
+                }
+            }
+            else
+            {
+                if (logId == string.Empty)
+                    logPrintTC(onem2mtclist[tcindex] + " [오류]");
+                else
+                    logPrintTC(onem2mtclist[tcindex] + " [오류] - "+logId);
+                tc.onem2m[(int)index, 0] = "FAIL";             // 시험 결과 저장
                 tc.onem2m[(int)index, 1] = resultCode;
                 tc.onem2m[(int)index, 2] = logId;
                 tc.onem2m[(int)index, 3] = resultCodeName;
                 tc.onem2m[(int)index, 4] = "";
             }
-            tc.state = string.Empty;
-        }
-
-        private void erroneM2MTC(string tcindex, string logId, string resultCode, string resultCodeName)
-        {
-            logPrintTC(onem2mtclist[tcindex] + " [오류]");
-            onem2mtc index = (onem2mtc)Enum.Parse(typeof(onem2mtc), tcindex);
-            tc.onem2m[(int)index, 0] = "FAIL";             // 시험 결과 저장
-            tc.onem2m[(int)index, 1] = resultCode;
-            tc.onem2m[(int)index, 2] = logId;
-            tc.onem2m[(int)index, 3] = resultCodeName;
-            tc.onem2m[(int)index, 4] = "";
             tc.state = string.Empty;
         }
 
@@ -5445,16 +5461,16 @@ namespace WindowsFormsApp2
             textBox2.Text = values[1];
             tBResultCode.Text = values[2];
 
-            getSvrEventLog(values[1],string.Empty);
+            getSvrEventLog(values[1],string.Empty,values[2],values[3]);
         }
 
-        private void getSvrEventLog(string logid, string kind)
+        private void getSvrEventLog(string tlogid, string kind, string tresultCode, string tresultCodeName)
         {
-            label21.Text = "서버로그 ID : " + logid + " 상세내역";
+            label21.Text = "서버로그 ID : " + tlogid + " 상세내역";
 
             // oneM2M log server 응답 확인 (resultcode)
             ReqHeader header = new ReqHeader();
-            header.Url = logUrl + "/apilog?logId=" + logid;
+            header.Url = logUrl + "/apilog?logId=" + tlogid;
             //header.Url = logUrl + "/apilog?Id=61";
             header.Method = "GET";
             header.ContentType = "application/json";
@@ -5466,8 +5482,6 @@ namespace WindowsFormsApp2
 
             listBox2.Items.Clear();
             listBox3.Items.Clear();
-            string tresultCode = string.Empty;
-            string tresultCodeName = string.Empty;
 
             if (retStr != string.Empty)
             {
@@ -5480,7 +5494,7 @@ namespace WindowsFormsApp2
                     {
                         string time = jobj["logTime"].ToString();
                         string logtime = time.Substring(8, 2) + ":" + time.Substring(10, 2) + ":" + time.Substring(12, 2);
-                        var pathInfo = jobj["pathInfo"] ?? "";
+                        var pathInfo = jobj["pathInfo"] ?? " ";
                         var resType = jobj["resType"] ?? " ";
                         var trgAddr = jobj["trgAddr"] ?? " ";
                         var logType = jobj["logType"] ?? " ";
@@ -5489,43 +5503,27 @@ namespace WindowsFormsApp2
                         var resultCodeName = jobj["resultCodeName"] ?? " ";
 
                         string path = pathInfo.ToString();
-                        if (path == "")
+                        if (path == " ")
                             path = jobj["resType"].ToString() + " : " + trgAddr.ToString();
 
                         listBox2.Items.Add(logtime + "\t" + logId.ToString() + "\t" + resultCode.ToString() + "\t   " + resultCodeName.ToString() + " (" + logType.ToString() + " => " + path + ")");
 
                         if (kind == "tc0303")
                         {
-                            if (resType.ToString() == "fwr")
+                            if (resType.ToString() == "fwr" && resultCode.ToString() != "20000000")
                             {
-                                if (resultCode.ToString() == "20000000")
-                                {
-                                    if (trgAddr.ToString().EndsWith("_M", System.StringComparison.CurrentCultureIgnoreCase))
-                                        endLwM2MTC("tc0602", logId.ToString(), resultCode.ToString(), resultCodeName.ToString());
-                                    else
-                                        endLwM2MTC("tc0603", logId.ToString(), resultCode.ToString(), resultCodeName.ToString());
-                                }
+                                if (trgAddr.ToString().EndsWith("_M", System.StringComparison.CurrentCultureIgnoreCase))
+                                    endLwM2MTC("tc0602", logId.ToString(), resultCode.ToString(), resultCodeName.ToString());
                                 else
-                                {
-                                    if (trgAddr.ToString().EndsWith("_M", System.StringComparison.CurrentCultureIgnoreCase))
-                                        errLwM2MTC("tc0602", logId.ToString(), resultCode.ToString(), resultCodeName.ToString());
-                                    else
-                                        errLwM2MTC("tc0603", logId.ToString(), resultCode.ToString(), resultCodeName.ToString());
-                                }
+                                    endLwM2MTC("tc0603", logId.ToString(), resultCode.ToString(), resultCodeName.ToString());
                                 kind = string.Empty;
-                            }
-                            else if (resType.ToString() == "csr")
-                            {
-                                kind = "tc0303";
-                                tresultCode = resultCode.ToString();
-                                tresultCodeName = resultCodeName.ToString();
                             }
                         }
                     }
 
                     if (kind != string.Empty)
                     {
-                        getSvrDetailLog(logid, kind, tresultCode, tresultCodeName);
+                        getSvrDetailLog(tlogid, kind, tresultCode, tresultCodeName);
                     }
                     else if (listBox2.Items.Count != 0)
                     {
@@ -5805,16 +5803,16 @@ namespace WindowsFormsApp2
             tBResultCode.Text = values[2];
             textBox3.Text = values[1];
 
-            getSvrDetailLog(values[1],string.Empty,string.Empty,string.Empty);
+            getSvrDetailLog(values[1],string.Empty,values[2],values[3]);
         }
 
-        private void getSvrDetailLog(string logid,string kind,string tresultCode,string tresultCodeName)
+        private void getSvrDetailLog(string tlogid,string kind,string tresultCode,string tresultCodeName)
         {
-            label22.Text = "ID : " + logid + " 상세내역";
+            label22.Text = "ID : " + tlogid + " 상세내역";
 
             // oneM2M log server 응답 확인 (resultcode)
             ReqHeader header = new ReqHeader();
-            header.Url = logUrl + "/log?logId=" + logid;
+            header.Url = logUrl + "/log?logId=" + tlogid;
             header.Method = "GET";
             header.ContentType = "application/json";
             header.X_M2M_RI = DateTime.Now.ToString("yyyyMMddHHmmss") + "LogDetail";
@@ -5857,18 +5855,31 @@ namespace WindowsFormsApp2
                                 string rcode = code.ToString();
                                 if (rcode == "DELETE")
                                 {
-                                    if (tresultCode == "20000000")
-                                        endLwM2MTC("tc0401", logid, tresultCode, tresultCodeName);
-                                    else
-                                        errLwM2MTC("tc0401", logid, tresultCode, tresultCodeName);
+                                    endLwM2MTC("tc0401", tlogid, tresultCode, tresultCodeName);
                                     kind = string.Empty;
                                 }
                                 else if (rcode == "PUT")
                                 {
-                                    if (tresultCode == "20000000")
-                                        endLwM2MTC("tc0303", logid, tresultCode, tresultCodeName);
-                                    else
-                                        errLwM2MTC("tc0303", logid, tresultCode, tresultCodeName);
+                                    endLwM2MTC("tc0303", tlogid, tresultCode, tresultCodeName);
+                                    kind = string.Empty;
+                                }
+                                else if (rcode == "POST")
+                                {
+                                    endLwM2MTC("tc0302", tlogid, tresultCode, tresultCodeName);
+                                    kind = string.Empty;
+                                }
+                            }
+                            else if (kind == "tc0502")
+                            {
+                                string rcode = code.ToString();
+                                if (rcode == "PUT")
+                                {
+                                    endLwM2MTC("tc0502", tlogid, tresultCode, tresultCodeName);
+                                    kind = string.Empty;
+                                }
+                                else if (rcode == "GET")
+                                {
+                                    endLwM2MTC("tc0503", tlogid, tresultCode, tresultCodeName);
                                     kind = string.Empty;
                                 }
                             }
@@ -5876,7 +5887,18 @@ namespace WindowsFormsApp2
                             var uriPath = jobj["uriPath"] ?? "";
                             string path = uriPath.ToString();
                             if (path != "")
+                            {
                                 message += " " + path;
+
+                                if (kind == "tc0602")
+                                {
+                                    if (path.StartsWith("firmware", System.StringComparison.CurrentCultureIgnoreCase))
+                                    {
+                                        endLwM2MTC("tc0602", tlogid, tresultCode, tresultCodeName);
+                                        kind = string.Empty;
+                                    }
+                                }
+                            }
 
                             message += ")\t ";
 
@@ -5890,6 +5912,16 @@ namespace WindowsFormsApp2
                                 foreach (JObject jcoapobj in jcoaparr)
                                 {
                                     //Console.WriteLine(jcoapobj);
+
+                                    var cppath = jcoapobj["path"] ?? " ";
+                                    if(kind == "tc0602")
+                                    {
+                                        if(cppath.ToString() == "26241/0/1")
+                                        {
+                                            endLwM2MTC("tc0603", tlogid, tresultCode, tresultCodeName);
+                                            kind = string.Empty;
+                                        }
+                                    }
 
                                     var type = jcoapobj["type"] ?? " ";
                                     if (type.ToString() == "OPAQUE")
@@ -5925,7 +5957,7 @@ namespace WindowsFormsApp2
                                             {
                                                 var rdpath = jcoapobj["path"] ?? " ";
 
-                                                errLwM2MTC(kind, logid, rdpath.ToString(), code.ToString());
+                                                endLwM2MTC(kind, tlogid, "20000100",rdpath.ToString()+" "+code.ToString());
                                             }
                                         }
                                     }
@@ -6357,26 +6389,37 @@ namespace WindowsFormsApp2
             switch (path)
             {
                 case "bs":
-                    if (resultCode == "20000000")
-                        endLwM2MTC("tc0203", logId, resultCode, resultCodeName);
-                    else
-                        errLwM2MTC("tc0203", logId, resultCode, resultCodeName);
+                    endLwM2MTC("tc0203", logId, resultCode, resultCodeName);
+                    break;
+                case "10250/0/0":
+                    endLwM2MTC("tc0501", logId, resultCode, resultCodeName);
+                    break;
+                case "10250/0/1":
+                    LogWrite("device control checking");
+                    getSvrEventLog(logId, "tc0502", resultCode, resultCodeName);
+                    break;
+                case "26241/0/0":
+                    endLwM2MTC("tc0601", logId, resultCode, resultCodeName);
                     break;
                 case "rd":
                     if (resultCode == "20000000")
                     {
                         LogWrite("registration device parameter checking");
-                        getSvrEventLog(logId, "tc0302");
+                        getSvrEventLog(logId, "tc0302",resultCode,resultCodeName);
                         endLwM2MTC("tc0302", logId, resultCode, resultCodeName);
                     }
                     else
-                        errLwM2MTC("tc0302", logId, resultCode, resultCodeName);
+                        endLwM2MTC("tc0302", logId, resultCode, resultCodeName);
+                    break;
+                case "":
+                    LogWrite("Firmware update checking");
+                    getSvrEventLog(logId, "tc0602", resultCode, resultCodeName);
                     break;
                 default:
                     if (path.StartsWith("rd/"))
                     {
                         LogWrite("device event parameter checking");
-                        getSvrEventLog(logId, "tc0303");
+                        getSvrEventLog(logId, "tc0303", resultCode, resultCodeName);
                     }
                     break;
             }
@@ -6384,7 +6427,7 @@ namespace WindowsFormsApp2
 
         private void button7_Click_1(object sender, EventArgs e)
         {
-            getSvrEventLog(textBox2.Text,string.Empty);
+            getSvrEventLog(textBox2.Text,string.Empty,string.Empty,string.Empty);
         }
 
         private void button10_Click(object sender, EventArgs e)
