@@ -212,10 +212,15 @@ namespace WindowsFormsApp2
             autogetNWmode,
 
             lwm2mtc0201,
-            lwm2mtc0202,
+            lwm2mtc02021,
+            lwm2mtc02022,
+            lwm2mtc02023,
+            lwm2mtc02024,
+            lwm2mtc02025,
             lwm2mtc0203,
 
-            lwm2mtc0301,
+            lwm2mtc03011,
+            lwm2mtc03012,
             lwm2mtc0302,
             lwm2mtc0303,
 
@@ -227,7 +232,8 @@ namespace WindowsFormsApp2
 
             lwm2mtc0601,
             lwm2mtc0602,
-            lwm2mtc0603,
+            lwm2mtc06031,
+            lwm2mtc06032,
 
             onem2mtc0201011,        // MEF server 설정
             onem2mtc0201012,        // BRK server 설정
@@ -1613,6 +1619,8 @@ namespace WindowsFormsApp2
                 "CONNECT ",
                 "+QIND: \"FOTA\",\"END\",0",
                 "+QIND: PB DONE",
+
+                "+MBIPST:0",
             };
 
             /* Debug를 위해 Hex로 문자열 표시*/
@@ -3041,6 +3049,13 @@ namespace WindowsFormsApp2
                             if (tc.state == "tc0401")
                                 endLwM2MTC(tc.state, string.Empty, string.Empty, string.Empty);
                             logPrintInTextBox("deregistration completed", " ");
+                            lbActionState.Text = states.idle.ToString();
+
+                            string kind = "type=lwm2m&ctn=" + textBox1.Text;
+                            if (tcStartTime != string.Empty)
+                                kind += "&from=" + tcStartTime;
+                            getSvrLoglists(kind, "auto");
+
                             break;
                         case "2":
                             logPrintInTextBox("registration update completed", " ");
@@ -3052,9 +3067,40 @@ namespace WindowsFormsApp2
                             if (tc.state == "tc0202")
                                 endLwM2MTC(tc.state, string.Empty, string.Empty, string.Empty);
                             logPrintInTextBox("Bootstrap finished", " ");
+
+                            if (lbActionState.Text == "lwm2mtc02025")
+                            {
+                                startLwM2MTC("tc0301");
+
+                                if (dev.model == "BG96")
+                                {
+                                    // 플랫폼 등록 요청
+                                    //AT+QLWM2M="register"
+                                    this.sendDataOut(commands["register"]);
+                                    lbActionState.Text = states.register.ToString();
+                                }
+                                else if (dev.model.StartsWith("BC95", System.StringComparison.CurrentCultureIgnoreCase))
+                                {
+                                    // 플랫폼 등록 요청
+                                    //AT+QLWSREGIND=0
+                                    this.sendDataOut(commands["registerbc95"]);
+                                    lbActionState.Text = states.registerbc95.ToString();
+                                }
+                                else
+                                {
+                                    // 플랫폼 등록 요청
+                                    //AT+MLWSREGIND=0
+                                    this.sendDataOut(commands["registertpb23"]);
+                                    lbActionState.Text = states.lwm2mtc03011.ToString();
+                                }
+                            }
                             break;
                         case "5":
                             logPrintInTextBox("5/0/3 object subscription completed", " ");
+                            if (lbActionState.Text == states.lwm2mtc03012.ToString())
+                            {
+                                timer2.Stop();
+                            }
                             break;
                         case "6":
                             logPrintInTextBox("fota downloading request", " ");
@@ -3076,6 +3122,13 @@ namespace WindowsFormsApp2
                             logPrintInTextBox("26241 object subscription completed", " ");
                             if (tc.state == "tc0301")
                                 endLwM2MTC(tc.state, string.Empty, string.Empty, string.Empty);
+
+                            if (lbActionState.Text == states.lwm2mtc03011.ToString() || lbActionState.Text == states.lwm2mtc03012.ToString())
+                            {
+                                lbActionState.Text = states.lwm2mtc03012.ToString();
+                                timer2.Interval = 10000;
+                                timer2.Start();
+                            }
                             break;
                     }
                     break;
@@ -3095,6 +3148,46 @@ namespace WindowsFormsApp2
                             if (tc.state == "tc0502" && receiveDataIN == label13.Text)
                                 endLwM2MTC(tc.state, string.Empty, string.Empty, string.Empty);
                             logPrintInTextBox("\"" + receiveDataIN + "\"를 수신하였습니다.", "");
+
+                            if(lbActionState.Text == states.lwm2mtc0502.ToString())
+                            {
+                                if (svr.enrmtKeyId != string.Empty)
+                                {
+                                    startLwM2MTC("tc0503");
+                                    lbActionState.Text = states.lwm2mtc0503.ToString();
+
+                                    LogWrite("----------DEVICE CHECK STATUS----------");
+                                    string[] param = { dev.type };
+                                    rTh = new Thread(new ParameterizedThreadStart(RetriveDataToDevice));
+                                    rTh.Start(param);
+                                }
+                                else
+                                {
+                                    startLwM2MTC("tc0401");
+
+                                    if (dev.model == "BG96")
+                                    {
+                                        // 플랫폼 등록해제 요청
+                                        //AT+QLWM2M="deregister"
+                                        this.sendDataOut(commands["deregister"]);
+                                        lbActionState.Text = states.deregister.ToString();
+                                    }
+                                    else if (dev.model.StartsWith("BC95", System.StringComparison.CurrentCultureIgnoreCase))
+                                    {
+                                        // 플랫폼 등록해제 요청
+                                        //AT+QLWSREGIND=1
+                                        this.sendDataOut(commands["deregisterbc95"]);
+                                        lbActionState.Text = states.deregisterbc95.ToString();
+                                    }
+                                    else
+                                    {
+                                        // 플랫폼 등록해제 요청
+                                        //AT+MLWSREGIND=1
+                                        this.sendDataOut(commands["deregistertpb23"]);
+                                        lbActionState.Text = states.lwm2mtc0401.ToString();
+                                    }
+                                }
+                            }
                         }
                         else
                         {
@@ -3296,6 +3389,13 @@ namespace WindowsFormsApp2
                     dev.version = str2;
                     logPrintInTextBox("모뎀 버전이 저장되었습니다.", "");
                     break;
+                case "+MBIPST:0":
+                    if (lbActionState.Text == "lwm2mtc0201")
+                    {
+                        timer2.Interval = 10000;
+                        timer2.Start();
+                    }
+                    break;
                 default:
                     break;
             }
@@ -3435,6 +3535,10 @@ namespace WindowsFormsApp2
 
         private void receiveFotaData(string size, string rcvData)
         {
+            if(lbActionState.Text == states.lwm2mtc06032.ToString())
+            {
+                timer2.Stop();
+            }
             int dataSize = rcvData.Length / 2;
             if (Convert.ToInt32(size) == dataSize)    // data size 비교
             {
@@ -3468,6 +3572,13 @@ namespace WindowsFormsApp2
 
                         // 메뉴에서 선택시 버전 정보 보고하도록 함
                         // DeviceFWVerSend(tBoxDeviceVer.Text, device_fota_state, device_fota_reseult);
+
+                        if(lbActionState.Text == states.lwm2mtc06032.ToString())
+                        {
+                            startLwM2MTC("tc0501");
+                            lbActionState.Text = states.lwm2mtc0501.ToString();
+                            sendDataToServer();
+                        }
                     }
                 }
             }
@@ -3862,17 +3973,22 @@ namespace WindowsFormsApp2
                     nextcommand = states.getcereg.ToString();
                     break;
                 case states.setncdp:
+                case states.lwm2mtc02021:
                     // LWM2M bootstrap 자동 요청 순서 (V150)
                     // (setncdp) - (setepnstpb23) - setmbspstpb23 - bootstrapmodetpb23 - bootstraptpb23
                     // End Point Name Parameter 설정
                     //AT+MLWEPNS="LWM2M 서버 entityID"
                     setDeviceEntityID(lbIccid.Text);
                     this.sendDataOut(commands["setepnstpb23"] + dev.entityId);
-                    lbActionState.Text = states.setepnstpb23.ToString();
+                    if (lbActionState.Text == states.lwm2mtc02021.ToString())
+                        lbActionState.Text = states.lwm2mtc02022.ToString();
+                    else
+                        lbActionState.Text = states.setepnstpb23.ToString();
 
                     nextcommand = "skip";
                     break;
                 case states.setepnstpb23:
+                case states.lwm2mtc02022:
                     // LWM2M bootstrap 자동 요청 순서 (V150)
                     // setncdp - (setepnstpb23) - (setmbspstpb23) - bootstrapmodetpb23 - bootstraptpb23
                     // Bootstarp Parameter 설정
@@ -3887,24 +4003,86 @@ namespace WindowsFormsApp2
                     command += tBoxDeviceModel.Text + "|mac=";
 
                     this.sendDataOut(commands["setmbspstpb23"] + command);
-                    lbActionState.Text = states.setmbspstpb23.ToString();
+                    if (lbActionState.Text == states.lwm2mtc02022.ToString())
+                        lbActionState.Text = states.lwm2mtc02023.ToString();
+                    else
+                        lbActionState.Text = states.setmbspstpb23.ToString();
 
                     nextcommand = "skip";
                     break;
                 case states.setmbspstpb23:
+                case states.lwm2mtc02023:
                     // LWM2M bootstrap 자동 요청 순서 (V150)
                     // setncdp - setepnstpb23 - (setmbspstpb23) - (bootstrapmodetpb23) - bootstraptpb23
                     // LWM2M 서버 설정
                     // BOOTSTARP MODE 설정
                     //AT+MBOOTSTRAPMODE=1
-                    nextcommand = states.bootstrapmodetpb23.ToString();
+                    if (lbActionState.Text == states.lwm2mtc02023.ToString())
+                    {
+                        this.sendDataOut(commands["bootstrapmodetpb23"]);
+                        lbActionState.Text = states.lwm2mtc02024.ToString();
+                    }
+                    else
+                        nextcommand = states.bootstrapmodetpb23.ToString();
                     break;
                 case states.bootstrapmodetpb23:
+                case states.lwm2mtc02024:
                     // LWM2M bootstrap 자동 요청 순서 (V150)
                     // setncdp - setepnstpb23 - setmbspstpb23 - (bootstrapmodetpb23) - (bootstraptpb23)
                     // LWM2M서버에 Bootstarp 요청
                     //  AT+MLWGOBOOTSTRAP=1
-                    nextcommand = states.bootstraptpb23.ToString();
+                    if (lbActionState.Text == states.lwm2mtc02024.ToString())
+                    {
+                        this.sendDataOut(commands["bootstraptpb23"]);
+                        lbActionState.Text = states.lwm2mtc02025.ToString();
+                    }
+                    else
+                        nextcommand = states.bootstraptpb23.ToString();
+                    break;
+                case states.lwm2mtc0501:
+                    if (tc.state == "tc0501")
+                        endLwM2MTC(tc.state, string.Empty, string.Empty, string.Empty);
+
+                    if (svr.enrmtKeyId != string.Empty)
+                    {
+                        LogWrite("----------DATA SEND----------");
+                        startLwM2MTC("tc0502");
+                        lbActionState.Text = states.lwm2mtc0502.ToString();
+                        string[] param = { "lwm2m", "tc0502" };
+                        rTh = new Thread(new ParameterizedThreadStart(SendDataToPlatform));
+                        rTh.Start(param);
+                    }
+                    else
+                    {
+                        startLwM2MTC("tc0401");
+
+                        if (dev.model == "BG96")
+                        {
+                            // 플랫폼 등록해제 요청
+                            //AT+QLWM2M="deregister"
+                            this.sendDataOut(commands["deregister"]);
+                            lbActionState.Text = states.deregister.ToString();
+                        }
+                        else if (dev.model.StartsWith("BC95", System.StringComparison.CurrentCultureIgnoreCase))
+                        {
+                            // 플랫폼 등록해제 요청
+                            //AT+QLWSREGIND=1
+                            this.sendDataOut(commands["deregisterbc95"]);
+                            lbActionState.Text = states.deregisterbc95.ToString();
+                        }
+                        else
+                        {
+                            // 플랫폼 등록해제 요청
+                            //AT+MLWSREGIND=1
+                            this.sendDataOut(commands["deregistertpb23"]);
+                            lbActionState.Text = states.lwm2mtc0401.ToString();
+                        }
+                    }
+                    break;
+                case states.lwm2mtc06031:
+                    timer2.Interval = 10000;
+                    timer2.Start();
+                    lbActionState.Text = states.lwm2mtc06032.ToString();
                     break;
                 case states.setonem2mmodeq:
                 case states.setonem2mmode:
@@ -4293,7 +4471,8 @@ namespace WindowsFormsApp2
                     // LWM2M 서버 설정
                     // AT+NCDP=IP,PORT
                     this.sendDataOut(commands["setncdp"] + "\"" + serverip + "\"," + serverport);
-                    lbActionState.Text = states.setncdp.ToString();
+                    if (lbActionState.Text != states.lwm2mtc02021.ToString())
+                        lbActionState.Text = states.setncdp.ToString();
                 }
                 else if (dev.model.StartsWith("BC95", System.StringComparison.CurrentCultureIgnoreCase))
                 {
@@ -4384,7 +4563,8 @@ namespace WindowsFormsApp2
                     string hexOutput = StringToBCD(txData.ToCharArray());
 
                     this.sendDataOut(commands["sendmsgstrtpb23"] + hexOutput.Length / 2 + "," + hexOutput);
-                    lbActionState.Text = states.sendmsgstr.ToString();
+                    if (lbActionState.Text != states.lwm2mtc0501.ToString())
+                        lbActionState.Text = states.sendmsgstr.ToString();
                 }
             }
         }
@@ -4649,7 +4829,8 @@ namespace WindowsFormsApp2
                     string hexOutput = StringToBCD(text.ToCharArray());
 
                     this.sendDataOut(commands["sendmsgvertpb23"] + hexOutput.Length / 2 + "," + hexOutput);
-                    lbActionState.Text = states.sendmsgvertpb23.ToString();
+                    if (lbActionState.Text != states.lwm2mtc06031.ToString())
+                        lbActionState.Text = states.sendmsgvertpb23.ToString();
                 }
             }
         }
@@ -5016,6 +5197,15 @@ namespace WindowsFormsApp2
                 {
                     if (tc.state == "tc021303")
                         endoneM2MTC(tc.state, string.Empty, string.Empty, string.Empty);
+                    else if (tc.state == "tc0503")
+                        endoneM2MTC(tc.state, string.Empty, string.Empty, string.Empty);
+                }
+                else
+                {
+                    if (tc.state == "tc021303")
+                        endoneM2MTC(tc.state, string.Empty, "20000100", lbDirectRxData.Text);
+                    else if (tc.state == "tc0503")
+                        endLwM2MTC(tc.state, string.Empty, "20000100", lbDirectRxData.Text);
                 }
 
                 if (lbActionState.Text == states.onem2mtc0213032.ToString())
@@ -5023,6 +5213,72 @@ namespace WindowsFormsApp2
                     startoneM2MTC("tc020901");
                     this.sendDataOut(commands["setACP"]);
                     SetText(lbActionState, states.onem2mtc0209011.ToString());
+                }
+                else if (lbActionState.Text == states.lwm2mtc0503.ToString())
+                {
+                    startLwM2MTC("tc0401");
+
+                    if (dev.model == "BG96")
+                    {
+                        // 플랫폼 등록해제 요청
+                        //AT+QLWM2M="deregister"
+                        this.sendDataOut(commands["deregister"]);
+                        SetText(lbActionState, states.deregister.ToString());
+                    }
+                    else if (dev.model.StartsWith("BC95", System.StringComparison.CurrentCultureIgnoreCase))
+                    {
+                        // 플랫폼 등록해제 요청
+                        //AT+QLWSREGIND=1
+                        this.sendDataOut(commands["deregisterbc95"]);
+                        SetText(lbActionState, states.deregisterbc95.ToString());
+                    }
+                    else
+                    {
+                        // 플랫폼 등록해제 요청
+                        //AT+MLWSREGIND=1
+                        this.sendDataOut(commands["deregistertpb23"]);
+                        SetText(lbActionState, states.lwm2mtc0401.ToString());
+                    }
+                }
+            }
+            else
+            {
+                if (tc.state == "tc021303")
+                    endoneM2MTC(tc.state, string.Empty, "20000100", "BAD RESPONSE");
+                else if (tc.state == "tc0503")
+                    endLwM2MTC(tc.state, string.Empty, "20000100", "BAD RESPONSE");
+
+                if (lbActionState.Text == states.onem2mtc0213032.ToString())
+                {
+                    startoneM2MTC("tc020901");
+                    this.sendDataOut(commands["setACP"]);
+                    SetText(lbActionState, states.onem2mtc0209011.ToString());
+                }
+                else if (lbActionState.Text == states.lwm2mtc0503.ToString())
+                {
+                    startLwM2MTC("tc0401");
+
+                    if (dev.model == "BG96")
+                    {
+                        // 플랫폼 등록해제 요청
+                        //AT+QLWM2M="deregister"
+                        this.sendDataOut(commands["deregister"]);
+                        SetText(lbActionState, states.deregister.ToString());
+                    }
+                    else if (dev.model.StartsWith("BC95", System.StringComparison.CurrentCultureIgnoreCase))
+                    {
+                        // 플랫폼 등록해제 요청
+                        //AT+QLWSREGIND=1
+                        this.sendDataOut(commands["deregisterbc95"]);
+                        SetText(lbActionState, states.deregisterbc95.ToString());
+                    }
+                    else
+                    {
+                        // 플랫폼 등록해제 요청
+                        //AT+MLWSREGIND=1
+                        this.sendDataOut(commands["deregistertpb23"]);
+                        SetText(lbActionState, states.lwm2mtc0401.ToString());
+                    }
                 }
             }
         }
@@ -5380,8 +5636,10 @@ namespace WindowsFormsApp2
         {
             if (isDeviceInfo())
             {
+                firmwareInitial("auto");
+
                 tcStartTime = DateTime.Now.ToString("yyyyMMddHHmmss");
-                for (int i = 0; i < (int)lwm2mtc.tc0603 + 1; i++)
+                for (int i = 1; i < (int)lwm2mtc.tc0603 + 1; i++)
                 {
                     tc.lwm2m[i, 0] = "Not TEST";
                     tc.lwm2m[i, 1] = string.Empty;
@@ -5390,10 +5648,19 @@ namespace WindowsFormsApp2
                     tc.lwm2m[i, 4] = string.Empty;
                 }
 
-                startLwM2MTC("tc0202");
-                lbActionState.Text = states.lwm2mtc0202.ToString();
+                if (dev.model == "TPB23")
+                {
+                    this.sendDataOut(commands["resettpb23"]);
+                    lbActionState.Text = states.lwm2mtc0201.ToString();
+                    nextcommand = "skip";
+                }
+                else
+                {
+                    startLwM2MTC("tc0202");
+                    lbActionState.Text = states.lwm2mtc02021.ToString();
 
-                DeviceProvision();
+                    DeviceProvision();
+                }
             }
         }
 
@@ -5634,57 +5901,62 @@ namespace WindowsFormsApp2
         {
             if (dev.type == "lwm2m")
             {
-                if (dev.entityId != string.Empty)
-                {
-                    ReqHeader header = new ReqHeader();
-                    header.Url = logUrl + "/initFirmware?entityId=" + dev.entityId;
-                    //header.Url = logUrl + "/initFirmware?entityId=ASN_CSE-D-71221153fb-T001";
-                    header.Method = "GET";
-                    header.ContentType = "application/json";
-                    header.X_M2M_RI = DateTime.Now.ToString("yyyyMMddHHmmss") + "FWVerInit";
-                    header.X_M2M_Origin = svr.entityId;
-                    header.X_MEF_TK = svr.token;
-                    header.X_MEF_EKI = svr.enrmtKeyId;
-                    string retStr = GetHttpLog(header, string.Empty);
-
-                    if (retStr != string.Empty)
-                    {
-                        //LogWriteNoTime(retStr);
-
-                        try
-                        {
-                            string state = "대기중";
-                            JObject obj = JObject.Parse(retStr);
-
-                            var deviceVer = obj["deviceVersion"] ?? "unknown";
-                            lbdevicever.Text = deviceVer.ToString();
-
-                            var modemVer = obj["modemVersion"] ?? "unknown";
-                            lbmodemfwrver.Text = modemVer.ToString();
-
-                            var inProgress = obj["inProgress"] ?? "unknown";
-                            if (inProgress.ToString() == "true")
-                                state = "진행 중";
-                            var deviceModel = obj["deviceModel"] ?? "unknown";
-                            var lastCheckTime = obj["lastCheckTime"] ?? "unknown";
-                            var lastDeviceCheckTime = obj["lastDeviceCheckTime"] ?? "unknown";
-                            var lastUpdateTime = obj["lastUpdateTime"] ?? "unknown";
-
-                            MessageBox.Show("디바이스 모델명 : " + deviceModel.ToString() + "\n진행상태 : " + state + "\n\n디바이스 버전 : " + deviceVer.ToString()
-                                + "\n디바이스 체크시간 : " + lastDeviceCheckTime.ToString() + "\n\n모듈 버전 : " + modemVer.ToString()
-                                + "\n모듈 체크시간 : " + lastCheckTime.ToString() + "\n\n업데이트 시간 : " + lastUpdateTime.ToString(), "펌웨어 업데이트 진행 상태");
-                        }
-                        catch (Exception ex)
-                        {
-                            Console.WriteLine(ex.ToString());
-                        }
-                    }
-                }
-                else
-                    MessageBox.Show("모듈 정보가 없습니다.\n모듈 EntityID를 확인하세요.");
+                    firmwareInitial("man");
             }
             else
                 MessageBox.Show("펌웨어 이력초기화는 LwM2M에서만 동작합니다.");
+        }
+
+        private void firmwareInitial(string mode)
+        {
+            if (dev.entityId != string.Empty)
+            {
+                ReqHeader header = new ReqHeader();
+                header.Url = logUrl + "/initFirmware?entityId=" + dev.entityId;
+                //header.Url = logUrl + "/initFirmware?entityId=ASN_CSE-D-71221153fb-T001";
+                header.Method = "GET";
+                header.ContentType = "application/json";
+                header.X_M2M_RI = DateTime.Now.ToString("yyyyMMddHHmmss") + "FWVerInit";
+                header.X_M2M_Origin = svr.entityId;
+                header.X_MEF_TK = svr.token;
+                header.X_MEF_EKI = svr.enrmtKeyId;
+                string retStr = GetHttpLog(header, string.Empty);
+
+                if (retStr != string.Empty && mode == "man")
+                {
+                    //LogWriteNoTime(retStr);
+
+                    try
+                    {
+                        string state = "대기중";
+                        JObject obj = JObject.Parse(retStr);
+
+                        var deviceVer = obj["deviceVersion"] ?? "unknown";
+                        lbdevicever.Text = deviceVer.ToString();
+
+                        var modemVer = obj["modemVersion"] ?? "unknown";
+                        lbmodemfwrver.Text = modemVer.ToString();
+
+                        var inProgress = obj["inProgress"] ?? "unknown";
+                        if (inProgress.ToString() == "true")
+                            state = "진행 중";
+                        var deviceModel = obj["deviceModel"] ?? "unknown";
+                        var lastCheckTime = obj["lastCheckTime"] ?? "unknown";
+                        var lastDeviceCheckTime = obj["lastDeviceCheckTime"] ?? "unknown";
+                        var lastUpdateTime = obj["lastUpdateTime"] ?? "unknown";
+
+                        MessageBox.Show("디바이스 모델명 : " + deviceModel.ToString() + "\n진행상태 : " + state + "\n\n디바이스 버전 : " + deviceVer.ToString()
+                            + "\n디바이스 체크시간 : " + lastDeviceCheckTime.ToString() + "\n\n모듈 버전 : " + modemVer.ToString()
+                            + "\n모듈 체크시간 : " + lastCheckTime.ToString() + "\n\n업데이트 시간 : " + lastUpdateTime.ToString(), "펌웨어 업데이트 진행 상태");
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex.ToString());
+                    }
+                }
+            }
+            else
+                MessageBox.Show("모듈 정보가 없습니다.\n모듈 EntityID를 확인하세요.");
         }
 
         private void button6_Click(object sender, EventArgs e)
@@ -5727,10 +5999,34 @@ namespace WindowsFormsApp2
                                 tbSvcCd.Text = serviceCode.ToString();
                                 tBoxDeviceSN.Text = deviceSerialNo.ToString();
 
+                                tcStartTime = DateTime.Now.ToString("yyyyMMddHHmmss");
+
                                 if (m2mmType.ToString().StartsWith("ONEM2M"))
+                                {
                                     dev.type = "onem2m";
+
+                                    for (int i = 0; i < (int)onem2mtc.tc021401 + 1; i++)
+                                    {
+                                        tc.onem2m[i, 0] = "Not TEST";
+                                        tc.onem2m[i, 1] = string.Empty;
+                                        tc.onem2m[i, 2] = string.Empty;
+                                        tc.onem2m[i, 3] = string.Empty;
+                                        tc.onem2m[i, 4] = string.Empty;
+                                    }
+                                }
                                 else
+                                {
                                     dev.type = "lwm2m";
+
+                                    for (int i = 1; i < (int)lwm2mtc.tc0603 + 1; i++)
+                                    {
+                                        tc.lwm2m[i, 0] = "Not TEST";
+                                        tc.lwm2m[i, 1] = string.Empty;
+                                        tc.lwm2m[i, 2] = string.Empty;
+                                        tc.lwm2m[i, 3] = string.Empty;
+                                        tc.lwm2m[i, 4] = string.Empty;
+                                    }
+                                }
 
                                 lbIMSI.Text = ctn.ToString();
                                 dev.imsi = ctn.ToString();
@@ -6351,11 +6647,11 @@ namespace WindowsFormsApp2
                         //}
                     }
 
-                    if (listBox1.Items.Count != 0 && mode == "man")
+                    if (listBox1.Items.Count != 0 )
                     {
                         listBox1.SelectedIndex = 0;
                     }
-                    else
+                    else if (mode == "man")
                         MessageBox.Show("플랫폼 로그가 존재하지 않습니다.\nCTN을 확인하세요", textBox1.Text + " DEVICE 상태 정보");
                 }
                 catch (Exception ex)
@@ -6363,7 +6659,7 @@ namespace WindowsFormsApp2
                     Console.WriteLine(ex.ToString());
                 }
             }
-            else
+            else if (mode == "man")
                 MessageBox.Show("플랫폼 로그가 존재하지 않습니다.\nCTN을 확인하세요", textBox1.Text + " DEVICE 상태 정보");
         }
 
@@ -6379,7 +6675,7 @@ namespace WindowsFormsApp2
                     break;
                 case "10250/0/1":
                     LogWrite("device control checking");
-                    getSvrEventLog(logId, "tc0502", resultCode, resultCodeName);
+                    getSvrDetailLog(logId, "tc0502", resultCode, resultCodeName);
                     break;
                 case "26241/0/0":
                     endLwM2MTC("tc0601", logId, resultCode, resultCodeName);
@@ -6388,7 +6684,7 @@ namespace WindowsFormsApp2
                     if (resultCode == "20000000")
                     {
                         LogWrite("registration device parameter checking");
-                        getSvrEventLog(logId, "tc0302",resultCode,resultCodeName);
+                        getSvrDetailLog(logId, "tc0302",resultCode,resultCodeName);
                         endLwM2MTC("tc0302", logId, resultCode, resultCodeName);
                     }
                     else
@@ -6396,13 +6692,13 @@ namespace WindowsFormsApp2
                     break;
                 case "":
                     LogWrite("Firmware update checking");
-                    getSvrEventLog(logId, "tc0602", resultCode, resultCodeName);
+                    getSvrDetailLog(logId, "tc0602", resultCode, resultCodeName);
                     break;
                 default:
                     if (path.StartsWith("rd/"))
                     {
                         LogWrite("device event parameter checking");
-                        getSvrEventLog(logId, "tc0303", resultCode, resultCodeName);
+                        getSvrDetailLog(logId, "tc0303", resultCode, resultCodeName);
                     }
                     break;
             }
@@ -6424,6 +6720,31 @@ namespace WindowsFormsApp2
                 getSvrLoglists("entityId=" + svr.entityId,"man");
             else
                 MessageBox.Show("서비스서버 MEF인증 후 사용이 가능합니다");
+        }
+
+        private void timer2_Tick(object sender, EventArgs e)
+        {
+            if (lbActionState.Text == "lwm2mtc0201")
+            {
+                startLwM2MTC("tc0202");
+                lbActionState.Text = states.lwm2mtc02021.ToString();
+
+                DeviceProvision();
+            }
+            else if (lbActionState.Text == states.lwm2mtc03012.ToString())
+            {
+                startLwM2MTC("tc0603");
+                lbActionState.Text = states.lwm2mtc06031.ToString();
+                DeviceFWVerSend(tBoxDeviceVer.Text, device_fota_state, device_fota_reseult);
+            }
+            else if (lbActionState.Text == states.lwm2mtc06032.ToString())
+            {
+                startLwM2MTC("tc0501");
+                lbActionState.Text = states.lwm2mtc0501.ToString();
+                sendDataToServer();
+            }
+
+            timer2.Stop();
         }
     }
 
