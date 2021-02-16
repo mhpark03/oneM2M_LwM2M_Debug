@@ -6319,7 +6319,7 @@ namespace WindowsFormsApp2
                                     }
                                     else if (httpMethod.ToString() == "GET")
                                     {
-                                        //endoneM2MTC("tc020301", tlogid, tresultCode, tresultCodeName, string.Empty);
+                                        endoneM2MTC("tc020301", tlogid, tresultCode, tresultCodeName, string.Empty);
                                         kind = string.Empty;
                                     }
                                     break;
@@ -6369,10 +6369,10 @@ namespace WindowsFormsApp2
                                         kind = string.Empty;
                                     }
                                     break;
-                                case "tc020701":
+                                case "tc020504":
                                     if (httpMethod.ToString() == "GET")
                                     {
-                                        endoneM2MTC("tc020701", tlogid, tresultCode, tresultCodeName, string.Empty);
+                                        endoneM2MTC("tc020603", tlogid, tresultCode, tresultCodeName, string.Empty);
                                         kind = string.Empty;
                                     }
                                     else if (httpMethod.ToString() == "POST")
@@ -6801,7 +6801,7 @@ namespace WindowsFormsApp2
                     getSvrDetailLog(logId, "tc020502", resultCode, resultCodeName);
                     break;
                 case "cin":
-                    getSvrDetailLog(logId, "tc020701", resultCode, resultCodeName);
+                    getSvrDetailLog(logId, "tc020504", resultCode, resultCodeName);
                     break;
                 case "NOTI":
                     endoneM2MTC("tc020601", logId, resultCode, resultCodeName, string.Empty);
@@ -6838,6 +6838,12 @@ namespace WindowsFormsApp2
                     }
                     else
                         endoneM2MTC("tc021301", logId, resultCode, resultCodeName, string.Empty);
+                    break;
+                case "MGMT":
+                    if (trgAddr.EndsWith("fwr"))
+                        endoneM2MTC("tc021401", logId, resultCode, resultCodeName, string.Empty);
+                    else if (trgAddr.EndsWith("rbo"))
+                        endoneM2MTC("tc021401", logId, resultCode, resultCodeName, string.Empty);
                     break;
                 default:
                     break;
