@@ -542,9 +542,9 @@
             this.label12.AutoSize = true;
             this.label12.Location = new System.Drawing.Point(6, 43);
             this.label12.Name = "label12";
-            this.label12.Size = new System.Drawing.Size(279, 12);
+            this.label12.Size = new System.Drawing.Size(394, 12);
             this.label12.TabIndex = 50;
-            this.label12.Text = "요청시간      ID      ResultCode  결과 (요청  내용)";
+            this.label12.Text = "요청시간      ID        Test Case            ResultCode  결과 (요청  내용)";
             this.label12.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // listBox1

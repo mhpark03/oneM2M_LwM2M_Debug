@@ -432,6 +432,7 @@ namespace WindowsFormsApp2
         string logUrl = "http://106.103.228.184/api/v1"; // oneM2M log(개발기)
 
         string tcStartTime = string.Empty;
+        string tcmsg = string.Empty;
 
         ServiceServer svr = new ServiceServer();
         Device dev = new Device();
@@ -5845,7 +5846,7 @@ namespace WindowsFormsApp2
                 Console.WriteLine(data);
                 Console.WriteLine("");
 
-                wReq.Timeout = 20000;          // 서버 응답을 20초동안 기다림
+                wReq.Timeout = 30000;          // 서버 응답을 30초동안 기다림
                 using (wRes = (HttpWebResponse)wReq.GetResponse())
                 {
                     Console.WriteLine("HTTP/1.1 " + (int)wRes.StatusCode + " " + wRes.StatusCode.ToString());
@@ -6129,11 +6130,13 @@ namespace WindowsFormsApp2
                                 string rcode = code.ToString();
                                 if (rcode == "DELETE")
                                 {
+                                    tcmsg = "Deragistration";
                                     endLwM2MTC("tc0401", tlogid, tresultCode, tresultCodeName, string.Empty);
                                     kind = string.Empty;
                                 }
                                 else if (rcode == "POST")
                                 {
+                                    tcmsg = "Regist. Update";
                                     endLwM2MTC("tc0303", tlogid, tresultCode, tresultCodeName, string.Empty);
                                     kind = string.Empty;
                                 }
@@ -6143,11 +6146,13 @@ namespace WindowsFormsApp2
                                 string rcode = code.ToString();
                                 if (rcode == "PUT")
                                 {
+                                    tcmsg = "Data Receive";
                                     endLwM2MTC("tc0502", tlogid, tresultCode, tresultCodeName, string.Empty);
                                     kind = string.Empty;
                                 }
                                 else if (rcode == "GET")
                                 {
+                                    tcmsg = "Status Check";
                                     endLwM2MTC("tc0503", tlogid, tresultCode, tresultCodeName, string.Empty);
                                     kind = string.Empty;
                                 }
@@ -6163,6 +6168,7 @@ namespace WindowsFormsApp2
                                 {
                                     if (path.StartsWith("firmware", System.StringComparison.CurrentCultureIgnoreCase))
                                     {
+                                        tcmsg = "Module FW DL";
                                         endLwM2MTC("tc0602", tlogid, tresultCode, tresultCodeName, string.Empty);
                                         kind = string.Empty;
                                     }
@@ -6187,6 +6193,7 @@ namespace WindowsFormsApp2
                                     {
                                         if(cppath.ToString() == "26241/0/1")
                                         {
+                                            tcmsg = "Device FW DL";
                                             endLwM2MTC("tc0603", tlogid, tresultCode, tresultCodeName, string.Empty);
                                             kind = string.Empty;
                                         }
@@ -6226,6 +6233,7 @@ namespace WindowsFormsApp2
                                             {
                                                 var rdpath = jcoapobj["path"] ?? " ";
 
+                                                tcmsg = "Registration";
                                                 endLwM2MTC(kind, tlogid, "20000100",rdpath.ToString()+" "+code.ToString(), string.Empty);
                                             }
                                         }
@@ -6914,12 +6922,13 @@ namespace WindowsFormsApp2
                         if (path == " ")
                             path = resType.ToString() + " : " + trgAddr.ToString();
 
-                        listBox1.Items.Add(logtime + "\t" + jobj["logId"].ToString() + "\t" + jobj["resultCode"].ToString() + "\t   " + jobj["resultCodeName"].ToString() + " (" + path + ")");
-
+                        tcmsg = string.Empty;
                         if (dev.type == "onem2m")
                             OneM2MTcResultReport(jobj["logId"].ToString(), jobj["resultCode"].ToString(), jobj["resultCodeName"].ToString(), resType.ToString(), trgAddr.ToString(), oprType.ToString());
                         else
-                            LwM2MTcResultReport(path,jobj["logId"].ToString(),jobj["resultCode"].ToString(),jobj["resultCodeName"].ToString());
+                            LwM2MTcResultReport(path, jobj["logId"].ToString(), jobj["resultCode"].ToString(), jobj["resultCodeName"].ToString());
+
+                        listBox1.Items.Add(logtime + "\t" + jobj["logId"].ToString() + "\t" + tcmsg + "\t" + jobj["resultCode"].ToString() + "\t   " + jobj["resultCodeName"].ToString() + " (" + path + ")");
                     }
 
                     if (listBox1.Items.Count != 0 )
@@ -7033,9 +7042,11 @@ namespace WindowsFormsApp2
             switch (path)
             {
                 case "bs":
+                    tcmsg = "Bootstrap   ";
                     endLwM2MTC("tc0203", logId, resultCode, resultCodeName, string.Empty);
                     break;
                 case "10250/0/0":
+                    tcmsg = "Data Send";
                     endLwM2MTC("tc0501", logId, resultCode, resultCodeName, string.Empty);
                     break;
                 case "10250/0/1":
@@ -7043,9 +7054,14 @@ namespace WindowsFormsApp2
                     getSvrDetailLog(logId, "tc0502", resultCode, resultCodeName);
                     break;
                 case "26241/0/0":
+                    tcmsg = "Device FW Ver";
                     endLwM2MTC("tc0601", logId, resultCode, resultCodeName, string.Empty);
                     break;
+                case "5/0/3":
+                    tcmsg = "Module FW Ver";
+                    break;
                 case "rd":
+                    tcmsg = "Registration";
                     if (resultCode == "20000000")
                     {
                         LogWrite("registration device parameter checking");
@@ -7064,6 +7080,10 @@ namespace WindowsFormsApp2
                     {
                         LogWrite("device event parameter checking");
                         getSvrDetailLog(logId, "tc0303", resultCode, resultCodeName);
+                    }
+                    else if (path.StartsWith("firmware"))
+                    {
+                        tcmsg = "Module FW DL";
                     }
                     break;
             }
