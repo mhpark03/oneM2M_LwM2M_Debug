@@ -6277,126 +6277,41 @@ namespace WindowsFormsApp2
                             var body = jobj["body"] ?? " ";
                             var responseBody = jobj["responseBody"] ?? " ";
 
-                            string bodymsg = ParsingBodyMsg(body.ToString(), kind, tlogid, tresultCode, tresultCodeName);
-                            string resbodymsg = ParsingBodyMsg(responseBody.ToString(), kind, tlogid, tresultCode, tresultCodeName);
+                            string ntparam = string.Empty;
+                            if (kind == "tc021101" || kind == "tc021103")
+                            {
+                                JObject obj = JObject.Parse(httpheader.ToString());
+                                var cid = obj["X-OTA-CID"] ?? "";
+                                var nt = obj["X-OTA-NT"] ?? "";
+                                if (cid.ToString() != "" && nt.ToString() != "")
+                                    ntparam = "CID=" + cid.ToString() + "/NT=" + nt.ToString();
+                            }
+
+                            if (kind == "tc021103")
+                            {
+                                string[] values = uri.ToString().Split('/');
+
+                                if (values[5] == "D")
+                                {
+                                    if (ntparam == string.Empty)
+                                        endoneM2MTC("tc021003", tlogid, "20000100", tresultCodeName, "NO CELL info");
+                                    else
+                                        endoneM2MTC("tc021003", tlogid, tresultCode, tresultCodeName, ntparam);
+                                }
+                                else
+                                {
+                                    if (ntparam == string.Empty)
+                                        endoneM2MTC("tc021103", tlogid, "20000100", tresultCodeName, "NO CELL info");
+                                    else
+                                        endoneM2MTC("tc021103", tlogid, tresultCode, tresultCodeName, ntparam);
+                                }
+                            }
+
+                            string bodymsg = ParsingReqBodyMsg(body.ToString(), kind, tlogid, tresultCode, tresultCodeName);
+                            string resbodymsg = ParsingResBodyMsg(responseBody.ToString(), kind, tlogid, tresultCode, tresultCodeName,ntparam);
 
                             message = httpMethod.ToString() + " " + uri.ToString() + "\tREQUEST\n" + httpheader + "\n" + bodymsg + "\n\nRESPONSE\n" + responseBody + resbodymsg;
 
-                            switch (kind)
-                            {
-                                case "tc021101":
-                                case "tc021001":
-                                    JObject obj = JObject.Parse(httpheader.ToString());
-                                    var cid = obj["X-OTA-CID"] ?? "";
-                                    var nt = obj["X-OTA-NT"] ?? "";
-                                    if (cid.ToString() == "" || nt.ToString() == "")
-                                        endoneM2MTC(kind, tlogid, "20000100", tresultCodeName, "No CID or NT");
-                                    else
-                                        endoneM2MTC(kind, tlogid, tresultCode, tresultCodeName, "CID=" + cid.ToString() + "/NT=" + nt.ToString());
-                                    break;
-                                case "tc020501":
-                                    if (httpMethod.ToString() == "GET")
-                                    {
-                                        endoneM2MTC("tc020401", tlogid, tresultCode, tresultCodeName, string.Empty);
-                                        kind = string.Empty;
-                                    }
-                                    else if (httpMethod.ToString() == "POST")
-                                    {
-                                        endoneM2MTC("tc020501", tlogid, tresultCode, tresultCodeName, string.Empty);
-                                        kind = string.Empty;
-                                    }
-                                    break;
-                                case "tc020505":
-                                    if (httpMethod.ToString() == "DELETE")
-                                    {
-                                        endoneM2MTC("tc021204", tlogid, tresultCode, tresultCodeName, string.Empty);
-                                        kind = string.Empty;
-                                    }
-                                    else if (httpMethod.ToString() == "PUT")
-                                    {
-                                        endoneM2MTC("tc020505", tlogid, tresultCode, tresultCodeName, string.Empty);
-                                        kind = string.Empty;
-                                    }
-                                    else if (httpMethod.ToString() == "GET")
-                                    {
-                                        endoneM2MTC("tc020301", tlogid, tresultCode, tresultCodeName, string.Empty);
-                                        kind = string.Empty;
-                                    }
-                                    break;
-                                case "tc020502":
-                                    if (httpMethod.ToString() == "DELETE")
-                                    {
-                                        endoneM2MTC("tc021203", tlogid, tresultCode, tresultCodeName, string.Empty);
-                                        kind = string.Empty;
-                                    }
-                                    else if (httpMethod.ToString() == "POST")
-                                    {
-                                        endoneM2MTC("tc020502", tlogid, tresultCode, tresultCodeName, string.Empty);
-                                        kind = string.Empty;
-                                    }
-                                    break;
-                                case "tc020503":
-                                    if (httpMethod.ToString() == "DELETE")
-                                    {
-                                        endoneM2MTC("tc021202", tlogid, tresultCode, tresultCodeName, string.Empty);
-                                        kind = string.Empty;
-                                    }
-                                    else if (httpMethod.ToString() == "POST")
-                                    {
-                                        endoneM2MTC("tc020503", tlogid, tresultCode, tresultCodeName, string.Empty);
-                                        kind = string.Empty;
-                                    }
-                                    break;
-                                case "tc020901":
-                                    if (httpMethod.ToString() == "DELETE")
-                                    {
-                                        endoneM2MTC("tc020904", tlogid, tresultCode, tresultCodeName, string.Empty);
-                                        kind = string.Empty;
-                                    }
-                                    else if (httpMethod.ToString() == "PUT")
-                                    {
-                                        endoneM2MTC("tc020903", tlogid, tresultCode, tresultCodeName, string.Empty);
-                                        kind = string.Empty;
-                                    }
-                                    else if (httpMethod.ToString() == "GET")
-                                    {
-                                        endoneM2MTC("tc020902", tlogid, tresultCode, tresultCodeName, string.Empty);
-                                        kind = string.Empty;
-                                    }
-                                    else if (httpMethod.ToString() == "POST")
-                                    {
-                                        endoneM2MTC("tc020901", tlogid, tresultCode, tresultCodeName, string.Empty);
-                                        kind = string.Empty;
-                                    }
-                                    break;
-                                case "tc020504":
-                                    if (httpMethod.ToString() == "GET")
-                                    {
-                                        endoneM2MTC("tc020603", tlogid, tresultCode, tresultCodeName, string.Empty);
-                                        kind = string.Empty;
-                                    }
-                                    else if (httpMethod.ToString() == "POST")
-                                    {
-                                        endoneM2MTC("tc020504", tlogid, tresultCode, tresultCodeName, string.Empty);
-                                        kind = string.Empty;
-                                    }
-                                    break;
-                                case "tc021302":
-                                    if (httpMethod.ToString() == "GET")
-                                    {
-                                        endoneM2MTC("tc021303", tlogid, tresultCode, tresultCodeName, string.Empty);
-                                        kind = string.Empty;
-                                    }
-                                    else if (httpMethod.ToString() == "POST")
-                                    {
-                                        endoneM2MTC("tc021302", tlogid, tresultCode, tresultCodeName, string.Empty);
-                                        kind = string.Empty;
-                                    }
-                                    break;
-                                    
-                                default:
-                                    break;
-                            }    
                         }
                         else if (logtype == "HTTP_CLIENT")
                         {
@@ -6451,7 +6366,7 @@ namespace WindowsFormsApp2
             }
         }
 
-        private string ParsingBodyMsg(string body, string tckind,string tlogid,string tresultCode,string tresultCodeName)
+        private string ParsingReqBodyMsg(string body, string tckind,string tlogid,string tresultCode,string tresultCodeName)
         {
             string decode = " ";
             string bodymsg = body.Replace("\t", "");
@@ -6550,15 +6465,262 @@ namespace WindowsFormsApp2
                                     if (xn["nev"]["rep"]["m2m:cin"]["con"] != null)
                                         value = xn["nev"]["rep"]["m2m:cin"]["con"].InnerText; // data value
                                 }
-                        if(tckind == "tc021004" && xn["hwty"] != null)
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex.ToString());
+                    }
+                }
+                Console.WriteLine("value = " + value);
+                Console.WriteLine("format = " + format);
+
+                if (format == "application/octet-stream")
+                {
+                    string hexOutput = string.Empty;
+                    string ascii = "YES";
+                    byte[] orgBytes = Convert.FromBase64String(value);
+                    char[] orgChars = System.Text.Encoding.ASCII.GetString(orgBytes).ToCharArray();
+                    foreach (char _eachChar in orgChars)
+                    {
+                        // Get the integral value of the character.
+                        int intvalue = Convert.ToInt32(_eachChar);
+                        // Convert the decimal value to a hexadecimal value in string form.
+                        if (intvalue < 16)
                         {
-                            if(xn["hwty"].InnerText == "D")
+                            hexOutput += "0";
+                            ascii = "NO";
+                        }
+                        else if (intvalue < 32)
+                        {
+                            ascii = "NO";
+                        }
+                        hexOutput += String.Format("{0:X}", intvalue);
+                    }
+                    //logPrintInTextBox(hexOutput, "");
+
+                    if (hexOutput != string.Empty)
+                    {
+                        decode = "\n\n( HEX DATA : " + hexOutput;
+
+                        if (ascii == "YES")
+                        {
+                            string asciidata = Encoding.UTF8.GetString(orgBytes);
+                            decode += "\nASCII DATA : " + asciidata;
+                        }
+                        decode += ")";
+                    }
+                }
+                else if (value != string.Empty)
+                {
+                    decode = "\n\n( DATA : " + value + " )";
+                }
+                //LogWrite("decode = " + decode);
+            }
+            else if (bodymsg.StartsWith("<m2m", System.StringComparison.CurrentCultureIgnoreCase))
+            {
+                string format = string.Empty;
+                string value = string.Empty;
+
+                //bodymsg = bodymsg.Replace("\\t", "");
+                XmlDocument xDoc = new XmlDocument();
+                xDoc.LoadXml(bodymsg);
+                //logPrintTC(xDoc.OuterXml.ToString());
+
+                XmlNodeList xnList = xDoc.SelectNodes("/*"); //접근할 노드
+                foreach (XmlNode xn in xnList)
+                {
+                    try
+                    {
+                        if (xn["cnf"] != null)
+                            format = xn["cnf"].InnerText; // data format
+                        if (xn["con"] != null)
+                            value = xn["con"].InnerText; // data value
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex.ToString());
+                    }
+                }
+                //LogWrite("value = " + value);
+                //LogWrite("format = " + format);
+
+                if (format == "application/octet-stream")
+                {
+                    string hexOutput = string.Empty;
+                    string ascii = "YES";
+                    byte[] orgBytes = Convert.FromBase64String(value);
+                    char[] orgChars = System.Text.Encoding.ASCII.GetString(orgBytes).ToCharArray();
+                    foreach (char _eachChar in orgChars)
+                    {
+                        // Get the integral value of the character.
+                        int intvalue = Convert.ToInt32(_eachChar);
+                        // Convert the decimal value to a hexadecimal value in string form.
+                        if (intvalue < 16)
+                        {
+                            hexOutput += "0";
+                            ascii = "NO";
+                        }
+                        else if (intvalue < 32)
+                        {
+                            ascii = "NO";
+                        }
+                        hexOutput += String.Format("{0:X}", intvalue);
+                    }
+                    //logPrintInTextBox(hexOutput, "");
+
+                    if (hexOutput != string.Empty)
+                    {
+                        decode = "\n\n( HEX DATA : " + hexOutput;
+
+                        if (ascii == "YES")
+                        {
+                            string asciidata = Encoding.UTF8.GetString(orgBytes);
+                            decode += "\nASCII DATA : " + asciidata;
+                        }
+                        decode += ")";
+                    }
+                }
+                else if (value != string.Empty)
+                {
+                    decode = "\n\n( DATA : " + value + " )";
+                }
+                //LogWrite("decode = " + decode);
+            }
+            return (bodymsg + decode);
+        }
+
+        private string ParsingResBodyMsg(string body, string tckind, string tlogid, string tresultCode, string tresultCodeName, string ntparam)
+        {
+            string decode = " ";
+            string bodymsg = body.Replace("\t", "");
+            Console.WriteLine(bodymsg);
+
+            if (bodymsg.StartsWith("{", System.StringComparison.CurrentCultureIgnoreCase))
+            {
+                try
+                {
+                    JObject obj = JObject.Parse(bodymsg);
+                    string format = string.Empty;
+                    string value = string.Empty;
+
+                    if (obj["cnf"] != null)
+                    {
+                        format = obj["cnf"].ToString(); // data format
+                        value = obj["con"].ToString(); // data value
+                    }
+
+                    if (value != string.Empty)
+                    {
+                        if (format == "application/octet-stream")
+                        {
+                            string hexOutput = string.Empty;
+                            string ascii = "YES";
+                            byte[] orgBytes = Convert.FromBase64String(value);
+                            char[] orgChars = System.Text.Encoding.ASCII.GetString(orgBytes).ToCharArray();
+                            foreach (char _eachChar in orgChars)
+                            {
+                                // Get the integral value of the character.
+                                int intvalue = Convert.ToInt32(_eachChar);
+                                // Convert the decimal value to a hexadecimal value in string form.
+                                if (intvalue < 16)
+                                {
+                                    hexOutput += "0";
+                                    ascii = "NO";
+                                }
+                                else if (intvalue < 32)
+                                {
+                                    ascii = "NO";
+                                }
+                                hexOutput += String.Format("{0:X}", intvalue);
+                            }
+                            //logPrintInTextBox(hexOutput, "");
+
+                            if (hexOutput != string.Empty)
+                            {
+                                decode = "\n\n( HEX DATA : " + hexOutput;
+
+                                if (ascii == "YES")
+                                {
+                                    string asciidata = Encoding.UTF8.GetString(orgBytes);
+                                    decode += "\nASCII DATA : " + asciidata;
+                                }
+                                decode += ")";
+                            }
+                        }
+                        else
+                        {
+                            decode = "\n\n( DATA : " + value + " )";
+                        }
+                    }
+                    //LogWrite("decode = " + decode);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.ToString());
+                }
+            }
+            else if (bodymsg.StartsWith("<?xml", System.StringComparison.CurrentCultureIgnoreCase))
+            {
+                string format = string.Empty;
+                string value = string.Empty;
+
+                //bodymsg = bodymsg.Replace("\\t", "");
+                XmlDocument xDoc = new XmlDocument();
+                xDoc.LoadXml(bodymsg);
+                //logPrintTC(xDoc.OuterXml.ToString());
+
+                XmlNodeList xnList = xDoc.SelectNodes("/*"); //접근할 노드
+                foreach (XmlNode xn in xnList)
+                {
+                    try
+                    {
+                        if (xn["cnf"] != null)
+                            format = xn["cnf"].InnerText; // data format
+                        if (xn["con"] != null)
+                            value = xn["con"].InnerText; // data value
+
+                        if (xn["nev"] != null)
+                            if (xn["nev"]["rep"] != null)
+                                if (xn["nev"]["rep"]["m2m:cin"] != null)
+                                {
+                                    if (xn["nev"]["rep"]["m2m:cin"]["cnf"] != null)
+                                        format = xn["nev"]["rep"]["m2m:cin"]["cnf"].InnerText; // data format
+                                    if (xn["nev"]["rep"]["m2m:cin"]["con"] != null)
+                                        value = xn["nev"]["rep"]["m2m:cin"]["con"].InnerText; // data value
+                                }
+                        if (tckind == "tc021004" && xn["hwty"] != null)
+                        {
+                            if (xn["hwty"].InnerText == "D")
                             {
                                 endoneM2MTC("tc021004", tlogid, tresultCode, tresultCodeName, string.Empty);
                             }
-                            else if (xn["hwty"].InnerText == "M")
+                            else
                             {
                                 endoneM2MTC("tc021104", tlogid, tresultCode, tresultCodeName, string.Empty);
+                            }
+                        }
+
+                        if (tckind == "tc021101")
+                        {
+                            if (xn["url"] != null)
+                            {
+                                string url = xn["url"].InnerText;
+                                string[] values = url.Split('/');    // 수신한 데이터를 한 문장씩 나누어 array에 저장
+
+                                if (values[3] == "D")
+                                {
+                                    if (ntparam == string.Empty)
+                                        endoneM2MTC("tc021001", tlogid, "20000100", tresultCodeName, "NO CELL info");
+                                    else
+                                        endoneM2MTC("tc021001", tlogid, tresultCode, tresultCodeName, ntparam);
+                                }
+                                else
+                                {
+                                    if (ntparam == string.Empty)
+                                        endoneM2MTC("tc021101", tlogid, "20000100", tresultCodeName, "NO CELL info");
+                                    else
+                                        endoneM2MTC("tc021101", tlogid, tresultCode, tresultCodeName, ntparam);
+                                }
                             }
                         }
                     }
@@ -6567,6 +6729,7 @@ namespace WindowsFormsApp2
                         Console.WriteLine(ex.ToString());
                     }
                 }
+
                 Console.WriteLine("value = " + value);
                 Console.WriteLine("format = " + format);
 
@@ -6706,11 +6869,11 @@ namespace WindowsFormsApp2
 
         private void btnGetLogList_Click(object sender, EventArgs e)
         {
-            string kind = string.Empty;
+            string kind = "type=lwm2m";
             if (dev.type != string.Empty)
-                kind += "type=" + dev.type + "&";
+                kind = "type=" + dev.type;
             if (textBox1.Text != string.Empty)
-                kind += "ctn=" + textBox1.Text;
+                kind += "&ctn=" + textBox1.Text;
             if (tcStartTime != string.Empty)
                 kind += "&from=" + tcStartTime;
             getSvrLoglists(kind,"man");
@@ -6745,6 +6908,7 @@ namespace WindowsFormsApp2
                         var pathInfo = jobj["pathInfo"] ?? " ";
                         var trgAddr = jobj["trgAddr"] ?? "";
                         var resType = jobj["resType"] ?? " ";
+                        var oprType = jobj["oprType"] ?? " ";
 
                         string path = pathInfo.ToString();
                         if (path == " ")
@@ -6760,7 +6924,7 @@ namespace WindowsFormsApp2
                         }
                         else if (dev.type == "onem2m")
                         {
-                            OneM2MTcResultReport(jobj["logId"].ToString(), jobj["resultCode"].ToString(), jobj["resultCodeName"].ToString(),  resType.ToString(), trgAddr.ToString());
+                            OneM2MTcResultReport(jobj["logId"].ToString(), jobj["resultCode"].ToString(), jobj["resultCodeName"].ToString(),  resType.ToString(), trgAddr.ToString(), oprType.ToString());
                         }
                     }
 
@@ -6780,8 +6944,9 @@ namespace WindowsFormsApp2
                 MessageBox.Show("플랫폼 로그가 존재하지 않습니다.\nCTN을 확인하세요", textBox1.Text + " DEVICE 상태 정보");
         }
 
-        private void OneM2MTcResultReport(string logId, string resultCode, string resultCodeName, string resType, string trgAddr)
+        private void OneM2MTcResultReport(string logId, string resultCode, string resultCodeName, string resType, string trgAddr, string oprType)
         {
+            // oprType = 1:POST(Create), 2:GET(Read), 3:PUT(Update),4:DELETE,5:POST(Noti)
             switch (resType)
             {
                 case "mefda":
@@ -6790,51 +6955,106 @@ namespace WindowsFormsApp2
                 case "csr":
                     if(trgAddr == "cb-1")
                     {
-                        getSvrDetailLog(logId, "tc020501", resultCode, resultCodeName);
+                        if (oprType == "2")
+                        {
+                            endoneM2MTC("tc020401", logId, resultCode, resultCodeName, string.Empty);
+                        }
+                        else if (oprType == "1")
+                        {
+                            endoneM2MTC("tc020501", logId, resultCode, resultCodeName, string.Empty);
+                        }
                     }
                     else
                     {
-                        getSvrDetailLog(logId, "tc020505", resultCode, resultCodeName);
+                        if (oprType == "4")
+                        {
+                            endoneM2MTC("tc021204", logId, resultCode, resultCodeName, string.Empty);
+                        }
+                        else if (oprType == "3")
+                        {
+                            endoneM2MTC("tc020505", logId, resultCode, resultCodeName, string.Empty);
+                        }
+                        else if (oprType == "2")
+                        {
+                            endoneM2MTC("tc020301", logId, resultCode, resultCodeName, string.Empty);
+                        }
                     }
                     break;
                 case "cnt":
-                    getSvrDetailLog(logId, "tc020502", resultCode, resultCodeName);
+                    if (oprType == "4")
+                    {
+                        endoneM2MTC("tc021203", logId, resultCode, resultCodeName, string.Empty);
+                    }
+                    else if (oprType == "1")
+                    {
+                        endoneM2MTC("tc020502", logId, resultCode, resultCodeName, string.Empty);
+                    }
                     break;
                 case "cin":
-                    getSvrDetailLog(logId, "tc020504", resultCode, resultCodeName);
+                    if (oprType == "2")
+                    {
+                        endoneM2MTC("tc020603", logId, resultCode, resultCodeName, string.Empty);
+                    }
+                    else if (oprType == "1")
+                    {
+                        endoneM2MTC("tc020504", logId, resultCode, resultCodeName, string.Empty);
+                    }
                     break;
                 case "NOTI":
                     endoneM2MTC("tc020601", logId, resultCode, resultCodeName, string.Empty);
                     break;
                 case "sub":
-                    getSvrDetailLog(logId, "tc020503", resultCode, resultCodeName);
+                    if (oprType == "4")
+                    {
+                        endoneM2MTC("tc021202", logId, resultCode, resultCodeName, string.Empty);
+                    }
+                    else if (oprType == "1")
+                    {
+                        endoneM2MTC("tc020503", logId, resultCode, resultCodeName, string.Empty);
+                    }
                     break;
                 case "la":
                     endoneM2MTC("tc020701", logId, resultCode, resultCodeName, string.Empty);
                     break;
                 case "acp":
-                    getSvrDetailLog(logId, "tc020901", resultCode, resultCodeName);
+                    if (oprType == "4")
+                    {
+                        endoneM2MTC("tc020904", logId, resultCode, resultCodeName, string.Empty);
+                    }
+                    else if (oprType == "3")
+                    {
+                        endoneM2MTC("tc020903", logId, resultCode, resultCodeName, string.Empty);
+                    }
+                    else if (oprType == "2")
+                    {
+                        endoneM2MTC("tc020902", logId, resultCode, resultCodeName, string.Empty);
+                    }
+                    else if (oprType == "1")
+                    {
+                        endoneM2MTC("tc020901", logId, resultCode, resultCodeName, string.Empty);
+                    }
                     break;
                 case "otafc":
-                    if (resultCode == "20000000")
-                        getSvrDetailLog(logId, "tc021101", resultCode, resultCodeName);
-                    else
-                        endoneM2MTC("tc021101", logId, resultCode, resultCodeName, string.Empty);
+                    getSvrDetailLog(logId, "tc021101", resultCode, resultCodeName);
                     break;
                 case "otafd":
-                    if (resultCode == "20000000")
-                        getSvrDetailLog(logId, "tc021001", resultCode, resultCodeName);
-                    else
-                        endoneM2MTC("tc021001", logId, resultCode, resultCodeName, string.Empty);
+                    getSvrDetailLog(logId, "tc021103", resultCode, resultCodeName);
                     break;
                 case "fwr":
                     getSvrDetailLog(logId, "tc021004", resultCode, resultCodeName);
                     break;
                 case "FWD":
                     string target = "/" + dev.entityId;
-                    if (trgAddr.ToString().StartsWith(target))
+                    if (trgAddr.StartsWith(target))
                     {
-                        getSvrDetailLog(logId, "tc021302", resultCode, resultCodeName);
+                        if (oprType == "2")
+                        {
+                            endoneM2MTC("tc021303", logId, resultCode, resultCodeName, string.Empty);
+                        }
+                        else if (oprType == "1")
+                        {
+                            endoneM2MTC("tc021302", logId, resultCode, resultCodeName, string.Empty);
+                        }
                     }
                     else
                         endoneM2MTC("tc021301", logId, resultCode, resultCodeName, string.Empty);
