@@ -6912,26 +6912,18 @@ namespace WindowsFormsApp2
 
                         string path = pathInfo.ToString();
                         if (path == " ")
-                        {
                             path = resType.ToString() + " : " + trgAddr.ToString();
-                        }
 
                         listBox1.Items.Add(logtime + "\t" + jobj["logId"].ToString() + "\t" + jobj["resultCode"].ToString() + "\t   " + jobj["resultCodeName"].ToString() + " (" + path + ")");
 
-                        if (dev.type == "lwm2m")
-                        {
+                        if (dev.type == "onem2m")
+                            OneM2MTcResultReport(jobj["logId"].ToString(), jobj["resultCode"].ToString(), jobj["resultCodeName"].ToString(), resType.ToString(), trgAddr.ToString(), oprType.ToString());
+                        else
                             LwM2MTcResultReport(path,jobj["logId"].ToString(),jobj["resultCode"].ToString(),jobj["resultCodeName"].ToString());
-                        }
-                        else if (dev.type == "onem2m")
-                        {
-                            OneM2MTcResultReport(jobj["logId"].ToString(), jobj["resultCode"].ToString(), jobj["resultCodeName"].ToString(),  resType.ToString(), trgAddr.ToString(), oprType.ToString());
-                        }
                     }
 
                     if (listBox1.Items.Count != 0 )
-                    {
                         listBox1.SelectedIndex = 0;
-                    }
                     else if (mode == "man")
                         MessageBox.Show("플랫폼 로그가 존재하지 않습니다.\nCTN을 확인하세요", textBox1.Text + " DEVICE 상태 정보");
                 }
@@ -6956,83 +6948,53 @@ namespace WindowsFormsApp2
                     if(trgAddr == "cb-1")
                     {
                         if (oprType == "2")
-                        {
                             endoneM2MTC("tc020401", logId, resultCode, resultCodeName, string.Empty);
-                        }
                         else if (oprType == "1")
-                        {
                             endoneM2MTC("tc020501", logId, resultCode, resultCodeName, string.Empty);
-                        }
                     }
                     else
                     {
                         if (oprType == "4")
-                        {
                             endoneM2MTC("tc021204", logId, resultCode, resultCodeName, string.Empty);
-                        }
                         else if (oprType == "3")
-                        {
                             endoneM2MTC("tc020505", logId, resultCode, resultCodeName, string.Empty);
-                        }
                         else if (oprType == "2")
-                        {
                             endoneM2MTC("tc020301", logId, resultCode, resultCodeName, string.Empty);
-                        }
                     }
                     break;
                 case "cnt":
                     if (oprType == "4")
-                    {
                         endoneM2MTC("tc021203", logId, resultCode, resultCodeName, string.Empty);
-                    }
                     else if (oprType == "1")
-                    {
                         endoneM2MTC("tc020502", logId, resultCode, resultCodeName, string.Empty);
-                    }
                     break;
                 case "cin":
                     if (oprType == "2")
-                    {
                         endoneM2MTC("tc020603", logId, resultCode, resultCodeName, string.Empty);
-                    }
                     else if (oprType == "1")
-                    {
                         endoneM2MTC("tc020504", logId, resultCode, resultCodeName, string.Empty);
-                    }
                     break;
                 case "NOTI":
                     endoneM2MTC("tc020601", logId, resultCode, resultCodeName, string.Empty);
                     break;
                 case "sub":
                     if (oprType == "4")
-                    {
                         endoneM2MTC("tc021202", logId, resultCode, resultCodeName, string.Empty);
-                    }
                     else if (oprType == "1")
-                    {
                         endoneM2MTC("tc020503", logId, resultCode, resultCodeName, string.Empty);
-                    }
                     break;
                 case "la":
                     endoneM2MTC("tc020701", logId, resultCode, resultCodeName, string.Empty);
                     break;
                 case "acp":
                     if (oprType == "4")
-                    {
                         endoneM2MTC("tc020904", logId, resultCode, resultCodeName, string.Empty);
-                    }
                     else if (oprType == "3")
-                    {
                         endoneM2MTC("tc020903", logId, resultCode, resultCodeName, string.Empty);
-                    }
                     else if (oprType == "2")
-                    {
                         endoneM2MTC("tc020902", logId, resultCode, resultCodeName, string.Empty);
-                    }
                     else if (oprType == "1")
-                    {
                         endoneM2MTC("tc020901", logId, resultCode, resultCodeName, string.Empty);
-                    }
                     break;
                 case "otafc":
                     getSvrDetailLog(logId, "tc021101", resultCode, resultCodeName);
@@ -7048,13 +7010,9 @@ namespace WindowsFormsApp2
                     if (trgAddr.StartsWith(target))
                     {
                         if (oprType == "2")
-                        {
                             endoneM2MTC("tc021303", logId, resultCode, resultCodeName, string.Empty);
-                        }
                         else if (oprType == "1")
-                        {
                             endoneM2MTC("tc021302", logId, resultCode, resultCodeName, string.Empty);
-                        }
                     }
                     else
                         endoneM2MTC("tc021301", logId, resultCode, resultCodeName, string.Empty);
