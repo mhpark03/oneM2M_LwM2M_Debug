@@ -6146,7 +6146,7 @@ namespace WindowsFormsApp2
                                 string rcode = code.ToString();
                                 if (rcode == "PUT")
                                 {
-                                    tcmsg = "Data Receive";
+                                    tcmsg = "Device Control";
                                     endLwM2MTC("tc0502", tlogid, tresultCode, tresultCodeName, string.Empty);
                                     kind = string.Empty;
                                 }
@@ -6301,6 +6301,7 @@ namespace WindowsFormsApp2
 
                                 if (values[5] == "D")
                                 {
+                                    tcmsg = "Device FW read";
                                     if (ntparam == string.Empty)
                                         endoneM2MTC("tc021003", tlogid, "20000100", tresultCodeName, "NO CELL info");
                                     else
@@ -6308,6 +6309,7 @@ namespace WindowsFormsApp2
                                 }
                                 else
                                 {
+                                    tcmsg = "Module FW read";
                                     if (ntparam == string.Empty)
                                         endoneM2MTC("tc021103", tlogid, "20000100", tresultCodeName, "NO CELL info");
                                     else
@@ -6700,10 +6702,12 @@ namespace WindowsFormsApp2
                         {
                             if (xn["hwty"].InnerText == "D")
                             {
+                                tcmsg = "Device FW Ver";
                                 endoneM2MTC("tc021004", tlogid, tresultCode, tresultCodeName, string.Empty);
                             }
                             else
                             {
+                                tcmsg = "Module FW Ver";
                                 endoneM2MTC("tc021104", tlogid, tresultCode, tresultCodeName, string.Empty);
                             }
                         }
@@ -6717,6 +6721,7 @@ namespace WindowsFormsApp2
 
                                 if (values[3] == "D")
                                 {
+                                    tcmsg = "Device FW Noti";
                                     if (ntparam == string.Empty)
                                         endoneM2MTC("tc021001", tlogid, "20000100", tresultCodeName, "NO CELL info");
                                     else
@@ -6724,6 +6729,7 @@ namespace WindowsFormsApp2
                                 }
                                 else
                                 {
+                                    tcmsg = "Module FW Noti";
                                     if (ntparam == string.Empty)
                                         endoneM2MTC("tc021101", tlogid, "20000100", tresultCodeName, "NO CELL info");
                                     else
@@ -6951,59 +6957,107 @@ namespace WindowsFormsApp2
             switch (resType)
             {
                 case "mefda":
+                    tcmsg = "MEF Certification";
                     endoneM2MTC("tc020201", logId, resultCode, resultCodeName, string.Empty);
                     break;
                 case "csr":
                     if(trgAddr == "cb-1")
                     {
                         if (oprType == "2")
+                        {
+                            tcmsg = "CSEBase Read";
                             endoneM2MTC("tc020401", logId, resultCode, resultCodeName, string.Empty);
+                        }
                         else if (oprType == "1")
+                        {
+                            tcmsg = "remoteCSE Create";
                             endoneM2MTC("tc020501", logId, resultCode, resultCodeName, string.Empty);
+                        }
                     }
                     else
                     {
                         if (oprType == "4")
+                        {
+                            tcmsg = "remoteCSE Delete";
                             endoneM2MTC("tc021204", logId, resultCode, resultCodeName, string.Empty);
+                        }
                         else if (oprType == "3")
+                        {
+                            tcmsg = "remoteCSE Update";
                             endoneM2MTC("tc020505", logId, resultCode, resultCodeName, string.Empty);
+                        }
                         else if (oprType == "2")
+                        {
+                            tcmsg = "remoteCSE Read";
                             endoneM2MTC("tc020301", logId, resultCode, resultCodeName, string.Empty);
+                        }
                     }
                     break;
                 case "cnt":
                     if (oprType == "4")
+                    {
+                        tcmsg = "Folder Delete";
                         endoneM2MTC("tc021203", logId, resultCode, resultCodeName, string.Empty);
+                    }
                     else if (oprType == "1")
+                    {
+                        tcmsg = "Folder Create";
                         endoneM2MTC("tc020502", logId, resultCode, resultCodeName, string.Empty);
+                    }
                     break;
                 case "cin":
                     if (oprType == "2")
+                    {
+                        tcmsg = "Data Read(Auto)";
                         endoneM2MTC("tc020603", logId, resultCode, resultCodeName, string.Empty);
+                    }
                     else if (oprType == "1")
+                    {
+                        tcmsg = "Data Send";
                         endoneM2MTC("tc020504", logId, resultCode, resultCodeName, string.Empty);
+                    }
                     break;
                 case "NOTI":
+                    tcmsg = "Data Noti Event";
                     endoneM2MTC("tc020601", logId, resultCode, resultCodeName, string.Empty);
                     break;
                 case "sub":
                     if (oprType == "4")
+                    {
+                        tcmsg = "Subscript Delete";
                         endoneM2MTC("tc021202", logId, resultCode, resultCodeName, string.Empty);
+                    }
                     else if (oprType == "1")
+                    {
+                        tcmsg = "Subscript Create";
                         endoneM2MTC("tc020503", logId, resultCode, resultCodeName, string.Empty);
+                    }
                     break;
                 case "la":
+                    tcmsg = "Data Read(Last)";
                     endoneM2MTC("tc020701", logId, resultCode, resultCodeName, string.Empty);
                     break;
                 case "acp":
                     if (oprType == "4")
+                    {
+                        tcmsg = "ACP Delete";
                         endoneM2MTC("tc020904", logId, resultCode, resultCodeName, string.Empty);
+                    }
                     else if (oprType == "3")
+                    {
+                        tcmsg = "ACP Update";
                         endoneM2MTC("tc020903", logId, resultCode, resultCodeName, string.Empty);
+                    }
                     else if (oprType == "2")
+                    {
+                        tcmsg = "ACP Read";
                         endoneM2MTC("tc020902", logId, resultCode, resultCodeName, string.Empty);
+                    }
                     else if (oprType == "1")
+                    {
+                        tcmsg = "ACP Create";
                         endoneM2MTC("tc020901", logId, resultCode, resultCodeName, string.Empty);
+                    }
                     break;
                 case "otafc":
                     getSvrDetailLog(logId, "tc021101", resultCode, resultCodeName);
@@ -7019,18 +7073,30 @@ namespace WindowsFormsApp2
                     if (trgAddr.StartsWith(target))
                     {
                         if (oprType == "2")
+                        {
+                            tcmsg = "Status Check";
                             endoneM2MTC("tc021303", logId, resultCode, resultCodeName, string.Empty);
+                        }
                         else if (oprType == "1")
+                        {
+                            tcmsg = "Device Control";
                             endoneM2MTC("tc021302", logId, resultCode, resultCodeName, string.Empty);
+                        }
                     }
                     else
+                    {
+                        tcmsg = "Data send(FWD)";
                         endoneM2MTC("tc021301", logId, resultCode, resultCodeName, string.Empty);
+                    }
                     break;
                 case "MGMT":
                     if (trgAddr.EndsWith("fwr"))
-                        endoneM2MTC("tc021401", logId, resultCode, resultCodeName, string.Empty);
+                        getSvrDetailLog(logId, "tc021002", resultCode, resultCodeName);
                     else if (trgAddr.EndsWith("rbo"))
+                    {
+                        tcmsg = "Remote RESET";
                         endoneM2MTC("tc021401", logId, resultCode, resultCodeName, string.Empty);
+                    }
                     break;
                 default:
                     break;
