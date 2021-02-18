@@ -6440,6 +6440,20 @@ namespace WindowsFormsApp2
                         }
                     }
                     //LogWrite("decode = " + decode);
+
+                    if (tckind == "tc021002" && obj["hwty"] != null)
+                    {
+                        if (obj["hwty"].ToString() == "D")
+                        {
+                            tcmsg = "Remote Device FW";
+                            endoneM2MTC("tc021002", tlogid, tresultCode, tresultCodeName, string.Empty);
+                        }
+                        else
+                        {
+                            tcmsg = "Remote Module FW";
+                            endoneM2MTC("tc021102", tlogid, tresultCode, tresultCodeName, string.Empty);
+                        }
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -6475,6 +6489,20 @@ namespace WindowsFormsApp2
                                     if (xn["nev"]["rep"]["m2m:cin"]["con"] != null)
                                         value = xn["nev"]["rep"]["m2m:cin"]["con"].InnerText; // data value
                                 }
+
+                        if (tckind == "tc021002" && xn["hwty"] != null)
+                        {
+                            if (xn["hwty"].InnerText == "D")
+                            {
+                                tcmsg = "Remote Device FW";
+                                endoneM2MTC("tc021002", tlogid, tresultCode, tresultCodeName, string.Empty);
+                            }
+                            else
+                            {
+                                tcmsg = "Remote Module FW";
+                                endoneM2MTC("tc021102", tlogid, tresultCode, tresultCodeName, string.Empty);
+                            }
+                        }
                     }
                     catch (Exception ex)
                     {
@@ -7066,7 +7094,10 @@ namespace WindowsFormsApp2
                     getSvrDetailLog(logId, "tc021103", resultCode, resultCodeName);
                     break;
                 case "fwr":
-                    getSvrDetailLog(logId, "tc021004", resultCode, resultCodeName);
+                    if (trgAddr == "/mgo/fwr")
+                        getSvrDetailLog(logId, "tc021002", resultCode, resultCodeName);
+                    else
+                        getSvrDetailLog(logId, "tc021004", resultCode, resultCodeName);
                     break;
                 case "FWD":
                     string target = "/" + dev.entityId;
@@ -7091,7 +7122,7 @@ namespace WindowsFormsApp2
                     break;
                 case "MGMT":
                     if (trgAddr.EndsWith("fwr"))
-                        getSvrDetailLog(logId, "tc021002", resultCode, resultCodeName);
+                        tcmsg = "Remote FW Update";
                     else if (trgAddr.EndsWith("rbo"))
                     {
                         tcmsg = "Remote RESET";
@@ -7100,6 +7131,9 @@ namespace WindowsFormsApp2
                     break;
                 case "nod":
                     tcmsg = "node Manage";
+                    break;
+                case "rbo":
+                    tcmsg = "Remote Reset";
                     break;
                 case "mgo":
                     tcmsg = "FW/Reset report";
