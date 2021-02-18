@@ -6272,11 +6272,14 @@ namespace WindowsFormsApp2
                             logtype = "API";
                             var resultCode = jobj["resultCode"] ?? " ";
                             var trgAddr = jobj["trgAddr"] ?? " ";
-                            var prtcType = jobj["prtcType"] ?? " ";
+                            var prtcType = jobj["prtcType"] ?? "";
                             //if (resultCode.ToString() != " ")
                             //    tBResultCode.Text = resultCode.ToString();
+                            string protocol = prtcType.ToString();
+                            if (protocol != "")
+                                protocol = "(" + protocol + ")";
 
-                            message = resultCode.ToString() + " (" + prtcType.ToString() + ")\t" + trgAddr.ToString();
+                            message = resultCode.ToString() + " " + protocol + "\t" + trgAddr.ToString();
                         }
                         else if (logtype == "HTTP")
                         {
@@ -6925,7 +6928,12 @@ namespace WindowsFormsApp2
             string[] values = selected_msg.Split('\t');    // 수신한 데이터를 한 문장씩 나누어 array에 저장
 
             if (values[4] != " ")
-                MessageBox.Show(values[3] + "\n\n" + values[4], "전문 상세내역");
+            {
+                string logs_msg = listBox1.SelectedItem.ToString();
+                string[] titles = logs_msg.Split('\t');    // 수신한 데이터를 한 문장씩 나누어 array에 저장
+
+                MessageBox.Show(values[3] + "\n\n" + values[4], titles[2] + " 상세내역");
+            }
         }
 
         private void button8_Click(object sender, EventArgs e)
@@ -6943,7 +6951,7 @@ namespace WindowsFormsApp2
             string kind = "type=lwm2m";
             if (dev.type != string.Empty)
                 kind = "type=" + dev.type;
-            if (textBox1.Text != string.Empty)
+            //if (textBox1.Text != string.Empty)
                 kind += "&ctn=" + textBox1.Text;
             if (tcStartTime != string.Empty)
                 kind += "&from=" + tcStartTime;
