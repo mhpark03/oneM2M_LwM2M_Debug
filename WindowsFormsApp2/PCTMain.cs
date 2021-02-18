@@ -6702,12 +6702,12 @@ namespace WindowsFormsApp2
                         {
                             if (xn["hwty"].InnerText == "D")
                             {
-                                tcmsg = "Device FW Ver";
+                                tcmsg = "Device FW Report";
                                 endoneM2MTC("tc021004", tlogid, tresultCode, tresultCodeName, string.Empty);
                             }
                             else
                             {
-                                tcmsg = "Module FW Ver";
+                                tcmsg = "Module FW Report";
                                 endoneM2MTC("tc021104", tlogid, tresultCode, tresultCodeName, string.Empty);
                             }
                         }
@@ -7098,6 +7098,12 @@ namespace WindowsFormsApp2
                         endoneM2MTC("tc021401", logId, resultCode, resultCodeName, string.Empty);
                     }
                     break;
+                case "nod":
+                    tcmsg = "node Manage";
+                    break;
+                case "mgo":
+                    tcmsg = "FW/Reset report";
+                    break;
                 default:
                     break;
             }
@@ -7196,6 +7202,11 @@ namespace WindowsFormsApp2
             }
 
             timer2.Stop();
+        }
+
+        private void button12_Click(object sender, EventArgs e)
+        {
+            tbTCResult.Text = string.Empty;
         }
     }
 
