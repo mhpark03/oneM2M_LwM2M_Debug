@@ -3055,6 +3055,7 @@ namespace WindowsFormsApp2
                             logPrintInTextBox("deregistration completed", " ");
                             lbActionState.Text = states.idle.ToString();
 
+                            Thread.Sleep(10000);
                             string kind = "type=lwm2m&ctn=" + textBox1.Text;
                             if (tcStartTime != string.Empty)
                                 kind += "&from=" + tcStartTime;
@@ -6454,6 +6455,20 @@ namespace WindowsFormsApp2
                             endoneM2MTC("tc021102", tlogid, tresultCode, tresultCodeName, string.Empty);
                         }
                     }
+
+                    if (tckind == "tc0603" && obj["hwty"] != null)
+                    {
+                        if (obj["hwty"].ToString() == "D")
+                        {
+                            tcmsg = "Remote Device FW";
+                            endoneM2MTC("tc0603", tlogid, tresultCode, tresultCodeName, string.Empty);
+                        }
+                        else
+                        {
+                            tcmsg = "Remote Module FW";
+                            endoneM2MTC("tc0602", tlogid, tresultCode, tresultCodeName, string.Empty);
+                        }
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -6501,6 +6516,20 @@ namespace WindowsFormsApp2
                             {
                                 tcmsg = "Remote Module FW";
                                 endoneM2MTC("tc021102", tlogid, tresultCode, tresultCodeName, string.Empty);
+                            }
+                        }
+
+                        if (tckind == "tc0603" && xn["hwty"] != null)
+                        {
+                            if (xn["hwty"].InnerText == "D")
+                            {
+                                tcmsg = "Remote Device FW";
+                                endoneM2MTC("tc0603", tlogid, tresultCode, tresultCodeName, string.Empty);
+                            }
+                            else
+                            {
+                                tcmsg = "Remote Module FW";
+                                endoneM2MTC("tc0602", tlogid, tresultCode, tresultCodeName, string.Empty);
                             }
                         }
                     }
@@ -7160,11 +7189,11 @@ namespace WindowsFormsApp2
                     getSvrDetailLog(logId, "tc0502", resultCode, resultCodeName);
                     break;
                 case "26241/0/0":
-                    tcmsg = "Device FW Ver";
+                    tcmsg = "Device FW Report";
                     endLwM2MTC("tc0601", logId, resultCode, resultCodeName, string.Empty);
                     break;
                 case "5/0/3":
-                    tcmsg = "Module FW Ver";
+                    tcmsg = "Module FW Report";
                     break;
                 case "rd":
                     tcmsg = "Registration";
@@ -7172,10 +7201,14 @@ namespace WindowsFormsApp2
                     {
                         LogWrite("registration device parameter checking");
                         getSvrDetailLog(logId, "tc0302",resultCode,resultCodeName);
-                        endLwM2MTC("tc0302", logId, resultCode, resultCodeName, string.Empty);
+                        if (tcmsg == string.Empty)
+                            endLwM2MTC("tc0302", logId, resultCode, resultCodeName, string.Empty);
                     }
                     else
                         endLwM2MTC("tc0302", logId, resultCode, resultCodeName, string.Empty);
+                    break;
+                case "mgo/fwr":
+                    getSvrDetailLog(logId, "tc0603", resultCode, resultCodeName);
                     break;
                 case "":
                     LogWrite("Firmware update checking");
