@@ -3429,7 +3429,8 @@ namespace WindowsFormsApp2
                 else
                     logPrintTC(lwm2mtclist[tcindex] + " [성공] - " + logId);
 
-                if (tc.lwm2m[(int)index, 0] != "FAIL")
+                string result = tc.lwm2m[(int)index, 0];
+                if (result != "FAIL")
                 {
                     tc.lwm2m[(int)index, 0] = "PASS";             // 시험 결과 저장
                     tc.lwm2m[(int)index, 1] = resultCode;
@@ -3475,8 +3476,9 @@ namespace WindowsFormsApp2
                     logPrintTC(onem2mtclist[tcindex] + " [성공]");
                 else
                     logPrintTC(onem2mtclist[tcindex] + " [성공] - " + logId);
+                string result = tc.onem2m[(int)index, 0];
 
-                if (tc.onem2m[(int)index, 0] != "FAIL")
+                if (result != "FAIL")
                 {
                     tc.onem2m[(int)index, 0] = "PASS";             // 시험 결과 저장
                     tc.onem2m[(int)index, 1] = resultCode;
@@ -5953,8 +5955,6 @@ namespace WindowsFormsApp2
 
         private void button6_Click(object sender, EventArgs e)
         {
-            tcStartTime = DateTime.Now.ToString("yyyyMMddHHmmss");
-
             if (gbModule.Enabled == false)
             {
                 if (textBox1.Text != string.Empty)
@@ -6070,7 +6070,10 @@ namespace WindowsFormsApp2
                     MessageBox.Show("CTN 정보가 없습니다.\nCTN을 확인하세요");
             }
             else
+            {
+                tcStartTime = DateTime.Now.ToString("yyyyMMddHHmmss");
                 MessageBox.Show("모듈이 연결되어 있습니다.\n모듈 정보로 동작합니다.");
+            }
         }
 
         private void listBox2_SelectedIndexChanged(object sender, EventArgs e)
