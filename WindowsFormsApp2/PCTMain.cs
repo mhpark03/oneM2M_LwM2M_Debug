@@ -6296,10 +6296,17 @@ namespace WindowsFormsApp2
                             if (kind == "tc021101" || kind == "tc021103")
                             {
                                 JObject obj = JObject.Parse(httpheader.ToString());
-                                var cid = obj["X-OTA-CID"] ?? "";
-                                var nt = obj["X-OTA-NT"] ?? "";
-                                if (cid.ToString() != "" && nt.ToString() != "")
+                                var cid = obj["X-OTA-CID"] ?? " ";
+                                var nt = obj["X-OTA-NT"] ?? " ";
+                                if (cid.ToString() != " " || nt.ToString() != " ")
                                     ntparam = "CID=" + cid.ToString() + "/NT=" + nt.ToString();
+
+                                var pt = obj["X-OTA-PT"] ?? " ";
+                                if (pt.ToString() == "LWM2M" && kind == "tc021101")
+                                {
+                                    tcmsg = "Module FW read";
+                                    endoneM2MTC("tc021103", tlogid, tresultCode, tresultCodeName, ntparam);
+                                }
                             }
 
                             if (kind == "tc021103")
@@ -7152,6 +7159,11 @@ namespace WindowsFormsApp2
                         {
                             tcmsg = "Device Control";
                             endoneM2MTC("tc021302", logId, resultCode, resultCodeName, string.Empty);
+                        }
+                        else if (oprType == "5")
+                        {
+                            tcmsg = "Data send(FWD)";
+                            endoneM2MTC("tc021301", logId, resultCode, resultCodeName, string.Empty);
                         }
                     }
                     else
