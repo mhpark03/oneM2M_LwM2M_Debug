@@ -5517,7 +5517,7 @@ namespace WindowsFormsApp2
         {
             if (isDeviceInfo())
             {
-                tcStartTime = DateTime.Now.ToString("yyyyMMddHHmmss");
+                tcStartTime = DateTime.Now.ToString("yyyyMMddHHmm" + "00");
                 for (int i = 0; i < (int)onem2mtc.tc021401 + 1; i++)
                 {
                     tc.onem2m[i, 0] = "Not TEST";
@@ -5632,7 +5632,7 @@ namespace WindowsFormsApp2
             {
                 firmwareInitial("auto");
 
-                tcStartTime = DateTime.Now.ToString("yyyyMMddHHmmss");
+                tcStartTime = DateTime.Now.ToString("yyyyMMddHHmm"+"00");
                 for (int i = 1; i < (int)lwm2mtc.tc0603 + 1; i++)
                 {
                     tc.lwm2m[i, 0] = "Not TEST";
@@ -6071,7 +6071,7 @@ namespace WindowsFormsApp2
             }
             else
             {
-                tcStartTime = DateTime.Now.ToString("yyyyMMddHHmmss");
+                tcStartTime = DateTime.Now.ToString("yyyyMMddHHmm" + "00");
                 MessageBox.Show("모듈이 연결되어 있습니다.\n모듈 정보로 동작합니다.");
             }
         }
@@ -6961,7 +6961,7 @@ namespace WindowsFormsApp2
             string kind = "type=lwm2m";
             if (dev.type != string.Empty)
                 kind = "type=" + dev.type;
-            //if (textBox1.Text != string.Empty)
+            if (textBox1.Text != string.Empty)
                 kind += "&ctn=" + textBox1.Text;
             if (tcStartTime != string.Empty)
                 kind += "&from=" + tcStartTime;
@@ -7007,7 +7007,7 @@ namespace WindowsFormsApp2
                         if (dev.type == "onem2m")
                             OneM2MTcResultReport(jobj["logId"].ToString(), jobj["resultCode"].ToString(), jobj["resultCodeName"].ToString(), resType.ToString(), trgAddr.ToString(), oprType.ToString());
                         else
-                            LwM2MTcResultReport(path, jobj["logId"].ToString(), jobj["resultCode"].ToString(), jobj["resultCodeName"].ToString());
+                            LwM2MTcResultReport(path, jobj["logId"].ToString(), jobj["resultCode"].ToString(), jobj["resultCodeName"].ToString(), resType.ToString());
 
                         listBox1.Items.Add(logtime + "\t" + jobj["logId"].ToString() + "\t" + tcmsg + "\t" + jobj["resultCode"].ToString() + "\t   " + jobj["resultCodeName"].ToString() + " (" + path + ")");
                     }
@@ -7195,57 +7195,91 @@ namespace WindowsFormsApp2
             }
         }
 
-        private void LwM2MTcResultReport(string path,string logId,string resultCode,string resultCodeName)
+        private void LwM2MTcResultReport(string path,string logId,string resultCode,string resultCodeName, string resType)
         {
-            switch (path)
+            switch (resType)
             {
-                case "bs":
+                case "lbkbt":
                     tcmsg = "Bootstrap   ";
                     endLwM2MTC("tc0203", logId, resultCode, resultCodeName, string.Empty);
                     break;
-                case "10250/0/0":
-                    tcmsg = "Data Send";
-                    endLwM2MTC("tc0501", logId, resultCode, resultCodeName, string.Empty);
-                    break;
-                case "10250/0/1":
-                    LogWrite("device control checking");
-                    getSvrDetailLog(logId, "tc0502", resultCode, resultCodeName);
-                    break;
-                case "26241/0/0":
-                    tcmsg = "Device FW Report";
-                    endLwM2MTC("tc0601", logId, resultCode, resultCodeName, string.Empty);
-                    break;
-                case "5/0/3":
-                    tcmsg = "Module FW Report";
-                    break;
-                case "rd":
-                    tcmsg = "Registration";
+                case "lbkre":
                     if (resultCode == "20000000")
                     {
                         LogWrite("registration device parameter checking");
-                        getSvrDetailLog(logId, "tc0302",resultCode,resultCodeName);
+                        getSvrDetailLog(logId, "tc0302", resultCode, resultCodeName);
                         if (tcmsg == string.Empty)
+                        {
+                            tcmsg = "Registration";
                             endLwM2MTC("tc0302", logId, resultCode, resultCodeName, string.Empty);
+                        }
                     }
                     else
+                    {
+                        tcmsg = "Registration";
                         endLwM2MTC("tc0302", logId, resultCode, resultCodeName, string.Empty);
+                    }
                     break;
-                case "mgo/fwr":
-                    getSvrDetailLog(logId, "tc0603", resultCode, resultCodeName);
+                case "lbkru":
+                    tcmsg = "Regist. Update";
+                    endLwM2MTC("tc0303", logId, resultCode, resultCodeName, string.Empty);
                     break;
-                case "":
-                    LogWrite("Firmware update checking");
-                    getSvrDetailLog(logId, "tc0602", resultCode, resultCodeName);
+                case "lbkrd":
+                    tcmsg = "Deragistration";
+                    endLwM2MTC("tc0401", logId, resultCode, resultCodeName, string.Empty);
+                    break;
+                case "lbknt":
+                    if (path == "10250/0/0")
+                    {
+                        tcmsg = "Data Send";
+                        endLwM2MTC("tc0501", logId, resultCode, resultCodeName, string.Empty);
+                    }
+                    else if (path == "26241/0/0")
+                    {
+                        tcmsg = "Device FW Report";
+                        endLwM2MTC("tc0601", logId, resultCode, resultCodeName, string.Empty);
+                    }
+                    else if (path == "5/0/3")
+                        tcmsg = "Module FW Report";
+                    break;
+                case "lbkdc":
+                    if (path == "mgo/fwr")
+                    {
+                        getSvrDetailLog(logId, "tc0603", resultCode, resultCodeName);
+                        if (tcmsg == string.Empty)
+                        {
+                            tcmsg = "Remote Device FW";
+                            endLwM2MTC("tc0603", logId, resultCode, resultCodeName, string.Empty);
+                        }
+                    }
+                    else
+                    {
+                        LogWrite("device control checking");
+                        getSvrDetailLog(logId, "tc0502", resultCode, resultCodeName);
+                        if (tcmsg == string.Empty)
+                        {
+                            tcmsg = "Device Control";
+                            endLwM2MTC("tc0502", logId, resultCode, resultCodeName, string.Empty);
+                        }
+                    }
+                    break;
+                case "lbkfd":
+                    tcmsg = "Module FW DL";
+                    endLwM2MTC("tc0602", logId, resultCode, resultCodeName, string.Empty);
+                    break;
+                case "lbkfs":
+                    tcmsg = "Module FW Update";
+                    endLwM2MTC("tc0602", logId, resultCode, resultCodeName, string.Empty);
+                    break;
+                case "lbkfu":
+                    tcmsg = "Device FW Update";
+                    endLwM2MTC("tc0603", logId, resultCode, resultCodeName, string.Empty);
                     break;
                 default:
-                    if (path.StartsWith("rd/"))
-                    {
-                        LogWrite("device event parameter checking");
-                        getSvrDetailLog(logId, "tc0303", resultCode, resultCodeName);
-                    }
-                    else if (path.StartsWith("firmware"))
+                    if (path.StartsWith("firmware"))
                     {
                         tcmsg = "Module FW DL";
+                        endLwM2MTC("tc0602", logId, resultCode, resultCodeName, string.Empty);
                     }
                     break;
             }
