@@ -15,6 +15,7 @@ using System.Xml;
 using Newtonsoft.Json.Linq;
 using System.Net.Http;
 using System.Threading;
+using ExcelLibrary.SpreadSheet;
 
 namespace WindowsFormsApp2
 {
@@ -4621,7 +4622,7 @@ namespace WindowsFormsApp2
 
             if (tbTCResult.Text != string.Empty)
             {
-                filename = "TestResult_" + currenttime.ToString("MMdd_hhmmss") + ".csv";
+                filename = "TestResult_" + currenttime.ToString("MMdd_hhmmss") + ".xls";
                 resultFileWrite(pathname, filename);
 
                 filename = "tcresult_log_" + currenttime.ToString("MMdd_hhmmss") + ".txt";
@@ -4700,56 +4701,63 @@ namespace WindowsFormsApp2
         {
             try
             {
-                // Create a file to write to.
-                FileStream fs = new FileStream(pathname + filename, FileMode.Create, FileAccess.Write, FileShare.None, bufferSize: 4096);
+                Workbook workbook = new Workbook();
+                Worksheet worksheet = new Worksheet("result");
 
-                // Create a file to write to.
-                StreamWriter sw = new StreamWriter(fs, Encoding.UTF8);
+                for (int j = 0; j < 100; j++)
+                    worksheet.Cells[j, 0] = new Cell("");
 
-                string devinfo = "모델명 : " + dev.model;
-                sw.WriteLine(devinfo);
-                devinfo = "제조사 : " + dev.maker;
-                sw.WriteLine(devinfo);
-                devinfo = "버전 : " + dev.version;
-                sw.WriteLine(devinfo);
-                sw.WriteLine("시험일 : " + DateTime.Now.ToString("MM/dd hh:mm:ss"));
-                sw.WriteLine("EntityID : " + dev.entityId);
-                sw.WriteLine(string.Empty);
-                sw.WriteLine("시험 항목,결과,resultCode,logId,설명,비고");
+                worksheet.Cells[0, 0] = new Cell("모델명 : " + dev.model);
+                worksheet.Cells[1, 0] = new Cell("제조사 : " + dev.maker);
+                worksheet.Cells[2, 0] = new Cell("버전 : " + dev.version);
+                worksheet.Cells[3, 0] = new Cell("시험일 : " + DateTime.Now.ToString("MM/dd hh:mm"));
+                worksheet.Cells[4, 0] = new Cell("EntityID : " + dev.entityId);
 
+                worksheet.Cells[6, 0] = new Cell("시험 항목");
+                worksheet.Cells[6, 1] = new Cell("결과");
+                worksheet.Cells[6, 2] = new Cell("resultCode");
+                worksheet.Cells[6, 3] = new Cell("logId");
+                worksheet.Cells[6, 4] = new Cell("설명");
+                worksheet.Cells[6, 5] = new Cell("비고");
+
+                int i = 7;
                 if (dev.type == "onem2m")
                 {
                     foreach (string tcindex in Enum.GetNames(typeof(onem2mtc)))
                     {
-                        devinfo = onem2mtclist[tcindex] + ",";
+                        worksheet.Cells[i, 0] = new Cell(onem2mtclist[tcindex]);
+
                         onem2mtc index = (onem2mtc)Enum.Parse(typeof(onem2mtc), tcindex);
-                        devinfo += tc.onem2m[(int)index,0];
-                        devinfo += "," + tc.onem2m[(int)index, 1];
-                        devinfo += "," + tc.onem2m[(int)index, 2];
-                        devinfo += "," + tc.onem2m[(int)index, 3];
-                        devinfo += "," + tc.onem2m[(int)index, 4];
-                        sw.WriteLine(devinfo);
+                        worksheet.Cells[i, 1] = new Cell(tc.onem2m[(int)index, 0]);
+                        worksheet.Cells[i, 2] = new Cell(tc.onem2m[(int)index, 1]);
+                        worksheet.Cells[i, 3] = new Cell(tc.onem2m[(int)index, 2]);
+                        worksheet.Cells[i, 4] = new Cell(tc.onem2m[(int)index, 3]);
+                        worksheet.Cells[i, 5] = new Cell(tc.onem2m[(int)index, 4]);
+                        i++;
                     }
                 }
                 else
                 {
                     foreach (string tcindex in Enum.GetNames(typeof(lwm2mtc)))
                     {
-                        devinfo = lwm2mtclist[tcindex] + ",";
+                        worksheet.Cells[i, 0] = new Cell(lwm2mtclist[tcindex]);
+
                         lwm2mtc indexl = (lwm2mtc)Enum.Parse(typeof(lwm2mtc), tcindex);
-                        devinfo += tc.lwm2m[(int)indexl,0];
-                        devinfo += "," + tc.lwm2m[(int)indexl, 1];
-                        devinfo += "," + tc.lwm2m[(int)indexl, 2];
-                        devinfo += "," + tc.lwm2m[(int)indexl, 3];
-                        devinfo += "," + tc.lwm2m[(int)indexl, 4];
-                        sw.WriteLine(devinfo);
+                        worksheet.Cells[i, 1] = new Cell(tc.lwm2m[(int)indexl, 0]);
+                        worksheet.Cells[i, 2] = new Cell(tc.lwm2m[(int)indexl, 1]);
+                        worksheet.Cells[i, 3] = new Cell(tc.lwm2m[(int)indexl, 2]);
+                        worksheet.Cells[i, 4] = new Cell(tc.lwm2m[(int)indexl, 3]);
+                        worksheet.Cells[i, 5] = new Cell(tc.lwm2m[(int)indexl, 4]);
+                        i++;
                     }
                 }
 
-                sw.WriteLine(string.Empty);
+                worksheet.Cells.ColumnWidth[0] = 11000;
+                worksheet.Cells.ColumnWidth[1, 3] = 3000;
+                worksheet.Cells.ColumnWidth[4, 5] = 10000;
+                workbook.Worksheets.Add(worksheet);
 
-                sw.Close();
-                fs.Close();
+                workbook.Save(pathname + filename);
             }
             catch (Exception err)
             {
