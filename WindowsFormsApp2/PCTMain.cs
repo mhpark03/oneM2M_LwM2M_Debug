@@ -31,13 +31,11 @@ namespace WindowsFormsApp2
             getmodel,
             getmanufac,
             getimsi,
-            getimsiwr,
             geticcid,
             autogetmodel,
             autogetmodelgmm,
             autogetmanufac,
             autogetimsi,
-            autogetimsiwr,
             autogeticcid,
 
             bootstrap,
@@ -140,9 +138,6 @@ namespace WindowsFormsApp2
             sendmsgvertpb23,
             sendmsgverbc95,
 
-            fotastarttpb23,
-            fotaupdatetpb23,
-
             geticcidamtel,
             autogeticcidamtel,
 
@@ -172,28 +167,10 @@ namespace WindowsFormsApp2
             deviceFWClose,
             deviceFWClosed,
 
-            catm1check,
-            catm1set,
-            catm1apn1,
-            catm1apn2,
-            catm1psmode,
             rfoff,
             rfofftld,
             rfon,
             rfreset,
-
-            catm1imscheck,
-            catm1imsset,
-            catm1imsapn1,
-            catm1imsapn2,
-            catm1imsmode,
-            catm1imspco,
-
-            nbcheck,
-            nbset,
-            nbapn1,
-            nbapn2,
-            nbpsmode,
 
             getmodemver,
             autogetmodemver,
@@ -209,8 +186,6 @@ namespace WindowsFormsApp2
             autogetmodemverwr,
             getmodemverbc95,
             autogetmodemverbc95,
-            getNWmode,
-            autogetNWmode,
 
             lwm2mtc0201,
             lwm2mtc02021,
@@ -486,7 +461,6 @@ namespace WindowsFormsApp2
             bcdvalues.Add('f', 15);
 
             commands.Add("getimsi", "AT+CIMI");
-            commands.Add("getimsiwr", "AT*IMSI?");
             commands.Add("geticcid", "AT+ICCID");
             commands.Add("geticcidtpb23", "AT+MUICCID");
             commands.Add("geticcidlg", "AT+MUICCID=?");
@@ -503,7 +477,6 @@ namespace WindowsFormsApp2
             commands.Add("resettpb23", "AT+NRB");
 
             commands.Add("autogetimsi", "AT+CIMI");
-            commands.Add("autogetimsiwr", "AT*IMSI?");
             commands.Add("autogeticcid", "AT+ICCID");
             commands.Add("autogeticcidtpb23", "AT+MUICCID");
             commands.Add("autogeticcidamtel", "AT@ICCID?");
@@ -581,9 +554,6 @@ namespace WindowsFormsApp2
             commands.Add("sendmsgvertpb23", "AT+MLWULDATA=1,");
             commands.Add("sendmsgverbc95", "AT+QLWULDATA=1,");
 
-            commands.Add("fotastarttpb23", "AT+MLWEVTIND=2");
-            commands.Add("fotaupdatetpb23", "AT+MLWEVTIND=4");
-
             commands.Add("holdoffbc95", "AT+QBOOTSTRAPHOLDOFF=0");
             commands.Add("lwm2mresetbc95", "AT+QREGSWT=2");
             commands.Add("getsvripbc95", "AT+QLWSERVERIP?");
@@ -617,30 +587,10 @@ namespace WindowsFormsApp2
             commands.Add("deviceFWRead", "AT+QFREAD=");
             commands.Add("deviceFWClose", "AT+QFCLOSE=");
 
-
-            commands.Add("catm1check", "AT+QCFG=\"iotopmode\"");
-            commands.Add("catm1set", "AT+QCFG=\"iotopmode\",0");
-            commands.Add("catm1apn1", "AT+CGDCONT=1,\"IPV4V6\",\"m2m-catm1.default.lguplus.co.kr\"");
-            commands.Add("catm1apn2", "AT+CGDCONT=2");
-            commands.Add("catm1psmode", "AT+QCFG=\"servicedomain\",1");
             commands.Add("rfoff", "AT+CFUN=0");
             commands.Add("rfofftld", "AT+CFUN=4");
             commands.Add("rfon", "AT+CFUN=1");
             commands.Add("rfreset", "AT+CFUN=1,1");
-
-            commands.Add("catm1imsset", "AT+QCFG=\"iotopmode\",0");
-            commands.Add("catm1imsapn1", "AT+CGDCONT=1,\"IPV4V6\",\"m2m-catm1.default.lguplus.co.kr\"");
-            commands.Add("catm1imsapn2", "AT+CGDCONT=2,\"IPV4V6\",\"imsv6-m2m.lguplus.co.kr\"");
-            commands.Add("catm1imsmode", "AT+QCFG=\"servicedomain\",2");
-            commands.Add("catm1imspco", "AT$QCPDPIMSCFGE=2,1,0,1");
-
-            commands.Add("getNWmode", "AT+QCFG=\"iotopmode\"");
-            commands.Add("autogetNWmode", "AT+QCFG=\"iotopmode\"");
-
-            commands.Add("nbset", "AT+QCFG=\"iotopmode\",1");
-            commands.Add("nbapn1", "AT+CGDCONT=1,\"IPV4V6\",\"\",\"0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0\",0,0,0,0");
-            commands.Add("nbapn2", "AT+CGDCONT=2");
-            commands.Add("nbpsmode", "AT+QCFG=\"servicedomain\",1");
 
             commands.Add("getmodemver", "AT+GMR");
             commands.Add("autogetmodemver", "AT+GMR");
@@ -1607,7 +1557,6 @@ namespace WindowsFormsApp2
                 "$BIN_DATA=",
                 "data=",
 
-                "+QCFG: ",
                 "FW_VER: ",
                 "$$VER: ",
                 "$$SWVER: ",
@@ -3110,19 +3059,9 @@ namespace WindowsFormsApp2
                             break;
                         case "6":
                             logPrintInTextBox("fota downloading request", " ");
-                            //if (dev.model == "TPB23")
-                            //{
-                            //    this.sendDataOut(commands["fotastarttpb23"]);
-                            //    lbActionState.Text = states.fotastarttpb23.ToString();
-                            //}
                             break;
                         case "7":
                             logPrintInTextBox("fota update request", " ");
-                            //if (dev.model == "TPB23")
-                            //{
-                            //    this.sendDataOut(commands["fotaupdatetpb23"]);
-                            //    lbActionState.Text = states.fotaupdatetpb23.ToString();
-                            //}
                             break;
                         case "8":
                             logPrintInTextBox("26241 object subscription completed", " ");
@@ -3369,25 +3308,6 @@ namespace WindowsFormsApp2
                             nextcommand = states.setonem2mmodeq.ToString();
                         else
                             nextcommand = states.setonem2mmode.ToString();
-                    }
-                    break;
-                case "+QCFG: ":
-                    string[] qcfgs = str2.Split(',');    // 수신한 데이터를 한 문장씩 나누어 array에 저장
-                    if (qcfgs[0] == "\"iotopmode\"")       // 현재 접속한 LTE망 확인
-                    {
-                        if (qcfgs[1] == "0")
-                        {
-                            logPrintInTextBox("LTE Cat M1망에 접속되어 있습니다.", "");
-                        }
-                        else
-                        {
-                            logPrintInTextBox("NB_IOT망에 접속되어 있습니다.", "");
-                        }
-
-                        if (lbActionState.Text == "autogetNWmode")
-                        {
-                            nextcommand = "autogetimsi";
-                        }
                     }
                     break;
                 case "FW_VER: ":
@@ -4101,50 +4021,11 @@ namespace WindowsFormsApp2
                 case states.onem2mtc0201022:
                     nextcommand = states.onem2mtc0201023.ToString();
                     break;
-                case states.catm1set:
-                    nextcommand = states.catm1apn1.ToString();
-                    break;
-                case states.catm1apn1:
-                    nextcommand = states.catm1apn2.ToString();
-                    break;
-                case states.catm1apn2:
-                    nextcommand = states.catm1psmode.ToString();
-                    break;
-                case states.catm1psmode:
-                    nextcommand = states.rfoff.ToString();
-                    break;
                 case states.rfoff:
                     nextcommand = states.rfon.ToString();
                     break;
                 case states.rfon:
                     nextcommand = states.getcereg.ToString();
-                    break;
-                case states.catm1imsset:
-                    nextcommand = states.catm1imsapn1.ToString();
-                    break;
-                case states.catm1imsapn1:
-                    nextcommand = states.catm1imsapn2.ToString();
-                    break;
-                case states.catm1imsapn2:
-                    nextcommand = states.catm1imsmode.ToString();
-                    break;
-                case states.catm1imsmode:
-                    nextcommand = states.catm1imspco.ToString();
-                    break;
-                case states.catm1imspco:
-                    nextcommand = states.rfoff.ToString();
-                    break;
-                case states.nbset:
-                    nextcommand = states.nbapn1.ToString();
-                    break;
-                case states.nbapn1:
-                    nextcommand = states.nbapn2.ToString();
-                    break;
-                case states.nbapn2:
-                    nextcommand = states.nbpsmode.ToString();
-                    break;
-                case states.nbpsmode:
-                    nextcommand = states.rfoff.ToString();
                     break;
                 case states.sendmsgstr:
                 case states.sendmsghex:
@@ -4211,14 +4092,7 @@ namespace WindowsFormsApp2
                     setModelConfig(str1);
 
                     lbActionState.Text = states.idle.ToString();
-                    if (str1 == "BG96")
-                    {
-                        nextcommand = "autogetNWmode";
-                    }
-                    else
-                    {
-                        nextcommand = states.autogetimsi.ToString();
-                    }
+                    nextcommand = states.autogetimsi.ToString();
                     break;
                 // 단말 정보 자동 갱신 순서
                 // autogetmanufac - autogetmodel - (autogetimsi) - (geticcid)
@@ -4320,11 +4194,6 @@ namespace WindowsFormsApp2
                     this.logPrintInTextBox("모델값이 저장되었습니다.", "");
 
                     setModelConfig(str1);
-
-                    if (str1 == "BG96")
-                    {
-                        nextcommand = "getNWmode";
-                    }
                     break;
                 case states.getmanufac:
                     lbMaker.Text = str1;
