@@ -297,6 +297,143 @@ namespace WindowsFormsApp2
             onem2mtc0214014,         // MEF 인증 요청
         }
 
+        private enum commonatcmds
+        {
+            getmodel,
+            getmanufac,
+            getimsi,
+            geticcid,
+            autogetmodel,
+            autogetmodelgmm,
+            autogetmanufac,
+            autogetimsi,
+            autogeticcid,
+
+            setcereg,
+            setceregtpb23,
+            getcereg,
+            reset,
+
+            geticcidtpb23,
+            autogeticcidtpb23,
+            resettpb23,
+
+            geticcidamtel,
+            autogeticcidamtel,
+
+            geticcidlg,
+            autogeticcidlg,
+
+            geticcidgct,
+            autogeticcidgct,
+
+            geticcidbc95,
+            autogeticcidbc95,
+
+            rfoff,
+            rfofftld,
+            rfon,
+            rfreset,
+
+            getmodemver,
+            autogetmodemver,
+            getmodemvertpb23,
+            autogetmodemvertpb23,
+            getmodemvernt,
+            autogetmodemvernt,
+            getmodemvergct,
+            autogetmodemvergct,
+            getmodemvertld,
+            autogetmodemvertld,
+            getmodemverwr,
+            autogetmodemverwr,
+            getmodemverbc95,
+            autogetmodemverbc95,
+        }
+
+        private enum lwm2matcmds
+        {
+            bootstrap,
+            setserverinfo,
+            setserverinfotpb23,
+            setmefserverinfo,
+            sethttpserverinfo,
+            getserverinfo,
+            setncdp,
+            setservertype,
+            setepns,
+            setmbsps,
+            register,
+            deregister,
+            sendLWM2Mdata,
+            receiveLWM2Mdata,
+            downloadMDLFOTA,
+            updateMDLFOTA,
+            lwm2mreset,
+            sendmsgstr,
+            sendmsghex,
+            sendmsgver,
+
+            disable_bg96,
+            enable_bg96,
+            setcdp_bg96,
+
+            holdoffbc95,
+            lwm2mresetbc95,
+            disablebc95,
+            getsvripbc95,
+            setsvrbsbc95,
+            setsvripbc95,
+            actsetsvrbsbc95,
+            actsetsvripbc95,
+            autosetsvrbsbc95,
+            autosetsvripbc95,
+            getepnsbc95,
+            setepnsbc95,
+            autosetepnsbc95,
+            getmbspsbc95,
+            setmbspsbc95,
+            autosetmbspsbc95,
+            bootstrapbc95,
+            rebootbc95,
+
+            bootstrapmodetpb23,
+            setepnstpb23,
+            setmbspstpb23,
+            bootstraptpb23,
+            registertpb23,
+            deregistertpb23,
+            registerbc95,
+            deregisterbc95,
+            sendLWM2Mdatatpb23,
+            receiveLWM2Mdatatpb23,
+            downloadMDLFOTAtpb23,
+            updateMDLFOTAtpb23,
+            lwm2mresettpb23,
+            sendmsgstrtpb23,
+            sendmsgstrbc95,
+            sendmsghextpb23,
+            sendmsgvertpb23,
+            sendmsgverbc95,
+
+            getmodemSvrVer,
+            modemFWUPfinish,
+            modemFWUPfinishLTE,
+            modemFWUPstart,
+
+            getdeviceSvrVer,
+            setdeviceSvrVer,
+            deviceFWUPfinish,
+            deviceFWUPstart,
+            deviceFWList,
+            deviceFWOpen,
+            deviceFWOpened,
+            deviceFWRead,
+            deviceFWReading,
+            deviceFWClose,
+            deviceFWClosed,
+        }
+
         private enum lwm2mtc
         {
             tc0201,
@@ -413,6 +550,7 @@ namespace WindowsFormsApp2
         ServiceServer svr = new ServiceServer();
         Device dev = new Device();
         TCResult tc = new TCResult();
+        ATcommandList atcmd = new ATcommandList();
 
         string filecode = string.Empty;
         int timer1_count = 0;
@@ -689,6 +827,10 @@ namespace WindowsFormsApp2
             tbTCResult.Text = string.Empty;
             tBoxDataIN.Text = string.Empty;
             tbLog.Text = string.Empty;
+
+            atcmd.state = string.Empty;
+            atcmd.common = new string[(int)commonatcmds.autogetmodemverbc95 + 1, 4];
+            atcmd.lwm2m = new string[(int)lwm2matcmds.deviceFWClosed + 1, 4];
         }
 
         // COMM PORT 연결
@@ -7209,6 +7351,13 @@ namespace WindowsFormsApp2
         {
             tbTCResult.Text = string.Empty;
         }
+    }
+
+    public class ATcommandList
+    {
+        public string state { get; set; }            // 테스트 중인 항목
+        public string[,] common { get; set; }           // LwM2M 항목별 시험결과
+        public string[,] lwm2m { get; set; }           // oneM2M 항목별 시험결과
     }
 
     public class TCResult
