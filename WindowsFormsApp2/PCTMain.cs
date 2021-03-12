@@ -299,56 +299,22 @@ namespace WindowsFormsApp2
 
         private enum commonatcmds
         {
-            getmodel,
             getmanufac,
+            getmodel,
             getimsi,
             geticcid,
-            autogetmodel,
-            autogetmodelgmm,
-            autogetmanufac,
-            autogetimsi,
-            autogeticcid,
+            getimei,
+            getmodemver,
+            rfreset,
+            rfoff,
+            rfon,
+
+            rfofftld,
 
             setcereg,
             setceregtpb23,
             getcereg,
             reset,
-
-            geticcidtpb23,
-            autogeticcidtpb23,
-            resettpb23,
-
-            geticcidamtel,
-            autogeticcidamtel,
-
-            geticcidlg,
-            autogeticcidlg,
-
-            geticcidgct,
-            autogeticcidgct,
-
-            geticcidbc95,
-            autogeticcidbc95,
-
-            rfoff,
-            rfofftld,
-            rfon,
-            rfreset,
-
-            getmodemver,
-            autogetmodemver,
-            getmodemvertpb23,
-            autogetmodemvertpb23,
-            getmodemvernt,
-            autogetmodemvernt,
-            getmodemvergct,
-            autogetmodemvergct,
-            getmodemvertld,
-            autogetmodemvertld,
-            getmodemverwr,
-            autogetmodemverwr,
-            getmodemverbc95,
-            autogetmodemverbc95,
         }
 
         private enum lwm2matcmds
@@ -829,7 +795,7 @@ namespace WindowsFormsApp2
             tbLog.Text = string.Empty;
 
             atcmd.state = string.Empty;
-            atcmd.common = new string[(int)commonatcmds.autogetmodemverbc95 + 1, 4];
+            atcmd.common = new string[(int)commonatcmds.reset + 1, 4];
             atcmd.lwm2m = new string[(int)lwm2matcmds.deviceFWClosed + 1, 4];
         }
 
@@ -7350,6 +7316,72 @@ namespace WindowsFormsApp2
         private void button12_Click(object sender, EventArgs e)
         {
             tbTCResult.Text = string.Empty;
+        }
+
+        private void button13_Click(object sender, EventArgs e)
+        {
+            readXlsFile();
+        }
+
+        private void readXlsFile()
+        {
+            OpenFileDialog ofd = new OpenFileDialog();
+            ofd.DefaultExt = "xls";
+            ofd.Filter = "text files (*.xls)|*.xls";
+            ofd.ShowDialog();
+            if (ofd.FileName.Length > 0)
+            {
+                try
+                {
+                    Workbook workbook = Workbook.Load(ofd.FileName);
+
+                    Worksheet worksheet = workbook.Worksheets[3];
+                    if (worksheet.Name == "atcommand3")
+                    {
+                        int i = 0;
+
+                        worksheet = workbook.Worksheets[3];
+                        string type = worksheet.Cells[i, 1].ToString();
+                        if (type == "OneM2M")
+                            dev.type = "onem2m";
+                        else
+                            dev.type = "lwm2m";
+
+                        i++;
+                        string kind = string.Empty;
+                        string atreq = string.Empty;
+                        string atrsp = string.Empty;
+                        string okrecv = string.Empty;
+
+                        for (int j = 0; j <= (int)commonatcmds.rfreset; j++)
+                        {
+                            kind = worksheet.Cells[i, 1].ToString();
+                            atreq = worksheet.Cells[i, 2].ToString();
+                            atrsp = worksheet.Cells[i, 3].ToString();
+                            okrecv = worksheet.Cells[i, 4].ToString();
+                            i++;
+                            if (kind != string.Empty)
+                            {
+                                commonatcmds index = (commonatcmds)Enum.Parse(typeof(commonatcmds), kind);
+                                atcmd.common[(int)index, 0] = atreq;
+                                atcmd.common[(int)index, 1] = atrsp;
+                                atcmd.common[(int)index, 2] = okrecv;
+                            }
+                            else
+                                break;
+                        }
+                        atcmd.state = "loaded";
+                    }
+                    else
+                    {
+                        MessageBox.Show("정상적인 파일이 아닙니다.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
+                catch (Exception err)
+                {
+                    MessageBox.Show(err.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
         }
     }
 

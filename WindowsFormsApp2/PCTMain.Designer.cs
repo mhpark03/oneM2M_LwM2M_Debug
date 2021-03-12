@@ -163,6 +163,7 @@
             this.tBoxDataIN = new System.Windows.Forms.TextBox();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.timer2 = new System.Windows.Forms.Timer(this.components);
+            this.button13 = new System.Windows.Forms.Button();
             this.panel1.SuspendLayout();
             this.gbTCResult.SuspendLayout();
             this.gbServerLog.SuspendLayout();
@@ -1259,6 +1260,7 @@
             // 
             // gbModule
             // 
+            this.gbModule.Controls.Add(this.button13);
             this.gbModule.Controls.Add(this.lbDevEntityId);
             this.gbModule.Controls.Add(this.label18);
             this.gbModule.Controls.Add(this.lbIccid);
@@ -1285,7 +1287,7 @@
             // 
             // lbDevEntityId
             // 
-            this.lbDevEntityId.Location = new System.Drawing.Point(130, 81);
+            this.lbDevEntityId.Location = new System.Drawing.Point(141, 81);
             this.lbDevEntityId.Name = "lbDevEntityId";
             this.lbDevEntityId.Size = new System.Drawing.Size(189, 16);
             this.lbDevEntityId.TabIndex = 35;
@@ -1294,7 +1296,7 @@
             // 
             // label18
             // 
-            this.label18.Location = new System.Drawing.Point(49, 82);
+            this.label18.Location = new System.Drawing.Point(60, 82);
             this.label18.Name = "label18";
             this.label18.Size = new System.Drawing.Size(78, 16);
             this.label18.TabIndex = 34;
@@ -1323,7 +1325,7 @@
             // lbIMSI
             // 
             this.lbIMSI.AutoSize = true;
-            this.lbIMSI.Location = new System.Drawing.Point(114, 67);
+            this.lbIMSI.Location = new System.Drawing.Point(123, 67);
             this.lbIMSI.Name = "lbIMSI";
             this.lbIMSI.Size = new System.Drawing.Size(9, 12);
             this.lbIMSI.TabIndex = 31;
@@ -1332,7 +1334,7 @@
             // label9
             // 
             this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(72, 67);
+            this.label9.Location = new System.Drawing.Point(81, 67);
             this.label9.Name = "label9";
             this.label9.Size = new System.Drawing.Size(39, 12);
             this.label9.TabIndex = 30;
@@ -1361,7 +1363,7 @@
             // lbMaker
             // 
             this.lbMaker.AutoSize = true;
-            this.lbMaker.Location = new System.Drawing.Point(124, 23);
+            this.lbMaker.Location = new System.Drawing.Point(133, 23);
             this.lbMaker.Name = "lbMaker";
             this.lbMaker.Size = new System.Drawing.Size(9, 12);
             this.lbMaker.TabIndex = 27;
@@ -1370,7 +1372,7 @@
             // label7
             // 
             this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(72, 25);
+            this.label7.Location = new System.Drawing.Point(81, 25);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(49, 12);
             this.label7.TabIndex = 26;
@@ -1380,7 +1382,7 @@
             // lbModel
             // 
             this.lbModel.AutoSize = true;
-            this.lbModel.Location = new System.Drawing.Point(124, 42);
+            this.lbModel.Location = new System.Drawing.Point(133, 42);
             this.lbModel.Name = "lbModel";
             this.lbModel.Size = new System.Drawing.Size(9, 12);
             this.lbModel.TabIndex = 25;
@@ -1397,7 +1399,7 @@
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(72, 44);
+            this.label5.Location = new System.Drawing.Point(81, 44);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(49, 12);
             this.label5.TabIndex = 23;
@@ -1406,11 +1408,11 @@
             // 
             // btnModuleInfo
             // 
-            this.btnModuleInfo.Location = new System.Drawing.Point(17, 26);
+            this.btnModuleInfo.Location = new System.Drawing.Point(6, 23);
             this.btnModuleInfo.Name = "btnModuleInfo";
-            this.btnModuleInfo.Size = new System.Drawing.Size(49, 49);
+            this.btnModuleInfo.Size = new System.Drawing.Size(72, 30);
             this.btnModuleInfo.TabIndex = 16;
-            this.btnModuleInfo.Text = "조회";
+            this.btnModuleInfo.Text = "단말조회";
             this.btnModuleInfo.UseVisualStyleBackColor = true;
             this.btnModuleInfo.Click += new System.EventHandler(this.btnModuleInfo_Click);
             // 
@@ -1586,6 +1588,16 @@
             // 
             this.timer2.Interval = 20000;
             this.timer2.Tick += new System.EventHandler(this.timer2_Tick);
+            // 
+            // button13
+            // 
+            this.button13.Location = new System.Drawing.Point(6, 58);
+            this.button13.Name = "button13";
+            this.button13.Size = new System.Drawing.Size(72, 46);
+            this.button13.TabIndex = 36;
+            this.button13.Text = "파일읽기\r\n(ATCMD)";
+            this.button13.UseVisualStyleBackColor = true;
+            this.button13.Click += new System.EventHandler(this.button13_Click);
             // 
             // Form1
             // 
@@ -1765,6 +1777,7 @@
         private System.Windows.Forms.Timer timer2;
         private System.Windows.Forms.Button button12;
         private System.Windows.Forms.Label label31;
+        private System.Windows.Forms.Button button13;
     }
 }
 
