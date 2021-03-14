@@ -483,6 +483,7 @@ namespace WindowsFormsApp2
         string nextcommand = "";    //OK를 받은 후 전송할 명령어가 존재하는 경우
                                     //예를들어 +CEREG와 같이 OK를 포함한 응답 값을 받은 경우 OK처리 후에 명령어를 전송해야 한다
                                     // states 값을 바꾸고 명령어를 전송하면 명령의 응답을 받기전 이전에 받았던 OK에 동작할 수 있다.
+        string nextresponse = string.Empty;    //AT command 응답의 prefix가 있는 경우
 
         string device_fota_state = "1";
         string device_fota_reseult = "0";
@@ -7346,6 +7347,7 @@ namespace WindowsFormsApp2
                             dev.type = "onem2m";
                         else
                             dev.type = "lwm2m";
+                        setControlPanel();
 
                         i++;
                         string kind = string.Empty;
