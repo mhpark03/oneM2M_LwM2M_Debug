@@ -119,6 +119,7 @@ namespace WindowsFormsApp2
             geticcidtpb23,
             autogeticcidtpb23,
             resettpb23,
+            bootstrapmode,
             bootstrapmodetpb23,
             setepnstpb23,
             setmbspstpb23,
@@ -487,6 +488,9 @@ namespace WindowsFormsApp2
         string nextstate = string.Empty;
         string nextresponse = string.Empty;    //AT command 응답의 prefix가 있는 경우
         string okresponse = string.Empty;       // AT command 응답에 OK가 포함되는지?
+        string atoption = string.Empty;
+        string lwm2mrxdata = string.Empty;
+        string lwm2mrxfota = string.Empty;
 
         string device_fota_state = "1";
         string device_fota_reseult = "0";
@@ -1115,27 +1119,37 @@ namespace WindowsFormsApp2
             {
                 startLwM2MTC("tc0301");
 
-                if (dev.model == "BG96")
+                if (atcmd.state == "loaed")
                 {
-                    // 플랫폼 등록 요청
-                    //AT+QLWM2M="register"
-                    this.sendDataOut(commands["register"]);
-                    lbActionState.Text = states.register.ToString();
-                }
-                else if (dev.model.StartsWith("BC95", System.StringComparison.CurrentCultureIgnoreCase))
-                {
-                    // 플랫폼 등록 요청
-                    //AT+QLWSREGIND=0
-                    this.sendDataOut(commands["registerbc95"]);
-                    lbActionState.Text = states.registerbc95.ToString();
+                    string atcmd = getLwM2MCommand("registert");
+                    this.sendDataOut(atcmd);
+                    lbActionState.Text = states.registertpb23.ToString();
                 }
                 else
                 {
-                    // 플랫폼 등록 요청
-                    //AT+MLWSREGIND=0
-                    this.sendDataOut(commands["registertpb23"]);
-                    lbActionState.Text = states.registertpb23.ToString();
+                    if (dev.model == "BG96")
+                    {
+                        // 플랫폼 등록 요청
+                        //AT+QLWM2M="register"
+                        this.sendDataOut(commands["register"]);
+                        lbActionState.Text = states.register.ToString();
+                    }
+                    else if (dev.model.StartsWith("BC95", System.StringComparison.CurrentCultureIgnoreCase))
+                    {
+                        // 플랫폼 등록 요청
+                        //AT+QLWSREGIND=0
+                        this.sendDataOut(commands["registerbc95"]);
+                        lbActionState.Text = states.registerbc95.ToString();
+                    }
+                    else
+                    {
+                        // 플랫폼 등록 요청
+                        //AT+MLWSREGIND=0
+                        this.sendDataOut(commands["registertpb23"]);
+                        lbActionState.Text = states.registertpb23.ToString();
+                    }
                 }
+
             }
         }
 
@@ -1153,26 +1167,35 @@ namespace WindowsFormsApp2
             {
                 startLwM2MTC("tc0401");
 
-                if (dev.model == "BG96")
+                if (atcmd.state == "loaed")
                 {
-                    // 플랫폼 등록해제 요청
-                    //AT+QLWM2M="deregister"
-                    this.sendDataOut(commands["deregister"]);
-                    lbActionState.Text = states.deregister.ToString();
-                }
-                else if (dev.model.StartsWith("BC95", System.StringComparison.CurrentCultureIgnoreCase))
-                {
-                    // 플랫폼 등록해제 요청
-                    //AT+QLWSREGIND=1
-                    this.sendDataOut(commands["deregisterbc95"]);
-                    lbActionState.Text = states.deregisterbc95.ToString();
+                    string atcmd = getLwM2MCommand("deregistert");
+                    this.sendDataOut(atcmd);
+                    lbActionState.Text = states.deregistertpb23.ToString();
                 }
                 else
                 {
-                    // 플랫폼 등록해제 요청
-                    //AT+MLWSREGIND=1
-                    this.sendDataOut(commands["deregistertpb23"]);
-                    lbActionState.Text = states.deregistertpb23.ToString();
+                    if (dev.model == "BG96")
+                    {
+                        // 플랫폼 등록해제 요청
+                        //AT+QLWM2M="deregister"
+                        this.sendDataOut(commands["deregister"]);
+                        lbActionState.Text = states.deregister.ToString();
+                    }
+                    else if (dev.model.StartsWith("BC95", System.StringComparison.CurrentCultureIgnoreCase))
+                    {
+                        // 플랫폼 등록해제 요청
+                        //AT+QLWSREGIND=1
+                        this.sendDataOut(commands["deregisterbc95"]);
+                        lbActionState.Text = states.deregisterbc95.ToString();
+                    }
+                    else
+                    {
+                        // 플랫폼 등록해제 요청
+                        //AT+MLWSREGIND=1
+                        this.sendDataOut(commands["deregistertpb23"]);
+                        lbActionState.Text = states.deregistertpb23.ToString();
+                    }
                 }
             }
         }
@@ -1708,11 +1731,62 @@ namespace WindowsFormsApp2
 
                 // 타겟으로 하는 문자열(s, 고정 값)과 이후 문자열(str2, 변하는 값)을 구분함.
                 int first = rxMsg.IndexOf(nextresponse) + nextresponse.Length;
-                string str2 = "";
-                str2 = rxMsg.Substring(first, rxMsg.Length - first);
+                string str2 = rxMsg.Substring(first, rxMsg.Length - first);
 
                 this.parseNextReceiveData(str2);
                 nextresponse = string.Empty;
+            }
+            else if (lwm2mrxfota != string.Empty && rxMsg.StartsWith(lwm2mrxfota, System.StringComparison.CurrentCultureIgnoreCase))
+            {
+                int first = rxMsg.IndexOf(lwm2mrxfota) + lwm2mrxfota.Length;
+                string str2 = rxMsg.Substring(first, rxMsg.Length - first);
+                string[] rxdatas = str2.Split(',');    // 수신한 데이터를 한 문장씩 나누어 array에 저장
+                // 26241 FOTA DATA object RECEIVED!!!
+                receiveFotaData(rxdatas[0], rxdatas[1]);
+            }
+            else if (lwm2mrxdata != string.Empty && rxMsg.StartsWith(lwm2mrxdata, System.StringComparison.CurrentCultureIgnoreCase))
+            {
+                int first = rxMsg.IndexOf(lwm2mrxdata) + lwm2mrxdata.Length;
+                string str2 = rxMsg.Substring(first, rxMsg.Length - first);
+                string[] rxdatas = str2.Split(',');    // 수신한 데이터를 한 문장씩 나누어 array에 저장
+                // 10250 DATA object RECEIVED!!!
+                if (Convert.ToInt32(rxdatas[0]) == rxdatas[1].Length / 2)    // data size 비교
+                {
+                    Console.WriteLine("10250 data received :" + str2);
+
+                    //received hex data make to ascii code
+                    string receiveDataIN = BcdToString(rxdatas[1].ToCharArray());
+                    lbLwM2MRcvData.Text = receiveDataIN;
+                    if (tc.state == "tc0502" && receiveDataIN == label13.Text)
+                        endLwM2MTC(tc.state, string.Empty, string.Empty, string.Empty, string.Empty);
+                    logPrintInTextBox("\"" + receiveDataIN + "\"를 수신하였습니다.", "");
+
+                    if (lbActionState.Text == states.lwm2mtc0502.ToString())
+                    {
+                        if (svr.enrmtKeyId != string.Empty)
+                        {
+                            startLwM2MTC("tc0503");
+                            lbActionState.Text = states.lwm2mtc0503.ToString();
+
+                            LogWrite("----------DEVICE CHECK STATUS----------");
+                            string[] param = { dev.type };
+                            rTh = new Thread(new ParameterizedThreadStart(RetriveDataToDevice));
+                            rTh.Start(param);
+                        }
+                        else
+                        {
+                            startLwM2MTC("tc0401");
+
+                            string atcmd = getLwM2MCommand("deregister");
+                            this.sendDataOut(atcmd);
+                            lbActionState.Text = states.lwm2mtc0401.ToString();
+                        }
+                    }
+                }
+                else
+                {
+                    logPrintInTextBox("data size가 맞지 않습니다.", "");
+                }
             }
             else
             {
@@ -3213,14 +3287,11 @@ namespace WindowsFormsApp2
                             if (tc.state == "tc0401")
                                 endLwM2MTC(tc.state, string.Empty, string.Empty, string.Empty, string.Empty);
                             logPrintInTextBox("deregistration completed", " ");
-                            lbActionState.Text = states.idle.ToString();
 
-                            Thread.Sleep(10000);
-                            string kind = "type=lwm2m&ctn=" + textBox1.Text;
-                            if (tcStartTime != string.Empty)
-                                kind += "&from=" + tcStartTime;
-                            getSvrLoglists(kind, "auto");
-
+                            if (lbActionState.Text == "lwm2mtc0401")
+                            {
+                                lbActionState.Text = states.idle.ToString();
+                            }
                             break;
                         case "2":
                             logPrintInTextBox("registration update completed", " ");
@@ -3237,26 +3308,35 @@ namespace WindowsFormsApp2
                             {
                                 startLwM2MTC("tc0301");
 
-                                if (dev.model == "BG96")
+                                if (atcmd.state == "loaed")
                                 {
-                                    // 플랫폼 등록 요청
-                                    //AT+QLWM2M="register"
-                                    this.sendDataOut(commands["register"]);
-                                    lbActionState.Text = states.register.ToString();
-                                }
-                                else if (dev.model.StartsWith("BC95", System.StringComparison.CurrentCultureIgnoreCase))
-                                {
-                                    // 플랫폼 등록 요청
-                                    //AT+QLWSREGIND=0
-                                    this.sendDataOut(commands["registerbc95"]);
-                                    lbActionState.Text = states.registerbc95.ToString();
+                                    string atcmd = getLwM2MCommand("registert");
+                                    this.sendDataOut(atcmd);
+                                    lbActionState.Text = states.lwm2mtc03011.ToString();
                                 }
                                 else
                                 {
-                                    // 플랫폼 등록 요청
-                                    //AT+MLWSREGIND=0
-                                    this.sendDataOut(commands["registertpb23"]);
-                                    lbActionState.Text = states.lwm2mtc03011.ToString();
+                                    if (dev.model == "BG96")
+                                    {
+                                        // 플랫폼 등록 요청
+                                        //AT+QLWM2M="register"
+                                        this.sendDataOut(commands["register"]);
+                                        lbActionState.Text = states.register.ToString();
+                                    }
+                                    else if (dev.model.StartsWith("BC95", System.StringComparison.CurrentCultureIgnoreCase))
+                                    {
+                                        // 플랫폼 등록 요청
+                                        //AT+QLWSREGIND=0
+                                        this.sendDataOut(commands["registerbc95"]);
+                                        lbActionState.Text = states.registerbc95.ToString();
+                                    }
+                                    else
+                                    {
+                                        // 플랫폼 등록 요청
+                                        //AT+MLWSREGIND=0
+                                        this.sendDataOut(commands["registertpb23"]);
+                                        lbActionState.Text = states.lwm2mtc03011.ToString();
+                                    }
                                 }
                             }
                             break;
@@ -3320,26 +3400,35 @@ namespace WindowsFormsApp2
                                 {
                                     startLwM2MTC("tc0401");
 
-                                    if (dev.model == "BG96")
+                                    if (atcmd.state == "loaed")
                                     {
-                                        // 플랫폼 등록해제 요청
-                                        //AT+QLWM2M="deregister"
-                                        this.sendDataOut(commands["deregister"]);
-                                        lbActionState.Text = states.deregister.ToString();
-                                    }
-                                    else if (dev.model.StartsWith("BC95", System.StringComparison.CurrentCultureIgnoreCase))
-                                    {
-                                        // 플랫폼 등록해제 요청
-                                        //AT+QLWSREGIND=1
-                                        this.sendDataOut(commands["deregisterbc95"]);
-                                        lbActionState.Text = states.deregisterbc95.ToString();
+                                        string atcmd = getLwM2MCommand("deregister");
+                                        this.sendDataOut(atcmd);
+                                        lbActionState.Text = states.lwm2mtc0401.ToString();
                                     }
                                     else
                                     {
-                                        // 플랫폼 등록해제 요청
-                                        //AT+MLWSREGIND=1
-                                        this.sendDataOut(commands["deregistertpb23"]);
-                                        lbActionState.Text = states.lwm2mtc0401.ToString();
+                                        if (dev.model == "BG96")
+                                        {
+                                            // 플랫폼 등록해제 요청
+                                            //AT+QLWM2M="deregister"
+                                            this.sendDataOut(commands["deregister"]);
+                                            lbActionState.Text = states.lwm2mtc0401.ToString();
+                                        }
+                                        else if (dev.model.StartsWith("BC95", System.StringComparison.CurrentCultureIgnoreCase))
+                                        {
+                                            // 플랫폼 등록해제 요청
+                                            //AT+QLWSREGIND=1
+                                            this.sendDataOut(commands["deregisterbc95"]);
+                                            lbActionState.Text = states.lwm2mtc0401.ToString();
+                                        }
+                                        else
+                                        {
+                                            // 플랫폼 등록해제 요청
+                                            //AT+MLWSREGIND=1
+                                            this.sendDataOut(commands["deregistertpb23"]);
+                                            lbActionState.Text = states.lwm2mtc0401.ToString();
+                                        }
                                     }
                                 }
                             }
@@ -4141,12 +4230,25 @@ namespace WindowsFormsApp2
                     // End Point Name Parameter 설정
                     //AT+MLWEPNS="LWM2M 서버 entityID"
                     setDeviceEntityID(lbIccid.Text);
-                    this.sendDataOut(commands["setepnstpb23"] + dev.entityId);
-                    if (lbActionState.Text == states.lwm2mtc02021.ToString())
-                        lbActionState.Text = states.lwm2mtc02022.ToString();
+                    if (atcmd.state == "loaded")
+                    {
+                        string atcmd = getLwM2MCommand("setepns");
+                        if (atoption == "수동")
+                            atcmd += dev.entityId;
+                        this.sendDataOut(atcmd);
+                        if (lbActionState.Text == states.lwm2mtc02021.ToString())
+                            lbActionState.Text = states.lwm2mtc02022.ToString();
+                        else
+                            lbActionState.Text = states.setepnstpb23.ToString();
+                    }
                     else
-                        lbActionState.Text = states.setepnstpb23.ToString();
-
+                    {
+                        this.sendDataOut(commands["setepnstpb23"] + dev.entityId);
+                        if (lbActionState.Text == states.lwm2mtc02021.ToString())
+                            lbActionState.Text = states.lwm2mtc02022.ToString();
+                        else
+                            lbActionState.Text = states.setepnstpb23.ToString();
+                    }
                     nextcommand = "skip";
                     break;
                 case states.setepnstpb23:
@@ -4164,12 +4266,23 @@ namespace WindowsFormsApp2
                     command += iccid.Substring(iccid.Length - 6, 6) + "|deviceModel=";
                     command += tBoxDeviceModel.Text + "|mac=";
 
-                    this.sendDataOut(commands["setmbspstpb23"] + command);
-                    if (lbActionState.Text == states.lwm2mtc02022.ToString())
-                        lbActionState.Text = states.lwm2mtc02023.ToString();
+                    if (atcmd.state == "loaed")
+                    {
+                        string atcmd = getLwM2MCommand("setmbsps");
+                        this.sendDataOut(atcmd + command);
+                        if (lbActionState.Text == states.lwm2mtc02022.ToString())
+                            lbActionState.Text = states.lwm2mtc02023.ToString();
+                        else
+                            lbActionState.Text = states.setmbspstpb23.ToString();
+                    }
                     else
-                        lbActionState.Text = states.setmbspstpb23.ToString();
-
+                    {
+                        this.sendDataOut(commands["setmbspstpb23"] + command);
+                        if (lbActionState.Text == states.lwm2mtc02022.ToString())
+                            lbActionState.Text = states.lwm2mtc02023.ToString();
+                        else
+                            lbActionState.Text = states.setmbspstpb23.ToString();
+                    }
                     nextcommand = "skip";
                     break;
                 case states.setmbspstpb23:
@@ -4179,16 +4292,19 @@ namespace WindowsFormsApp2
                     // LWM2M 서버 설정
                     // BOOTSTARP MODE 설정
                     //AT+MBOOTSTRAPMODE=1
-                    if (lbActionState.Text == states.lwm2mtc02023.ToString())
+                    if (atcmd.state == "loaed")
                     {
-                        this.sendDataOut(commands["bootstrapmodetpb23"]);
-                        lbActionState.Text = states.lwm2mtc02024.ToString();
+                        string atcmd = getLwM2MCommand("bootstrapmode");
+                        this.sendDataOut(atcmd);
                     }
                     else
-                    {
-                        nextcommand = states.bootstrapmodetpb23.ToString();
-                        nextstate = states.bootstrapmodetpb23.ToString();
-                    }
+                        this.sendDataOut(commands["bootstrapmodetpb23"]);
+
+                    if (lbActionState.Text == states.lwm2mtc02023.ToString())
+                        lbActionState.Text = states.lwm2mtc02024.ToString();
+                    else
+                        lbActionState.Text = states.bootstrapmodetpb23.ToString();
+                    nextcommand = "skip";
                     break;
                 case states.bootstrapmodetpb23:
                 case states.lwm2mtc02024:
@@ -4196,16 +4312,19 @@ namespace WindowsFormsApp2
                     // setncdp - setepnstpb23 - setmbspstpb23 - (bootstrapmodetpb23) - (bootstraptpb23)
                     // LWM2M서버에 Bootstarp 요청
                     //  AT+MLWGOBOOTSTRAP=1
-                    if (lbActionState.Text == states.lwm2mtc02024.ToString())
+                    if (atcmd.state == "loaed")
                     {
-                        this.sendDataOut(commands["bootstraptpb23"]);
-                        lbActionState.Text = states.lwm2mtc02025.ToString();
+                        string atcmd = getLwM2MCommand("bootstrap");
+                        this.sendDataOut(atcmd);
                     }
                     else
-                    {
-                        nextcommand = states.bootstraptpb23.ToString();
-                        nextstate = states.bootstraptpb23.ToString();
-                    }
+                        this.sendDataOut(commands["bootstraptpb23"]);
+
+                    if (lbActionState.Text == states.lwm2mtc02024.ToString())
+                        lbActionState.Text = states.lwm2mtc02025.ToString();
+                    else
+                        lbActionState.Text = states.bootstraptpb23.ToString();
+                    nextcommand = "skip";
                     break;
                 case states.lwm2mtc0501:
                     if (tc.state == "tc0501")
@@ -4229,14 +4348,14 @@ namespace WindowsFormsApp2
                             // 플랫폼 등록해제 요청
                             //AT+QLWM2M="deregister"
                             this.sendDataOut(commands["deregister"]);
-                            lbActionState.Text = states.deregister.ToString();
+                            lbActionState.Text = states.lwm2mtc0401.ToString();
                         }
                         else if (dev.model.StartsWith("BC95", System.StringComparison.CurrentCultureIgnoreCase))
                         {
                             // 플랫폼 등록해제 요청
                             //AT+QLWSREGIND=1
                             this.sendDataOut(commands["deregisterbc95"]);
-                            lbActionState.Text = states.deregisterbc95.ToString();
+                            lbActionState.Text = states.lwm2mtc0401.ToString();
                         }
                         else
                         {
@@ -4276,6 +4395,15 @@ namespace WindowsFormsApp2
                     break;
                 case states.deregister:
                     endLwM2MTC("tc0401", string.Empty, string.Empty, string.Empty, string.Empty);
+                    break;
+                case states.lwm2mtc0401:
+                    endLwM2MTC("tc0401", string.Empty, string.Empty, string.Empty, string.Empty);
+                    Thread.Sleep(10000);
+                    string kind = "type=lwm2m&ctn=" + textBox1.Text;
+                    if (tcStartTime != string.Empty)
+                        kind += "&from=" + tcStartTime;
+
+                    getSvrLoglists(kind, "auto");
                     break;
                 case states.deregistertpb23:        // TPB23 모델은 AT+MLWEVTIND=1 이벤트를 기다림
                     break;
@@ -4639,6 +4767,29 @@ namespace WindowsFormsApp2
             return atcommand;
         }
 
+        private string getLwM2MCommand(string cmd)
+        {
+            string atcommand = string.Empty;
+            if (atcmd.state == string.Empty)
+                atcommand = commands[cmd];
+            else
+            {
+                if (Enum.IsDefined(typeof(lwm2matcmds), cmd))
+                {
+                    lwm2matcmds index = (lwm2matcmds)Enum.Parse(typeof(lwm2matcmds), cmd);
+                    atcommand = atcmd.lwm2m[(int)index, 0];
+                    atoption = atcmd.lwm2m[(int)index, 1];
+
+                    Console.WriteLine("AT COMMAND :" + atcommand);
+                    Console.WriteLine("OPTION :" + atoption);
+                }
+                else
+                    atcommand = commands[cmd];
+            }
+
+            return atcommand;
+        }
+
         // LWM2M 플랫폼 디바이스 등록을 요청 (bootstrap)
         private void DeviceProvision()
         {
@@ -4646,7 +4797,10 @@ namespace WindowsFormsApp2
             {
                 if (atcmd.state == "loaded")
                 {
-
+                    string atcmd = getLwM2MCommand("setncdp");
+                    this.sendDataOut(atcmd);
+                    if (lbActionState.Text != states.lwm2mtc02021.ToString())
+                        lbActionState.Text = states.setncdp.ToString();
                 }
                 else
                 {
@@ -4657,7 +4811,8 @@ namespace WindowsFormsApp2
                         // 플랫폼 서버 타입 설정
                         //AT+QLWM2M="cdp",<ip>,<port>
                         this.sendDataOut(commands["setcdp_bg96"] + "\"" + serverip + "\"," + serverport);
-                        lbActionState.Text = states.setcdp_bg96.ToString();
+                        if (lbActionState.Text != states.lwm2mtc02021.ToString())
+                            lbActionState.Text = states.setcdp_bg96.ToString();
                     }
                     else if (dev.model == "TPB23")
                     {
@@ -4675,7 +4830,8 @@ namespace WindowsFormsApp2
                         // lwm2mresetbc95 - holdoffbc95 - getsvripbc95 - autosetsvrbsbc95 - autosetsvripbc95 - getepnsbc95 - setepnsbc95 - getmbspsbc95 - setmbspsbc95 - bootstrapbc95
                         // LWM2M 서버 설정
                         this.sendDataOut(commands["lwm2mresetbc95"]);
-                        lbActionState.Text = states.lwm2mresetbc95.ToString();
+                        if (lbActionState.Text != states.lwm2mtc02021.ToString())
+                            lbActionState.Text = states.lwm2mresetbc95.ToString();
                     }
                     else            //일반(U+ command)
                     {
@@ -4684,7 +4840,8 @@ namespace WindowsFormsApp2
                         // LWM2M 서버 설정
                         // AT+NCDP=IP,PORT
                         this.sendDataOut(commands["setncdp"] + serverip + "," + serverport);
-                        lbActionState.Text = states.setncdp.ToString();
+                        if (lbActionState.Text != states.lwm2mtc02021.ToString())
+                            lbActionState.Text = states.setncdp.ToString();
                     }
                 }
             }
@@ -4734,33 +4891,44 @@ namespace WindowsFormsApp2
             {
                 string txData = DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss.fff") + " LwM2M device";
                 lbDevLwM2MData.Text = txData;
-                if (dev.model == "BG96")
+
+                startLwM2MTC("tc0501");
+                if (atcmd.state == "loaed")
                 {
-                    // Data send to SERVER (string original)
-                    //AT+QLWM2M="uldata",<object>,<length>,<data>
-                    startLwM2MTC("tc0501");
-                    this.sendDataOut(commands["sendmsgstr"] + txData.Length + ",\"" + txData + "\"");
-                    lbActionState.Text = states.sendmsgstr.ToString();
-                }
-                else if (dev.model.StartsWith("BC95", System.StringComparison.CurrentCultureIgnoreCase))
-                {
-                    // Data send to SERVER (string original)
-                    //AT+QLWULDATA=<length>,<data>
-                    startLwM2MTC("tc0501");
                     string hexOutput = StringToBCD(txData.ToCharArray());
-                    this.sendDataOut(commands["sendmsgstbc95"] + hexOutput.Length / 2 + "," + hexOutput);
-                    lbActionState.Text = states.sendmsgstr.ToString();
+                    string atcmd = getLwM2MCommand("sendmsghex");
+
+                    this.sendDataOut(atcmd + hexOutput.Length / 2 + "," + hexOutput);
+                    if (lbActionState.Text != states.lwm2mtc0501.ToString())
+                        lbActionState.Text = states.sendmsghex.ToString();
                 }
                 else
                 {
-                    // Data send to SERVER (string original)
-                    //AT+MLWULDATA=<length>,<data>
-                    startLwM2MTC("tc0501");
-                    string hexOutput = StringToBCD(txData.ToCharArray());
-
-                    this.sendDataOut(commands["sendmsgstrtpb23"] + hexOutput.Length / 2 + "," + hexOutput);
-                    if (lbActionState.Text != states.lwm2mtc0501.ToString())
+                    if (dev.model == "BG96")
+                    {
+                        // Data send to SERVER (string original)
+                        //AT+QLWM2M="uldata",<object>,<length>,<data>
+                        this.sendDataOut(commands["sendmsgstr"] + txData.Length + ",\"" + txData + "\"");
                         lbActionState.Text = states.sendmsgstr.ToString();
+                    }
+                    else if (dev.model.StartsWith("BC95", System.StringComparison.CurrentCultureIgnoreCase))
+                    {
+                        // Data send to SERVER (string original)
+                        //AT+QLWULDATA=<length>,<data>
+                        string hexOutput = StringToBCD(txData.ToCharArray());
+                        this.sendDataOut(commands["sendmsgstbc95"] + hexOutput.Length / 2 + "," + hexOutput);
+                        lbActionState.Text = states.sendmsgstr.ToString();
+                    }
+                    else
+                    {
+                        // Data send to SERVER (string original)
+                        //AT+MLWULDATA=<length>,<data>
+                        string hexOutput = StringToBCD(txData.ToCharArray());
+
+                        this.sendDataOut(commands["sendmsgstrtpb23"] + hexOutput.Length / 2 + "," + hexOutput);
+                        if (lbActionState.Text != states.lwm2mtc0501.ToString())
+                            lbActionState.Text = states.sendmsgstr.ToString();
+                    }
                 }
             }
         }
@@ -4993,33 +5161,45 @@ namespace WindowsFormsApp2
 
                 logPrintInTextBox(text + " 로 FOTA응답하였습니다.", "");
 
-                if (dev.model == "BG96")
+                if (atcmd.state == "loaed")
                 {
-                    // Data send to SERVER (string to BCD convert)
-                    //AT+QLWM2M="uldata,"fwVr=1.0.0|fwSt=1|fwRt=0"
-
-                    this.sendDataOut(commands["sendmsgver"] + text.Length + ",\"" + text + "\"");
-                    lbActionState.Text = states.sendmsgver.ToString();
-                }
-                else if (dev.model.StartsWith("BC95", System.StringComparison.CurrentCultureIgnoreCase))
-                {
-                    // Data send to SERVER (string original)
-                    //AT+QLWULDATA=1,<length>,<data>
                     string hexOutput = StringToBCD(text.ToCharArray());
-
-                    this.sendDataOut(commands["sendmsgverbc95"] + hexOutput.Length / 2 + "," + hexOutput);
-                    lbActionState.Text = states.sendmsgverbc95.ToString();
-                }
-                else
-                {
-                    // Data send to SERVER (string original)
-                    //AT+MLWULDATA=<length>,<data>
-                    string hexOutput = StringToBCD(text.ToCharArray());
-
-                    this.sendDataOut(commands["sendmsgvertpb23"] + hexOutput.Length / 2 + "," + hexOutput);
+                    string atcmd = getLwM2MCommand("sendmsgver");
+                    this.sendDataOut(atcmd + hexOutput.Length / 2 + "," + hexOutput);
                     if (lbActionState.Text != states.lwm2mtc06031.ToString())
                         lbActionState.Text = states.sendmsgvertpb23.ToString();
                 }
+                else
+                {
+                    if (dev.model == "BG96")
+                    {
+                        // Data send to SERVER (string to BCD convert)
+                        //AT+QLWM2M="uldata,"fwVr=1.0.0|fwSt=1|fwRt=0"
+
+                        this.sendDataOut(commands["sendmsgver"] + text.Length + ",\"" + text + "\"");
+                        lbActionState.Text = states.sendmsgver.ToString();
+                    }
+                    else if (dev.model.StartsWith("BC95", System.StringComparison.CurrentCultureIgnoreCase))
+                    {
+                        // Data send to SERVER (string original)
+                        //AT+QLWULDATA=1,<length>,<data>
+                        string hexOutput = StringToBCD(text.ToCharArray());
+
+                        this.sendDataOut(commands["sendmsgverbc95"] + hexOutput.Length / 2 + "," + hexOutput);
+                        lbActionState.Text = states.sendmsgverbc95.ToString();
+                    }
+                    else
+                    {
+                        // Data send to SERVER (string original)
+                        //AT+MLWULDATA=<length>,<data>
+                        string hexOutput = StringToBCD(text.ToCharArray());
+
+                        this.sendDataOut(commands["sendmsgvertpb23"] + hexOutput.Length / 2 + "," + hexOutput);
+                        if (lbActionState.Text != states.lwm2mtc06031.ToString())
+                            lbActionState.Text = states.sendmsgvertpb23.ToString();
+                    }
+                }
+
             }
         }
 
@@ -5411,14 +5591,14 @@ namespace WindowsFormsApp2
                         // 플랫폼 등록해제 요청
                         //AT+QLWM2M="deregister"
                         this.sendDataOut(commands["deregister"]);
-                        SetText(lbActionState, states.deregister.ToString());
+                        SetText(lbActionState, states.lwm2mtc0401.ToString());
                     }
                     else if (dev.model.StartsWith("BC95", System.StringComparison.CurrentCultureIgnoreCase))
                     {
                         // 플랫폼 등록해제 요청
                         //AT+QLWSREGIND=1
                         this.sendDataOut(commands["deregisterbc95"]);
-                        SetText(lbActionState, states.deregisterbc95.ToString());
+                        SetText(lbActionState, states.lwm2mtc0401.ToString());
                     }
                     else
                     {
@@ -5451,14 +5631,14 @@ namespace WindowsFormsApp2
                         // 플랫폼 등록해제 요청
                         //AT+QLWM2M="deregister"
                         this.sendDataOut(commands["deregister"]);
-                        SetText(lbActionState, states.deregister.ToString());
+                        SetText(lbActionState, states.lwm2mtc0401.ToString());
                     }
                     else if (dev.model.StartsWith("BC95", System.StringComparison.CurrentCultureIgnoreCase))
                     {
                         // 플랫폼 등록해제 요청
                         //AT+QLWSREGIND=1
                         this.sendDataOut(commands["deregisterbc95"]);
-                        SetText(lbActionState, states.deregisterbc95.ToString());
+                        SetText(lbActionState, states.lwm2mtc0401.ToString());
                     }
                     else
                     {
@@ -7620,6 +7800,8 @@ namespace WindowsFormsApp2
                                 break;
                         }
                         atcmd.state = "loaded";
+                        lwm2mrxdata = getLwM2MCommand("recvmsghex");
+                        lwm2mrxfota = getLwM2MCommand("recvfota");
                     }
                     else
                     {
