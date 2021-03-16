@@ -312,13 +312,12 @@ namespace WindowsFormsApp2
             rfofftld,
 
             setcereg,
-            setceregtpb23,
             getcereg,
-            reset,
         }
 
         private enum lwm2matcmds
         {
+            bootstrapmode,
             bootstrap,
             setserverinfo,
             setserverinfotpb23,
@@ -339,6 +338,8 @@ namespace WindowsFormsApp2
             sendmsgstr,
             sendmsghex,
             sendmsgver,
+            recvmsghex,
+            recvfota,
 
             disable_bg96,
             enable_bg96,
@@ -483,7 +484,9 @@ namespace WindowsFormsApp2
         string nextcommand = "";    //OK를 받은 후 전송할 명령어가 존재하는 경우
                                     //예를들어 +CEREG와 같이 OK를 포함한 응답 값을 받은 경우 OK처리 후에 명령어를 전송해야 한다
                                     // states 값을 바꾸고 명령어를 전송하면 명령의 응답을 받기전 이전에 받았던 OK에 동작할 수 있다.
+        string nextstate = string.Empty;
         string nextresponse = string.Empty;    //AT command 응답의 prefix가 있는 경우
+        string okresponse = string.Empty;       // AT command 응답에 OK가 포함되는지?
 
         string device_fota_state = "1";
         string device_fota_reseult = "0";
@@ -796,7 +799,7 @@ namespace WindowsFormsApp2
             tbLog.Text = string.Empty;
 
             atcmd.state = string.Empty;
-            atcmd.common = new string[(int)commonatcmds.reset + 1, 4];
+            atcmd.common = new string[(int)commonatcmds.getcereg + 1, 4];
             atcmd.lwm2m = new string[(int)lwm2matcmds.deviceFWClosed + 1, 4];
         }
 
@@ -1588,7 +1591,7 @@ namespace WindowsFormsApp2
                     str1 = word;
                 }
 
-                if (str1 != "")             // 빈 줄은 제외하기 위함
+                if (str1 != "" && str1 != "\r")             // 빈 줄은 제외하기 위함
                 {
                     this.parseRXData(str1);
                 }
@@ -1608,7 +1611,6 @@ namespace WindowsFormsApp2
                 "@ICCID:",    // ICCID (AMTEL) 값을 저장한다.
                 "%GICCID: ",    // ICCID (GCT 바인테크) 값을 저장한다.
                 "+NCCID:",      // ICCID (BC95) 값을 저장한다.
-                "+CGSN:",       // IMEI (NB TPB23모델) 값을 저장한다.
                 "APPLICATION_A,",    // Modem verion (BC95) 값을 저장한다.
                 "AT+MLWDLDATA=",    // LWM2M서버에서 data 수신이벤트
                 "+NNMI:",    // LWM2M서버에서 data 수신이벤트
@@ -1700,41 +1702,93 @@ namespace WindowsFormsApp2
             logPrintInTextBox(rxMsg,"rx");          // 수신한 데이터 한줄을 표시
             bool find_msg = false;
 
-            // 후처리가 필요한 명령어 목록에서 하나씩 순서대로 읽어서 비교한다.
-            foreach (string s in sentences)
+            if (nextresponse != string.Empty && rxMsg.StartsWith(nextresponse, System.StringComparison.CurrentCultureIgnoreCase))
             {
-                //logPrintInTextBox(s,"");
+                //logPrintInTextBox(s + " : There is matching data.","");
 
-                // 수신한 데이터에 대해 후처리가 필요한 명령어가 포함되어 있는지 체크한다.
-                //if (System.Text.RegularExpressions.Regex.IsMatch(rxMsg, s, System.Text.RegularExpressions.RegexOptions.IgnoreCase))
+                // 타겟으로 하는 문자열(s, 고정 값)과 이후 문자열(str2, 변하는 값)을 구분함.
+                int first = rxMsg.IndexOf(nextresponse) + nextresponse.Length;
+                string str2 = "";
+                str2 = rxMsg.Substring(first, rxMsg.Length - first);
 
-                // 수신한 데이터에 대해 후처리가 필요한 명령어로 시작하는지 체크한다.
-                if (rxMsg.StartsWith(s, System.StringComparison.CurrentCultureIgnoreCase))
+                this.parseNextReceiveData(str2);
+                nextresponse = string.Empty;
+            }
+            else
+            {
+                // 후처리가 필요한 명령어 목록에서 하나씩 순서대로 읽어서 비교한다.
+                foreach (string s in sentences)
                 {
-                   //logPrintInTextBox(s + " : There is matching data.","");
+                    //logPrintInTextBox(s,"");
 
-                    // 타겟으로 하는 문자열(s, 고정 값)과 이후 문자열(str2, 변하는 값)을 구분함.
-                    int first = rxMsg.IndexOf(s) + s.Length;
-                    string str2 = "";
-                    str2 = rxMsg.Substring(first, rxMsg.Length - first);
-                    //logPrintInTextBox("남은 문자열 : " + str2,"");
+                    // 수신한 데이터에 대해 후처리가 필요한 명령어가 포함되어 있는지 체크한다.
+                    //if (System.Text.RegularExpressions.Regex.IsMatch(rxMsg, s, System.Text.RegularExpressions.RegexOptions.IgnoreCase))
 
-                    this.parseReceiveData(s, str2);
+                    // 수신한 데이터에 대해 후처리가 필요한 명령어로 시작하는지 체크한다.
+                    if (rxMsg.StartsWith(s, System.StringComparison.CurrentCultureIgnoreCase))
+                    {
+                        //logPrintInTextBox(s + " : There is matching data.","");
 
-                    find_msg = true;
-                    break;
+                        // 타겟으로 하는 문자열(s, 고정 값)과 이후 문자열(str2, 변하는 값)을 구분함.
+                        int first = rxMsg.IndexOf(s) + s.Length;
+                        string str2 = "";
+                        str2 = rxMsg.Substring(first, rxMsg.Length - first);
+                        //logPrintInTextBox("남은 문자열 : " + str2,"");
+
+                        this.parseReceiveData(s, str2);
+
+                        find_msg = true;
+                        break;
+                    }
+                }
+
+                // 후처리가 필요한 명령어인데 고정 값이 없고 data만 있는 경우
+                //예를들어 IMSI, IMEI 요청에 대한 응답 값 등
+                if ((find_msg == false) && (rxMsg != "\r") && (rxMsg != "\n"))
+                {
+                    //logPrintInTextBox("No Matching Data!!!","");
+
+                    this.parseNoPrefixData(rxMsg);
                 }
             }
+        }
 
-            // 후처리가 필요한 명령어인데 고정 값이 없고 data만 있는 경우
-            //예를들어 IMSI, IMEI 요청에 대한 응답 값 등
-            if ((find_msg == false)&&(rxMsg!="\r") && (rxMsg != "\n"))
+        private void parseNextReceiveData(string str2)
+        {
+            states state = (states)Enum.Parse(typeof(states), lbActionState.Text);
+            switch (state)
             {
-                //logPrintInTextBox("No Matching Data!!!","");
+                case states.geticcid:
+                    // AT+ICCID의 응답으로 ICCID 값 화면 표시/bootstrap 정보 생성를 위해 저장,
+                    // OK 응답이 따라온다
+                    setDeviceEntityID(str2);
+                    logPrintInTextBox("ICCID가 " + dev.iccid + "로 저장되었습니다.", "");
+                    break;
+                // 단말 정보 자동 갱신 순서
+                // autogetmanufac - autogetmodel - autogetimsi - (autogeticcid) - (autogetmodemver)
+                case states.autogeticcid:
+                    // AT+ICCID의 응답으로 ICCID 값 화면 표시/bootstrap 정보 생성를 위해 저장,
+                    // OK 응답이 따라온다
+                    setDeviceEntityID(str2);
+                    logPrintInTextBox("ICCID가 " + dev.iccid + "로 저장되었습니다.", "");
 
-                this.parseNoPrefixData(rxMsg);
+                    if (okresponse == "off")
+                    {
+                        string atcmd = getSendCommand("getmodemver");
+                        this.sendDataOut(atcmd);
+                        lbActionState.Text = states.autogetmodemver.ToString();
+
+                        nextcommand = "skip";
+                    }
+                    else
+                    {
+                        nextcommand = states.getmodemver.ToString();
+                        nextstate = states.autogetmodemver.ToString();
+                    }
+                    break;
+                default:
+                    break;
             }
-
         }
 
         // 수신한 응답 값과 특정 값과 일치하는 경우
@@ -1785,14 +1839,17 @@ namespace WindowsFormsApp2
                         if (dev.model == "BG96" || dev.maker == "LIME-I Co., Ltd" || dev.model == "EC21" || dev.model == "EC25")
                         {
                             nextcommand = states.autogetmodemver.ToString();       // 모듈 정보를 모두 읽고 LTE망 연결 상태 조회
+                            nextstate = states.autogetmodemver.ToString();
                         }
                         else if (dev.model == "TPB23")
                         {
                             nextcommand = states.autogetmodemvertpb23.ToString();       // 모듈 정보를 모두 읽고 LTE망 연결 상태 조회
+                            nextstate = states.autogetmodemvertpb23.ToString();
                         }
                         else
                         {
                             nextcommand = states.getcereg.ToString();       // 모듈 정보를 모두 읽고 LTE망 연결 상태 조회
+                            nextstate = states.getcereg.ToString();
                         }
                     }
                     break;
@@ -1807,18 +1864,22 @@ namespace WindowsFormsApp2
                         if (dev.maker == "LIME-I Co., Ltd")
                         {
                             nextcommand = states.autogetmodemver.ToString();       // 모듈 정보를 모두 읽고 LTE망 연결 상태 조회
+                            nextstate = states.autogetmodemver.ToString();
                         }
                         else if (dev.maker == "QUALCOMM INCORPORATED")
                         {
                             nextcommand = states.autogetmodemvertld.ToString();       // 모듈 정보를 모두 읽고 LTE망 연결 상태 조회
+                            nextstate = states.autogetmodemvertld.ToString();
                         }
                         else if (dev.maker == "WOORINET")
                         {
                             nextcommand = states.autogetmodemverwr.ToString();       // 모듈 정보를 모두 읽고 LTE망 연결 상태 조회
+                            nextstate = states.autogetmodemverwr.ToString();
                         }
                         else
                         {
                             nextcommand = states.autogetmodemvernt.ToString();       // 모듈 정보를 모두 읽고 LTE망 연결 상태 조회
+                            nextstate = states.autogetmodemvernt.ToString();
                         }
                     }
                     break;
@@ -1831,6 +1892,7 @@ namespace WindowsFormsApp2
                     if (lbActionState.Text == states.autogeticcidtpb23.ToString())
                     {
                         nextcommand = states.autogetmodemvertpb23.ToString();       // 모듈 정보를 모두 읽고 LTE망 연결 상태 조회
+                        nextstate = states.autogetmodemvertpb23.ToString();
                     }
                     else if (lbActionState.Text == states.autogeticcidlg.ToString())
                     {
@@ -1847,6 +1909,7 @@ namespace WindowsFormsApp2
                     if (lbActionState.Text == states.autogeticcidamtel.ToString())
                     {
                         nextcommand = states.autogetmodemver.ToString();       // 모듈 정보를 모두 읽고 LTE망 연결 상태 조회
+                        nextstate = states.autogetmodemver.ToString();
                     }
                     break;
                 case "%GICCID: ":
@@ -1858,6 +1921,7 @@ namespace WindowsFormsApp2
                     if (lbActionState.Text == states.autogeticcidgct.ToString())
                     {
                         nextcommand = states.autogetmodemvergct.ToString();       // 모듈 정보를 모두 읽고 LTE망 연결 상태 조회
+                        nextstate = states.autogetmodemvergct.ToString();
                     }
                     break;
                 case "+NCCID:":
@@ -1869,6 +1933,7 @@ namespace WindowsFormsApp2
                     if (lbActionState.Text == states.autogeticcidbc95.ToString())
                     {
                         nextcommand = states.autogetmodemverbc95.ToString();       // 모듈 정보를 모두 읽고 LTE망 연결 상태 조회
+                        nextstate = states.autogetmodemverbc95.ToString();
                     }
                     break;
                 case "+CEREG:":
@@ -1898,10 +1963,12 @@ namespace WindowsFormsApp2
                             if (dev.model == "TPB23" || dev.model.StartsWith("BC95", System.StringComparison.CurrentCultureIgnoreCase))
                             {
                                 nextcommand = states.setceregtpb23.ToString();
+                                nextstate = states.setceregtpb23.ToString();
                             }
                             else
                             {
                                 nextcommand = states.setcereg.ToString();
+                                nextstate = states.setcereg.ToString();
                             }
                             logPrintInTextBox("LTE 연결을 요청이 필요합니다.", "");
 
@@ -2684,8 +2751,9 @@ namespace WindowsFormsApp2
                     if (str2 != "ASN_CSE-D-" + epn + "-" + tbSvcCd.Text)
                     {
                         //AT+QLWSERVERIP=LWM2M,<ip>,<port>   BC95모델 서버정보 갱신
-                        lbActionState.Text = states.autosetepnsbc95.ToString();
+                        //lbActionState.Text = states.autosetepnsbc95.ToString();
                         nextcommand = commands["setepnsbc95"] + tbSvcCd.Text;
+                        nextstate = states.autosetepnsbc95.ToString();
                     }
                     break;
                 case "+QLWMBSPS: ":
@@ -2702,6 +2770,7 @@ namespace WindowsFormsApp2
                     {
                         lbActionState.Text = states.autosetmbspsbc95.ToString();
                         nextcommand = commands["setmbspsbc95"] + epncmd;
+                        nextstate = states.autosetmbspsbc95.ToString();
                     }
                     break;
                 case "$OM_DEV_FWDL_START=":
@@ -2716,18 +2785,30 @@ namespace WindowsFormsApp2
                         string filename = str3[0].Substring(0, str3[0].Length - 1);
                         nextcommand = commands["deviceFWOpen"] + filename + "\"";
                         if (lbActionState.Text == states.onem2mtc0210031.ToString())
+                        {
                             lbActionState.Text = states.onem2mtc0210032.ToString();
+                            nextstate = states.onem2mtc0210032.ToString();
+                        }
                         else
+                        {
                             lbActionState.Text = states.deviceFWOpen.ToString();
+                            nextstate = states.deviceFWOpen.ToString();
+                        }
                     }
                     break;
                 case "+QFOPEN: ":
                     filecode = str2;
                     nextcommand = commands["deviceFWRead"] + filecode + ",512";
                     if (lbActionState.Text == states.onem2mtc0210033.ToString())
+                    {
                         lbActionState.Text = states.onem2mtc0210034.ToString();
+                        nextstate = states.onem2mtc0210034.ToString();
+                    }
                     else
+                    {
                         lbActionState.Text = states.deviceFWRead.ToString();
+                        nextstate = states.deviceFWRead.ToString();
+                    }
                     break;
                 case "CONNECT ":
                     oneM2Mrcvsize += Convert.ToUInt32(str2);
@@ -2739,17 +2820,29 @@ namespace WindowsFormsApp2
 
                         nextcommand = commands["deviceFWClose"] + filecode;
                         if(lbActionState.Text == states.onem2mtc0210035.ToString())
+                        {
                             lbActionState.Text = states.onem2mtc0210036.ToString();
+                            nextstate = states.onem2mtc0210036.ToString();
+                        }
                         else
+                        {
                             lbActionState.Text = states.deviceFWClose.ToString();
+                            nextstate = states.deviceFWClose.ToString();
+                        }
                     }
                     else
                     {
                         nextcommand = commands["deviceFWRead"] + filecode + ",512";
                         if (lbActionState.Text == states.onem2mtc0210035.ToString())
+                        {
                             lbActionState.Text = states.onem2mtc0210034.ToString();
+                            nextstate = states.onem2mtc0210034.ToString();
+                        }
                         else
+                        {
                             lbActionState.Text = states.deviceFWReading.ToString();
+                            nextstate = states.deviceFWReading.ToString();
+                        }
                     }
                     break;
                 case "+QIND: \"FOTA\",\"END\",0":
@@ -2880,13 +2973,21 @@ namespace WindowsFormsApp2
                         {
                             RetriveMverToPlatform();
 
-                            if (dev.maker == "QUALCOMM INCORPORATED")
+                            if (atcmd.state == "loaded")
                             {
-                                this.sendDataOut(commands["getmodemvertld"]);
+                                string atcmd = getSendCommand("getmodemver");
+                                this.sendDataOut(atcmd);
                             }
                             else
                             {
-                                this.sendDataOut(commands["getmodemver"]);
+                                if (dev.maker == "QUALCOMM INCORPORATED")
+                                {
+                                    this.sendDataOut(commands["getmodemvertld"]);
+                                }
+                                else
+                                {
+                                    this.sendDataOut(commands["getmodemver"]);
+                                }
                             }
 
                             if (lbActionState.Text == states.onem2mtc0211043.ToString())
@@ -3397,26 +3498,38 @@ namespace WindowsFormsApp2
                         {
                             nextcommand = commands["setmefauth"] + tbSvcCd.Text + "," + tBoxDeviceModel.Text + "," + tBoxDeviceVer.Text + "," + tBoxDeviceSN.Text;
                             lbActionState.Text = states.setmefauth.ToString();
+                            nextstate = states.setmefauth.ToString();
                         }
                     }
                     else
                     {
                         // 모듈 oneM2M 플랫폼 모드 요청
                         if (lbActionState.Text == states.onem2mtc0201021.ToString() || lbActionState.Text == states.onem2mtc0201023.ToString())
+                        {
                             nextcommand = states.onem2mtc0201022.ToString();
+                            nextstate = states.onem2mtc0201022.ToString();
+                        }
                         else if (lbActionState.Text == states.onem2mtc0211031.ToString() || lbActionState.Text == states.onem2mtc0211033.ToString())
                         {
                             nextcommand = states.onem2mtc0211032.ToString();
+                            nextstate = states.onem2mtc0211032.ToString();
                             lbActionState.Text = states.onem2mtc0211032.ToString();
                         }
                         else if (lbActionState.Text == states.onem2mtc0214012.ToString())
                         {
                             nextcommand = states.setonem2mmode.ToString();
+                            nextstate = states.setonem2mmode.ToString();
                         }
                         else if (dev.model == "EC25" || dev.model == "EC21")
+                        {
                             nextcommand = states.setonem2mmodeq.ToString();
+                            nextstate = states.setonem2mmodeq.ToString();
+                        }
                         else
+                        {
                             nextcommand = states.setonem2mmode.ToString();
+                            nextstate = states.setonem2mmode.ToString();
+                        }
                     }
                     break;
                 case "FW_VER: ":
@@ -3662,6 +3775,7 @@ namespace WindowsFormsApp2
                     break;
                 case states.getserverinfo:
                     nextcommand = states.getonem2mmode.ToString();
+                    nextstate = states.getonem2mmode.ToString();
                     break;
                 case states.onem2mtc0201013:
                     this.sendDataOut(commands["getonem2mmode"]);
@@ -3817,8 +3931,6 @@ namespace WindowsFormsApp2
                     lbActionState.Text = states.setsvripbc95.ToString();
                     nextcommand = "skip";
                     break;
-                // 단말 정보 자동 갱신 순서
-                // autogetmanufac - autogetmodel - autogetimsi - (autogetimei) - (geticcid) - 마지막
                 case states.setepns:
                     // 쿼텔 LWM2M bootstrap 자동 요청 순서
                     // setcdp - servertype - (endpointpame) - (mbsps) - enable - register
@@ -3854,6 +3966,7 @@ namespace WindowsFormsApp2
                         // enable 요청
                         //AT+QLWM2M="enable",1
                         nextcommand = states.enable_bg96.ToString();
+                        nextstate = states.enable_bg96.ToString();
                     }
                     else
                     {
@@ -3862,6 +3975,7 @@ namespace WindowsFormsApp2
                         // Bootstrap 요청
                         //AT+QLWM2M="bootstrap",1
                         nextcommand = states.bootstrap.ToString();
+                        nextstate = states.bootstrap.ToString();
                     }
                     break;
                 case states.enable_bg96:
@@ -3870,6 +3984,7 @@ namespace WindowsFormsApp2
                     // enable 요청
                     //AT+QLWM2M="register"
                     nextcommand = states.register.ToString();
+                    nextstate = states.register.ToString();
                     break;
                 case states.lwm2mresetbc95:
                     // LWM2M bootstrap 자동 요청 순서 (BC95 V150)
@@ -3877,11 +3992,13 @@ namespace WindowsFormsApp2
                     // LWM2M 서버 설정
                     // AT+QBOOTSTRAPHOLDOFF=0
                     nextcommand = states.holdoffbc95.ToString();
+                    nextstate = states.holdoffbc95.ToString();
                     break;
                 case states.holdoffbc95:
                     // LWM2M bootstrap 자동 요청 순서 (BC95 V150)
                     // lwm2mresetbc95 - (holdoffbc95) - (getsvripbc95) - autosetsvrbsbc95 - autosetsvripbc95 - getepnsbc95 - setepnsbc95 - getmbspsbc95 - setmbspsbc95 - bootstrapbc95
                     nextcommand = states.getsvripbc95.ToString();
+                    nextstate = states.getsvripbc95.ToString();
                     break;
                 case states.actsetsvrbsbc95:
                     //AT+QLWSERVERIP=BS,<ip>,<port>   BC95모델
@@ -3907,11 +4024,13 @@ namespace WindowsFormsApp2
                     // LWM2M bootstrap 자동 요청 순서 (BC95 V150)
                     // lwm2mresetbc95 - holdoffbc95 - getsvripbc95 - autosetsvrbsbc95 - (autosetsvripbc95) - (getepnsbc95) - setepnsbc95 - getmbspsbc95 - setmbspsbc95 - bootstrapbc95
                     nextcommand = states.getepnsbc95.ToString();
+                    nextstate = states.getepnsbc95.ToString();
                     break;
                 case states.getsvripbc95:
                     // LWM2M bootstrap 자동 요청 순서 (BC95 V150)
                     // lwm2mresetbc95 - holdoffbc95 - (getsvripbc95) - autosetsvrbsbc95 - autosetsvripbc95 - (getepnsbc95) - setepnsbc95 - (getmbspsbc95) - setmbspsbc95 - bootstrapbc95
                     nextcommand = states.getepnsbc95.ToString();
+                    nextstate = states.getepnsbc95.ToString();
                     break;
                 case states.getepnsbc95:
                 // LWM2M bootstrap 자동 요청 순서 (BC95 V150)
@@ -3920,6 +4039,7 @@ namespace WindowsFormsApp2
                     // LWM2M bootstrap 자동 요청 순서 (BC95 V150)
                     // lwm2mresetbc95 - holdoffbc95 - getsvripbc95 - autosetsvrbsbc95 - autosetsvripbc95 - getepnsbc95 - (setepnsbc95) - (getmbspsbc95) - setmbspsbc95 - bootstrapbc95
                     nextcommand = states.getmbspsbc95.ToString();
+                    nextstate = states.getepnsbc95.ToString();
                     break;
                 case states.autosetepnsbc95:
                     // LWM2M bootstrap 자동 요청 순서 (BC95 V150)
@@ -3935,6 +4055,7 @@ namespace WindowsFormsApp2
                     // LWM2M bootstrap 자동 요청 순서 (BC95 V150)
                     // lwm2mresetbc95 - holdoffbc95 - getsvripbc95 - autosetsvrbsbc95 - autosetsvripbc95 - getepnsbc95 - setepnsbc95 - getmbspsbc95 - (setmbspsbc95) - (bootstrapbc95)
                     nextcommand = states.bootstrapbc95.ToString();
+                    nextstate = states.getepnsbc95.ToString();
                     break;
                 case states.autosetmbspsbc95:
                     // LWM2M bootstrap 자동 요청 순서 (BC95 V150)
@@ -4005,11 +4126,13 @@ namespace WindowsFormsApp2
                 case states.autogetmodemverbc95:
                     // 모듈 정보 자동 확인 후 , LTE network attach 요청하면 정상적으로 attach 성공했는지 확인
                     nextcommand = states.getcereg.ToString();
+                    nextstate = states.getcereg.ToString();
                     break;
                 case states.setcereg:
                 case states.setceregtpb23:
                     // LTE network attach 요청하면 정상적으로 attach 성공했는지 확인 필요
                     nextcommand = states.getcereg.ToString();
+                    nextstate = states.getcereg.ToString();
                     break;
                 case states.setncdp:
                 case states.lwm2mtc02021:
@@ -4062,7 +4185,10 @@ namespace WindowsFormsApp2
                         lbActionState.Text = states.lwm2mtc02024.ToString();
                     }
                     else
+                    {
                         nextcommand = states.bootstrapmodetpb23.ToString();
+                        nextstate = states.bootstrapmodetpb23.ToString();
+                    }
                     break;
                 case states.bootstrapmodetpb23:
                 case states.lwm2mtc02024:
@@ -4076,7 +4202,10 @@ namespace WindowsFormsApp2
                         lbActionState.Text = states.lwm2mtc02025.ToString();
                     }
                     else
+                    {
                         nextcommand = states.bootstraptpb23.ToString();
+                        nextstate = states.bootstraptpb23.ToString();
+                    }
                     break;
                 case states.lwm2mtc0501:
                     if (tc.state == "tc0501")
@@ -4126,15 +4255,19 @@ namespace WindowsFormsApp2
                 case states.setonem2mmodeq:
                 case states.setonem2mmode:
                     nextcommand = states.getonem2mmode.ToString();
+                    nextstate = states.getonem2mmode.ToString();
                     break;
                 case states.onem2mtc0201022:
                     nextcommand = states.onem2mtc0201023.ToString();
+                    nextstate = states.onem2mtc0201023.ToString();
                     break;
                 case states.rfoff:
                     nextcommand = states.rfon.ToString();
+                    nextstate = states.rfon.ToString();
                     break;
                 case states.rfon:
                     nextcommand = states.getcereg.ToString();
+                    nextstate = states.getcereg.ToString();
                     break;
                 case states.sendmsgstr:
                 case states.sendmsghex:
@@ -4155,8 +4288,16 @@ namespace WindowsFormsApp2
             {
                 if (nextcommand != "")
                 {
-                    this.sendDataOut(commands[nextcommand]);
-                    lbActionState.Text = nextcommand;
+                    if (atcmd.state == string.Empty)
+                    {
+                        this.sendDataOut(commands[nextcommand]);
+                    }
+                    else
+                    {
+                        string atcmd = getSendCommand(nextcommand);
+                        this.sendDataOut(atcmd);
+                    }
+                    lbActionState.Text = nextstate;
                     nextcommand = "";
                 }
                 else
@@ -4172,27 +4313,47 @@ namespace WindowsFormsApp2
             switch (state)
             {
                 // 단말 정보 자동 갱신 순서
-                // (autogetmanufac) - (autogetmodel) - autogetimsi - geticcid
+                // (autogetmanufac) - (autogetmodel) - autogetimsi - autogeticcid - autogetmodemver
                 case states.autogetmanufac:
                     lbMaker.Text = str1;
                     dev.maker = str1;
                     this.logPrintInTextBox("제조사값이 저장되었습니다.", "");
-                    if (str1 == "AM Telecom" || str1 == "QUALCOMM INCORPORATED"
-                        || str1 == "LIME-I Co., Ltd")        //AMTEL 모듈은 OK가 오지 않음
-                    {
-                        this.sendDataOut(commands["autogetmodelgmm"]);
-                        lbActionState.Text = states.autogetmodel.ToString();
 
-                        nextcommand = "skip";
+                    if (atcmd.state == "loaded")
+                    {
+                        if (okresponse == "off")
+                        {
+                            string atcmd = getSendCommand("getmodel");
+                            this.sendDataOut(atcmd);
+                            lbActionState.Text = states.autogetmodel.ToString();
+
+                            nextcommand = "skip";
+                        }
+                        else
+                        {
+                            nextcommand = states.getmodel.ToString();
+                            nextstate = states.autogetmodel.ToString();
+                        }
                     }
                     else
                     {
-                        lbActionState.Text = states.idle.ToString();
-                        nextcommand = states.autogetmodel.ToString();
+                        if (str1 == "AM Telecom" || str1 == "QUALCOMM INCORPORATED"
+                            || str1 == "LIME-I Co., Ltd")        //AMTEL 모듈은 OK가 오지 않음
+                        {
+                            this.sendDataOut(commands["autogetmodelgmm"]);
+                            lbActionState.Text = states.autogetmodel.ToString();
+
+                            nextcommand = "skip";
+                        }
+                        else
+                        {
+                            nextcommand = states.autogetmodel.ToString();
+                            nextstate = states.autogetmodel.ToString();
+                        }
                     }
                     break;
                 // 단말 정보 자동 갱신 순서
-                // autogetmanufac - (autogetmodel) - (autogetimsi) - geticcid
+                // autogetmanufac - (autogetmodel) - (autogetimsi) - autogeticcid - autogetmodemver
                 case states.autogetmodel:
                     lbModel.Text = str1;
                     dev.model = str1;
@@ -4201,12 +4362,13 @@ namespace WindowsFormsApp2
                     setModelConfig(str1);
 
                     lbActionState.Text = states.idle.ToString();
-                    nextcommand = states.autogetimsi.ToString();
+                    nextcommand = states.getimsi.ToString();
+                    nextstate = states.autogetimsi.ToString();
                     break;
                 // 단말 정보 자동 갱신 순서
-                // autogetmanufac - autogetmodel - (autogetimsi) - (geticcid)
+                // autogetmanufac - autogetmodel - (autogetimsi) - (autogeticcid) - autogetmodemver
                 case states.autogetimsi:
-                    if (str1.StartsWith("45006"))
+                    if (str1.StartsWith("45006") || str1.StartsWith("45003"))
                     {
                         string ctn = "0" + str1.Substring(5, str1.Length - 5);
 
@@ -4214,29 +4376,49 @@ namespace WindowsFormsApp2
                         dev.imsi = ctn;
                         textBox1.Text = ctn;
 
-                        if (dev.maker == "AM Telecom")        //AMTEL 모듈은 OK가 오지 않음
+                        if (atcmd.state == "loaded")
                         {
-                            lbActionState.Text = states.autogeticcidamtel.ToString();
-                            nextcommand = states.autogeticcidamtel.ToString();
-                        }
-                        else if (dev.maker == "GCT")
-                        {
-                            lbActionState.Text = states.autogeticcidgct.ToString();
-                            nextcommand = states.autogeticcidgct.ToString();
-                        }
-                        else if (dev.model == "TPB23")
-                        {
-                            lbActionState.Text = states.autogeticcidtpb23.ToString();
-                            nextcommand = states.autogeticcidtpb23.ToString();
-                        }
-                        else if (dev.model.StartsWith("BC95", System.StringComparison.CurrentCultureIgnoreCase))
-                        {
-                            nextcommand = states.autogeticcidbc95.ToString();
+                            if (okresponse == "off")
+                            {
+                                string atcmd = getSendCommand("geticcid");
+                                this.sendDataOut(atcmd);
+                                lbActionState.Text = states.autogeticcid.ToString();
+
+                                nextcommand = "skip";
+                            }
+                            else
+                            {
+                                nextcommand = states.geticcid.ToString();
+                                nextstate = states.autogeticcid.ToString();
+                            }
                         }
                         else
                         {
-                            lbActionState.Text = states.autogeticcid.ToString();
-                            nextcommand = states.autogeticcid.ToString();
+                            if (dev.maker == "AM Telecom")        //AMTEL 모듈은 OK가 오지 않음
+                            {
+                                nextcommand = states.autogeticcidamtel.ToString();
+                                nextstate = states.autogeticcidamtel.ToString();
+                            }
+                            else if (dev.maker == "GCT")
+                            {
+                                nextcommand = states.autogeticcidgct.ToString();
+                                nextstate = states.autogeticcidgct.ToString();
+                            }
+                            else if (dev.model == "TPB23")
+                            {
+                                nextcommand = states.autogeticcidtpb23.ToString();
+                                nextstate = states.autogeticcidtpb23.ToString();
+                            }
+                            else if (dev.model.StartsWith("BC95", System.StringComparison.CurrentCultureIgnoreCase))
+                            {
+                                nextcommand = states.autogeticcidbc95.ToString();
+                                nextstate = states.autogeticcidbc95.ToString();
+                            }
+                            else
+                            {
+                                nextcommand = states.autogeticcid.ToString();
+                                nextstate = states.autogeticcid.ToString();
+                            }
                         }
                     }
                     else
@@ -4274,14 +4456,8 @@ namespace WindowsFormsApp2
                         nextcommand = "";
                     }
                     break;
-                case states.setmbsps:
-                    // Bootstrap 요청
-                    //AT+QLWM2M="bootstrap",1
-                    //nextcommand = states.bootstrap.ToString();
-                    break;
-
                 case states.getimsi:
-                    if (str1.StartsWith("45006"))
+                    if (str1.StartsWith("45006") || str1.StartsWith("45003"))
                     {
                         string ctn = "0" + str1.Substring(5, str1.Length - 5);
 
@@ -4433,9 +4609,34 @@ namespace WindowsFormsApp2
             this.logPrintInTextBox("DEVICE 정보 전체를 요청합니다.","");
 
             // 단말 정보 자동 갱신 순서
-            // (autogetmanufac) - autogetmodel - autogetimsi - geticcid
+            // (autogetmanufac) - autogetmodel - autogetimsi - autogeticcid - autogetmodemver
             this.sendDataOut(commands["autogetmanufac"]);
             lbActionState.Text = states.autogetmanufac.ToString();
+        }
+
+        private string getSendCommand(string cmd)
+        {
+            string atcommand = string.Empty;
+            if (atcmd.state == string.Empty)
+                atcommand = commands[cmd];
+            else
+            {
+                if (Enum.IsDefined(typeof(commonatcmds), cmd))
+                {
+                    commonatcmds index = (commonatcmds)Enum.Parse(typeof(commonatcmds), cmd);
+                    atcommand = atcmd.common[(int)index, 0];
+                    nextresponse = atcmd.common[(int)index, 1];
+                    okresponse = atcmd.common[(int)index, 2];
+
+                    Console.WriteLine("AT COMMAND :" + atcommand);
+                    Console.WriteLine("RES PREFIX :" + nextresponse);
+                    Console.WriteLine("OK FOLLOW :" + okresponse);
+                }
+                else
+                    atcommand = commands[cmd];
+            }
+
+            return atcommand;
         }
 
         // LWM2M 플랫폼 디바이스 등록을 요청 (bootstrap)
@@ -4443,41 +4644,48 @@ namespace WindowsFormsApp2
         {
             if (isDeviceInfo())
             {
-                if (dev.model == "BG96")       //쿼텔
+                if (atcmd.state == "loaded")
                 {
-                    // 쿼텔 LWM2M bootstrap 자동 요청 순서
-                    // (setcdp) - servertype - endpointpame - mbsps - enable
-                    // 플랫폼 서버 타입 설정
-                    //AT+QLWM2M="cdp",<ip>,<port>
-                    this.sendDataOut(commands["setcdp_bg96"] + "\"" + serverip + "\"," + serverport);
-                    lbActionState.Text = states.setcdp_bg96.ToString();
+
                 }
-                else if (dev.model == "TPB23")
+                else
                 {
-                    // LWM2M bootstrap 자동 요청 순서 (V150)
-                    // setncdp - setepnstpb23 - setmbspstpb23 - bootstrapmodetpb23 - bootstraptpb23
-                    // LWM2M 서버 설정
-                    // AT+NCDP=IP,PORT
-                    this.sendDataOut(commands["setncdp"] + "\"" + serverip + "\"," + serverport);
-                    if (lbActionState.Text != states.lwm2mtc02021.ToString())
+                    if (dev.model == "BG96")       //쿼텔
+                    {
+                        // 쿼텔 LWM2M bootstrap 자동 요청 순서
+                        // (setcdp) - servertype - endpointpame - mbsps - enable
+                        // 플랫폼 서버 타입 설정
+                        //AT+QLWM2M="cdp",<ip>,<port>
+                        this.sendDataOut(commands["setcdp_bg96"] + "\"" + serverip + "\"," + serverport);
+                        lbActionState.Text = states.setcdp_bg96.ToString();
+                    }
+                    else if (dev.model == "TPB23")
+                    {
+                        // LWM2M bootstrap 자동 요청 순서 (V150)
+                        // setncdp - setepnstpb23 - setmbspstpb23 - bootstrapmodetpb23 - bootstraptpb23
+                        // LWM2M 서버 설정
+                        // AT+NCDP=IP,PORT
+                        this.sendDataOut(commands["setncdp"] + "\"" + serverip + "\"," + serverport);
+                        if (lbActionState.Text != states.lwm2mtc02021.ToString())
+                            lbActionState.Text = states.setncdp.ToString();
+                    }
+                    else if (dev.model.StartsWith("BC95", System.StringComparison.CurrentCultureIgnoreCase))
+                    {
+                        // LWM2M bootstrap 자동 요청 순서 (BC95 V150)
+                        // lwm2mresetbc95 - holdoffbc95 - getsvripbc95 - autosetsvrbsbc95 - autosetsvripbc95 - getepnsbc95 - setepnsbc95 - getmbspsbc95 - setmbspsbc95 - bootstrapbc95
+                        // LWM2M 서버 설정
+                        this.sendDataOut(commands["lwm2mresetbc95"]);
+                        lbActionState.Text = states.lwm2mresetbc95.ToString();
+                    }
+                    else            //일반(U+ command)
+                    {
+                        // LWM2M bootstrap 자동 요청 순서
+                        // setncdp - setepnstpb23 - setmbspstpb23 - bootstrapmodetpb23 - bootstraptpb23
+                        // LWM2M 서버 설정
+                        // AT+NCDP=IP,PORT
+                        this.sendDataOut(commands["setncdp"] + serverip + "," + serverport);
                         lbActionState.Text = states.setncdp.ToString();
-                }
-                else if (dev.model.StartsWith("BC95", System.StringComparison.CurrentCultureIgnoreCase))
-                {
-                    // LWM2M bootstrap 자동 요청 순서 (BC95 V150)
-                    // lwm2mresetbc95 - holdoffbc95 - getsvripbc95 - autosetsvrbsbc95 - autosetsvripbc95 - getepnsbc95 - setepnsbc95 - getmbspsbc95 - setmbspsbc95 - bootstrapbc95
-                    // LWM2M 서버 설정
-                    this.sendDataOut(commands["lwm2mresetbc95"]);
-                    lbActionState.Text = states.lwm2mresetbc95.ToString();
-                }
-                else            //일반(U+ command)
-                {
-                    // LWM2M bootstrap 자동 요청 순서
-                    // setncdp - setepnstpb23 - setmbspstpb23 - bootstrapmodetpb23 - bootstraptpb23
-                    // LWM2M 서버 설정
-                    // AT+NCDP=IP,PORT
-                    this.sendDataOut(commands["setncdp"] + serverip + "," + serverport);
-                    lbActionState.Text = states.setncdp.ToString();
+                    }
                 }
             }
         }
@@ -7341,7 +7549,6 @@ namespace WindowsFormsApp2
                     {
                         int i = 0;
 
-                        worksheet = workbook.Worksheets[3];
                         string type = worksheet.Cells[i, 1].ToString();
                         if (type == "OneM2M")
                             dev.type = "onem2m";
@@ -7355,7 +7562,7 @@ namespace WindowsFormsApp2
                         string atrsp = string.Empty;
                         string okrecv = string.Empty;
 
-                        for (int j = 0; j <= (int)commonatcmds.rfreset; j++)
+                        for (int j = 0; j <= (int)commonatcmds.getcereg; j++)
                         {
                             kind = worksheet.Cells[i, 1].ToString();
                             atreq = worksheet.Cells[i, 2].ToString();
@@ -7368,6 +7575,46 @@ namespace WindowsFormsApp2
                                 atcmd.common[(int)index, 0] = atreq;
                                 atcmd.common[(int)index, 1] = atrsp;
                                 atcmd.common[(int)index, 2] = okrecv;
+                            }
+                            else
+                                break;
+                        }
+                        atcmd.state = "loaded";
+                    }
+                    else
+                    {
+                        MessageBox.Show("정상적인 파일이 아닙니다.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+
+                    worksheet = workbook.Worksheets[4];
+                    if (worksheet.Name == "lwm2matcmd")
+                    {
+                        int i = 0;
+
+                        tbSvcCd.Text = worksheet.Cells[i, 1].ToString();
+                        i++;
+                        tBoxDeviceModel.Text = worksheet.Cells[i, 1].ToString();
+                        i++;
+                        tbSvcSvrCd.Text = worksheet.Cells[i, 1].ToString();
+                        i++;
+                        tbSvcSvrNum.Text = worksheet.Cells[i, 1].ToString();
+                        i++;
+
+                        string kind = string.Empty;
+                        string atreq = string.Empty;
+                        string option = string.Empty;
+
+                        for (int j = 0; j <= (int)lwm2matcmds.deviceFWClosed; j++)
+                        {
+                            kind = worksheet.Cells[i, 1].ToString();
+                            atreq = worksheet.Cells[i, 2].ToString();
+                            option = worksheet.Cells[i, 3].ToString();
+                            i++;
+                            if (kind != string.Empty)
+                            {
+                                lwm2matcmds index = (lwm2matcmds)Enum.Parse(typeof(lwm2matcmds), kind);
+                                atcmd.lwm2m[(int)index, 0] = atreq;
+                                atcmd.lwm2m[(int)index, 1] = option;
                             }
                             else
                                 break;
