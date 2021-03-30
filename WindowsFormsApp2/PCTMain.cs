@@ -1210,34 +1210,6 @@ namespace WindowsFormsApp2
             }
         }
 
-        // LwM2M 플랫폼 설정 해제
-        private void btnLwM2MDisable_Click(object sender, EventArgs e)
-        {
-            if (isDeviceInfo())
-            {
-                if (dev.model == "BG96")
-                {
-                    // 플랫폼 설정 해제 요청
-                    //AT+QLWM2M="enable",0
-                    this.sendDataOut(commands["disable_bg96"]);
-                    lbActionState.Text = states.disable_bg96.ToString();
-                }
-                else if (dev.model.StartsWith("BC95", System.StringComparison.CurrentCultureIgnoreCase))
-                {
-                    // 플랫폼 설정 해제 요청
-                    //AT+QREGSWT=2
-                    this.sendDataOut(commands["lwm2mresetbc95"]);
-                    lbActionState.Text = states.disablebc95.ToString();
-                }
-                else if (dev.model == "TPB23")
-                {
-                    // 플랫폼 정보 초기화
-                    this.sendDataOut(commands["lwm2mresettpb23"]);
-                    lbActionState.Text = states.lwm2mresettpb23.ToString();
-                }
-            }
-        }
-
         /// <summary>
         /// 서비스 서버 관련 동작
         /// </summary>
@@ -4649,6 +4621,9 @@ namespace WindowsFormsApp2
 
         private void setModelConfig(string model)
         {
+            if (atcmd.state == "loaded")
+                return;
+
             if (dev.maker == "AM Telecom")        //AMTEL/oneM2M 모듈
             {
                 tbSvcCd.Text = "CATM";
@@ -6675,8 +6650,9 @@ namespace WindowsFormsApp2
                                 if (cid.ToString() != " " || nt.ToString() != " ")
                                     ntparam = "CID=" + cid.ToString() + "/NT=" + nt.ToString();
 
-                                var pt = obj["X-OTA-PT"] ?? " ";
-                                if (pt.ToString() == "LWM2M" && kind == "tc021101")
+                                //var pt = obj["X-OTA-PT"] ?? " ";
+                                //if (pt.ToString() == "LWM2M" && kind == "tc021101")
+                                if (kind == "tc021101")
                                 {
                                     tcmsg = "Module FW read";
                                     endoneM2MTC("tc021103", tlogid, tresultCode, tresultCodeName, ntparam);

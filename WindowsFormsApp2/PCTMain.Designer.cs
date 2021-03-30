@@ -124,13 +124,13 @@
             this.label17 = new System.Windows.Forms.Label();
             this.lbLwM2MRcvData = new System.Windows.Forms.Label();
             this.lbDevLwM2MData = new System.Windows.Forms.Label();
-            this.btnLwM2MDisable = new System.Windows.Forms.Button();
             this.btnDeviceVerLwM2M = new System.Windows.Forms.Button();
             this.btnDeregister = new System.Windows.Forms.Button();
             this.btnRegister = new System.Windows.Forms.Button();
             this.btnBootstrap = new System.Windows.Forms.Button();
             this.btnSendData = new System.Windows.Forms.Button();
             this.gbModule = new System.Windows.Forms.GroupBox();
+            this.button13 = new System.Windows.Forms.Button();
             this.lbDevEntityId = new System.Windows.Forms.Label();
             this.label18 = new System.Windows.Forms.Label();
             this.lbIccid = new System.Windows.Forms.Label();
@@ -163,7 +163,6 @@
             this.tBoxDataIN = new System.Windows.Forms.TextBox();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.timer2 = new System.Windows.Forms.Timer(this.components);
-            this.button13 = new System.Windows.Forms.Button();
             this.panel1.SuspendLayout();
             this.gbTCResult.SuspendLayout();
             this.gbServerLog.SuspendLayout();
@@ -1144,7 +1143,6 @@
             this.gbLwM2MDevice.Controls.Add(this.label17);
             this.gbLwM2MDevice.Controls.Add(this.lbLwM2MRcvData);
             this.gbLwM2MDevice.Controls.Add(this.lbDevLwM2MData);
-            this.gbLwM2MDevice.Controls.Add(this.btnLwM2MDisable);
             this.gbLwM2MDevice.Controls.Add(this.btnDeviceVerLwM2M);
             this.gbLwM2MDevice.Controls.Add(this.btnDeregister);
             this.gbLwM2MDevice.Controls.Add(this.btnRegister);
@@ -1197,16 +1195,6 @@
             this.lbDevLwM2MData.TabIndex = 39;
             this.lbDevLwM2MData.Text = "No data";
             this.lbDevLwM2MData.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            // 
-            // btnLwM2MDisable
-            // 
-            this.btnLwM2MDisable.Location = new System.Drawing.Point(148, 103);
-            this.btnLwM2MDisable.Name = "btnLwM2MDisable";
-            this.btnLwM2MDisable.Size = new System.Drawing.Size(127, 20);
-            this.btnLwM2MDisable.TabIndex = 25;
-            this.btnLwM2MDisable.Text = "LwM2M해제";
-            this.btnLwM2MDisable.UseVisualStyleBackColor = true;
-            this.btnLwM2MDisable.Click += new System.EventHandler(this.btnLwM2MDisable_Click);
             // 
             // btnDeviceVerLwM2M
             // 
@@ -1284,6 +1272,16 @@
             this.gbModule.TabIndex = 11;
             this.gbModule.TabStop = false;
             this.gbModule.Text = "모듈 정보";
+            // 
+            // button13
+            // 
+            this.button13.Location = new System.Drawing.Point(6, 58);
+            this.button13.Name = "button13";
+            this.button13.Size = new System.Drawing.Size(72, 46);
+            this.button13.TabIndex = 36;
+            this.button13.Text = "파일읽기\r\n(ATCMD)";
+            this.button13.UseVisualStyleBackColor = true;
+            this.button13.Click += new System.EventHandler(this.button13_Click);
             // 
             // lbDevEntityId
             // 
@@ -1589,16 +1587,6 @@
             this.timer2.Interval = 20000;
             this.timer2.Tick += new System.EventHandler(this.timer2_Tick);
             // 
-            // button13
-            // 
-            this.button13.Location = new System.Drawing.Point(6, 58);
-            this.button13.Name = "button13";
-            this.button13.Size = new System.Drawing.Size(72, 46);
-            this.button13.TabIndex = 36;
-            this.button13.Text = "파일읽기\r\n(ATCMD)";
-            this.button13.UseVisualStyleBackColor = true;
-            this.button13.Click += new System.EventHandler(this.button13_Click);
-            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 12F);
@@ -1715,7 +1703,6 @@
         private System.Windows.Forms.Button btnMEFAuthD;
         private System.Windows.Forms.Button btnSetSubscript;
         private System.Windows.Forms.Button btnoneM2MDeviceVer;
-        private System.Windows.Forms.Button btnLwM2MDisable;
         private System.Windows.Forms.GroupBox gbTCResult;
         private System.Windows.Forms.TextBox tbTCResult;
         private System.Windows.Forms.Button btnDelRxContainer;
