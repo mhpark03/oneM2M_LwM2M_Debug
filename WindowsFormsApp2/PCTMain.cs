@@ -2789,6 +2789,13 @@ namespace WindowsFormsApp2
                             //nextcommand = "skip";
                         }
                     }
+                    else
+                    {
+                        // LWM2M bootstrap 자동 요청 순서 (BC95 V150)
+                        // lwm2mresetbc95 - holdoffbc95 - (getsvripbc95) - autosetsvrbsbc95 - autosetsvripbc95 - (getepnsbc95) - setepnsbc95 - getmbspsbc95 - setmbspsbc95 - bootstrapbc95
+                        nextcommand = states.getepnsbc95.ToString();
+                        nextstate = states.getepnsbc95.ToString();
+                    }
                     break;
                 case "+QLWEPNS: ":
                     String md5value = getMd5Hash(lbIMSI.Text + lbIccid.Text);
@@ -2800,6 +2807,13 @@ namespace WindowsFormsApp2
                         //lbActionState.Text = states.autosetepnsbc95.ToString();
                         nextcommand = commands["setepnsbc95"] + tbSvcCd.Text;
                         nextstate = states.autosetepnsbc95.ToString();
+                    }
+                    else
+                    {
+                        // LWM2M bootstrap 자동 요청 순서 (BC95 V150)
+                        // lwm2mresetbc95 - holdoffbc95 - getsvripbc95 - autosetsvrbsbc95 - autosetsvripbc95 - (getepnsbc95) - setepnsbc95 - (getmbspsbc95) - setmbspsbc95 - bootstrapbc95
+                        nextcommand = states.getmbspsbc95.ToString();
+                        nextstate = states.getmbspsbc95.ToString();
                     }
                     break;
                 case "+QLWMBSPS: ":
@@ -2817,6 +2831,13 @@ namespace WindowsFormsApp2
                         lbActionState.Text = states.autosetmbspsbc95.ToString();
                         nextcommand = commands["setmbspsbc95"] + epncmd;
                         nextstate = states.autosetmbspsbc95.ToString();
+                    }
+                    else
+                    {
+                        // LWM2M bootstrap 자동 요청 순서 (BC95 V150)
+                        // lwm2mresetbc95 - holdoffbc95 - getsvripbc95 - autosetsvrbsbc95 - autosetsvripbc95 - getepnsbc95 - setepnsbc95 - (getmbspsbc95) - setmbspsbc95 -( bootstrapbc95)
+                        nextcommand = states.bootstrapbc95.ToString();
+                        nextstate = states.bootstrapbc95.ToString();
                     }
                     break;
                 case "$OM_DEV_FWDL_START=":
@@ -4052,14 +4073,16 @@ namespace WindowsFormsApp2
                     // (lwm2mresetbc95) - (holdoffbc95) - getsvripbc95 - autosetsvrbsbc95 - autosetsvripbc95 - getepnsbc95 - setepnsbc95 - getmbspsbc95 - setmbspsbc95 - bootstrapbc95
                     // LWM2M 서버 설정
                     // AT+QBOOTSTRAPHOLDOFF=0
-                    nextcommand = states.holdoffbc95.ToString();
-                    nextstate = states.holdoffbc95.ToString();
+                    this.sendDataOut(commands["holdoffbc95"]);
+                    lbActionState.Text = states.holdoffbc95.ToString();
+                    nextcommand = "skip";
                     break;
                 case states.holdoffbc95:
                     // LWM2M bootstrap 자동 요청 순서 (BC95 V150)
                     // lwm2mresetbc95 - (holdoffbc95) - (getsvripbc95) - autosetsvrbsbc95 - autosetsvripbc95 - getepnsbc95 - setepnsbc95 - getmbspsbc95 - setmbspsbc95 - bootstrapbc95
-                    nextcommand = states.getsvripbc95.ToString();
-                    nextstate = states.getsvripbc95.ToString();
+                    this.sendDataOut(commands["getsvripbc95"]);
+                    lbActionState.Text = states.getsvripbc95.ToString();
+                    nextcommand = "skip";
                     break;
                 case states.actsetsvrbsbc95:
                     //AT+QLWSERVERIP=BS,<ip>,<port>   BC95모델
@@ -4087,20 +4110,11 @@ namespace WindowsFormsApp2
                     nextcommand = states.getepnsbc95.ToString();
                     nextstate = states.getepnsbc95.ToString();
                     break;
-                case states.getsvripbc95:
-                    // LWM2M bootstrap 자동 요청 순서 (BC95 V150)
-                    // lwm2mresetbc95 - holdoffbc95 - (getsvripbc95) - autosetsvrbsbc95 - autosetsvripbc95 - (getepnsbc95) - setepnsbc95 - (getmbspsbc95) - setmbspsbc95 - bootstrapbc95
-                    nextcommand = states.getepnsbc95.ToString();
-                    nextstate = states.getepnsbc95.ToString();
-                    break;
-                case states.getepnsbc95:
-                // LWM2M bootstrap 자동 요청 순서 (BC95 V150)
-                // lwm2mresetbc95 - holdoffbc95 - getsvripbc95 - autosetsvrbsbc95 - autosetsvripbc95 - (getepnsbc95) - setepnsbc95 - (getmbspsbc95) - setmbspsbc95 - bootstrapbc95
                 case states.setepnsbc95:
                     // LWM2M bootstrap 자동 요청 순서 (BC95 V150)
                     // lwm2mresetbc95 - holdoffbc95 - getsvripbc95 - autosetsvrbsbc95 - autosetsvripbc95 - getepnsbc95 - (setepnsbc95) - (getmbspsbc95) - setmbspsbc95 - bootstrapbc95
                     nextcommand = states.getmbspsbc95.ToString();
-                    nextstate = states.getepnsbc95.ToString();
+                    nextstate = states.getmbspsbc95.ToString();
                     break;
                 case states.autosetepnsbc95:
                     // LWM2M bootstrap 자동 요청 순서 (BC95 V150)
@@ -4109,14 +4123,11 @@ namespace WindowsFormsApp2
                     lbActionState.Text = states.setepnsbc95.ToString();
                     nextcommand = "skip";
                     break;
-                case states.getmbspsbc95:
-                // LWM2M bootstrap 자동 요청 순서 (BC95 V150)
-                // lwm2mresetbc95 - holdoffbc95 - getsvripbc95 - autosetsvrbsbc95 - autosetsvripbc95 - getepnsbc95 - setepnsbc95 - (getmbspsbc95) - setmbspsbc95 - (bootstrapbc95)
                 case states.setmbspsbc95:
                     // LWM2M bootstrap 자동 요청 순서 (BC95 V150)
                     // lwm2mresetbc95 - holdoffbc95 - getsvripbc95 - autosetsvrbsbc95 - autosetsvripbc95 - getepnsbc95 - setepnsbc95 - getmbspsbc95 - (setmbspsbc95) - (bootstrapbc95)
                     nextcommand = states.bootstrapbc95.ToString();
-                    nextstate = states.getepnsbc95.ToString();
+                    nextstate = states.bootstrapbc95.ToString();
                     break;
                 case states.autosetmbspsbc95:
                     // LWM2M bootstrap 자동 요청 순서 (BC95 V150)
@@ -4390,7 +4401,16 @@ namespace WindowsFormsApp2
                 {
                     if (atcmd.state == string.Empty)
                     {
-                        this.sendDataOut(commands[nextcommand]);
+                        states state1 = (states)Enum.Parse(typeof(states), nextstate);
+                        switch (state1)
+                        {
+                            case states.autosetepnsbc95:
+                                this.sendDataOut(nextcommand);
+                                break;
+                        default:
+                                this.sendDataOut(commands[nextcommand]);
+                                break;
+                        }
                     }
                     else
                     {
