@@ -716,8 +716,8 @@ namespace WindowsFormsApp2
             commands.Add("autogetmodemvertld", "AT$$VER?");
             commands.Add("getmodemverwr", "AT$$SWVER?");
             commands.Add("autogetmodemverwr", "AT$$SWVER?");
-            commands.Add("getmodemverbc95", "AT+CGMR");
-            commands.Add("autogetmodemverbc95", "AT+CGMR");
+            commands.Add("getmodemverbc95", "AT+QGMR");
+            commands.Add("autogetmodemverbc95", "AT+QGMR");
 
             lwm2mtclist.Add("tc0201", "2.1 LWM2M 단말 초기 설정 동작 확인 시험");
             lwm2mtclist.Add("tc0202", "2.2 Bootstrap 절차 및 AT command 확인 시험");
@@ -1606,7 +1606,6 @@ namespace WindowsFormsApp2
                 "@ICCID:",    // ICCID (AMTEL) 값을 저장한다.
                 "%GICCID: ",    // ICCID (GCT 바인테크) 값을 저장한다.
                 "+NCCID:",      // ICCID (BC95) 값을 저장한다.
-                "APPLICATION_A,",    // Modem verion (BC95) 값을 저장한다.
                 "AT+MLWDLDATA=",    // LWM2M서버에서 data 수신이벤트
                 "+NNMI:",    // LWM2M서버에서 data 수신이벤트
                 "AT+MLWEVTIND=",    // LWM2M서버와 연동 상태 이벤트
@@ -2763,10 +2762,6 @@ namespace WindowsFormsApp2
                     string[] modeminfos = str2.Split(',');    // 수신한 데이터를 한 문장씩 나누어 array에 저장
                     lbModemVer.Text = modeminfos[1];
                     dev.version = lbModemVer.Text;
-                    logPrintInTextBox("MODEM의 버전을 저장하였습니다.", "");
-                    break;
-                case "APPLICATION_A,":
-                    lbModemVer.Text = str2;
                     logPrintInTextBox("MODEM의 버전을 저장하였습니다.", "");
                     break;
                 case "+QLWSERVERIP:BS,":
@@ -4631,6 +4626,7 @@ namespace WindowsFormsApp2
                     break;
                 case states.autogetmodemver:
                 case states.autogetmodemvertpb23:
+                case states.autogetmodemverbc95:
                     lbModemVer.Text = str1;
                     dev.version = str1;
                     this.logPrintInTextBox("모뎀버전이 저장되었습니다.", "");
