@@ -4141,6 +4141,7 @@ namespace WindowsFormsApp2
                     // lwm2mresetbc95 - holdoffbc95 - getsvripbc95 - autosetsvrbsbc95 - autosetsvripbc95 - getepnsbc95 - setepnsbc95 - getmbspsbc95 - (setmbspsbc95) - (bootstrapbc95) - reboot module
                 case states.disablebc95:
                     nextcommand = states.rebootbc95.ToString();
+                    nextstate = states.idle.ToString();
                     break;
                 case states.deviceFWOpen:
                     this.sendDataOut(nextcommand);
