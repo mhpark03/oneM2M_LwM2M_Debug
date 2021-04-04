@@ -188,12 +188,23 @@ namespace WindowsFormsApp2
             getmodemverbc95,
             autogetmodemverbc95,
 
-            lwm2mtc0201,
+            lwm2mtc02011,
+            lwm2mtc02012,
+
             lwm2mtc02021,
             lwm2mtc02022,
             lwm2mtc02023,
             lwm2mtc02024,
+            lwm2mtc020241,
+            lwm2mtc020242,
+            lwm2mtc020243,
+            lwm2mtc020244,
+            lwm2mtc020245,
+            lwm2mtc020246,
+            lwm2mtc020247,
             lwm2mtc02025,
+            lwm2mtc02028,
+            lwm2mtc02029,
             lwm2mtc0203,
 
             lwm2mtc03011,
@@ -1677,6 +1688,7 @@ namespace WindowsFormsApp2
                 "+QIND: PB DONE",
 
                 "+MBIPST:0",
+                "Neul",
             };
 
             /* Debug를 위해 Hex로 문자열 표시*/
@@ -2769,7 +2781,10 @@ namespace WindowsFormsApp2
                     {
                         //AT+QLWSERVERIP=BS,<ip>,<port>   BC95모델
                         //this.sendDataOut(commands["autosetsvrbsbc95"] + serverip + "," + serverport);
-                        lbActionState.Text = states.actsetsvrbsbc95.ToString();
+                        if (lbActionState.Text == states.lwm2mtc02024.ToString())
+                            lbActionState.Text = states.lwm2mtc020241.ToString();
+                        else
+                            lbActionState.Text = states.actsetsvrbsbc95.ToString();
                         //nextcommand = "skip";
                     }
                     break;
@@ -2780,7 +2795,10 @@ namespace WindowsFormsApp2
                         {
                             //AT+QLWSERVERIP=LWM2M,<ip>,<port>   BC95모델 서버정보 갱신
                             //this.sendDataOut(commands["autosetsvripbc95"] + serverip + "," + serverport);
-                            lbActionState.Text = states.actsetsvripbc95.ToString();
+                            if (lbActionState.Text == states.lwm2mtc02024.ToString())
+                                lbActionState.Text = states.lwm2mtc020241.ToString();
+                            else
+                                lbActionState.Text = states.actsetsvripbc95.ToString();
                             //nextcommand = "skip";
                         }
                     }
@@ -2788,8 +2806,16 @@ namespace WindowsFormsApp2
                     {
                         // LWM2M bootstrap 자동 요청 순서 (BC95 V150)
                         // lwm2mresetbc95 - holdoffbc95 - (getsvripbc95) - autosetsvrbsbc95 - autosetsvripbc95 - (getepnsbc95) - setepnsbc95 - getmbspsbc95 - setmbspsbc95 - bootstrapbc95
-                        nextcommand = states.getepnsbc95.ToString();
-                        nextstate = states.getepnsbc95.ToString();
+                        if (lbActionState.Text == states.lwm2mtc02024.ToString())
+                        {
+                            nextcommand = states.getepnsbc95.ToString();
+                            nextstate = states.lwm2mtc020243.ToString();
+                        }
+                        else
+                        {
+                            nextcommand = states.getepnsbc95.ToString();
+                            nextstate = states.getepnsbc95.ToString();
+                        }
                     }
                     break;
                 case "+QLWEPNS: ":
@@ -2801,14 +2827,20 @@ namespace WindowsFormsApp2
                         //AT+QLWSERVERIP=LWM2M,<ip>,<port>   BC95모델 서버정보 갱신
                         //lbActionState.Text = states.autosetepnsbc95.ToString();
                         nextcommand = commands["setepnsbc95"] + tbSvcCd.Text;
-                        nextstate = states.autosetepnsbc95.ToString();
+                        if (lbActionState.Text == states.lwm2mtc020243.ToString())
+                            nextstate = states.lwm2mtc020244.ToString();
+                        else
+                            nextstate = states.autosetepnsbc95.ToString();
                     }
                     else
                     {
                         // LWM2M bootstrap 자동 요청 순서 (BC95 V150)
                         // lwm2mresetbc95 - holdoffbc95 - getsvripbc95 - autosetsvrbsbc95 - autosetsvripbc95 - (getepnsbc95) - setepnsbc95 - (getmbspsbc95) - setmbspsbc95 - bootstrapbc95
                         nextcommand = states.getmbspsbc95.ToString();
-                        nextstate = states.getmbspsbc95.ToString();
+                        if (lbActionState.Text == states.lwm2mtc020243.ToString())
+                            nextstate = states.lwm2mtc020246.ToString();
+                        else
+                            nextstate = states.getmbspsbc95.ToString();
                     }
                     break;
                 case "+QLWMBSPS: ":
@@ -3269,7 +3301,10 @@ namespace WindowsFormsApp2
                     switch (str2)
                     {
                         case "0":
+                            timer2.Stop();
                             logPrintInTextBox("registration completed", " ");
+                            if (lbActionState.Text == states.lwm2mtc02011.ToString())
+                                lbActionState.Text = states.lwm2mtc02012.ToString();
                             break;
                         case "1":
                             if (tc.state == "tc0401")
@@ -3292,7 +3327,7 @@ namespace WindowsFormsApp2
                                 endLwM2MTC(tc.state, string.Empty, string.Empty, string.Empty, string.Empty);
                             logPrintInTextBox("Bootstrap finished", " ");
 
-                            if (lbActionState.Text == "lwm2mtc02025")
+                            if (lbActionState.Text == "lwm2mtc02029")
                             {
                                 startLwM2MTC("tc0301");
 
@@ -3346,7 +3381,8 @@ namespace WindowsFormsApp2
                             if (tc.state == "tc0301")
                                 endLwM2MTC(tc.state, string.Empty, string.Empty, string.Empty, string.Empty);
 
-                            if (lbActionState.Text == states.lwm2mtc03011.ToString() || lbActionState.Text == states.lwm2mtc03012.ToString())
+                            if (lbActionState.Text == states.lwm2mtc03011.ToString() || lbActionState.Text == states.lwm2mtc03012.ToString()
+                                || lbActionState.Text == states.lwm2mtc02012.ToString())
                             {
                                 lbActionState.Text = states.lwm2mtc03012.ToString();
                                 timer2.Interval = 10000;
@@ -3615,7 +3651,8 @@ namespace WindowsFormsApp2
                     logPrintInTextBox("모뎀 버전이 저장되었습니다.", "");
                     break;
                 case "+MBIPST:0":
-                    if (lbActionState.Text == "lwm2mtc0201")
+                case "Neul":
+                    if (lbActionState.Text == "lwm2mtc02011")
                     {
                         timer2.Interval = 10000;
                         timer2.Start();
@@ -4073,10 +4110,14 @@ namespace WindowsFormsApp2
                     nextcommand = "skip";
                     break;
                 case states.holdoffbc95:
+                case states.lwm2mtc02022:
                     // LWM2M bootstrap 자동 요청 순서 (BC95 V150)
                     // lwm2mresetbc95 - (holdoffbc95) - (getsvripbc95) - autosetsvrbsbc95 - autosetsvripbc95 - getepnsbc95 - setepnsbc95 - getmbspsbc95 - setmbspsbc95 - bootstrapbc95
                     this.sendDataOut(commands["getsvripbc95"]);
-                    lbActionState.Text = states.getsvripbc95.ToString();
+                    if (lbActionState.Text == states.holdoffbc95.ToString())
+                        lbActionState.Text = states.getsvripbc95.ToString();
+                    else
+                        lbActionState.Text = states.lwm2mtc02024.ToString();
                     nextcommand = "skip";
                     break;
                 case states.actsetsvrbsbc95:
@@ -4094,16 +4135,29 @@ namespace WindowsFormsApp2
                     nextcommand = "skip";
                     break;
                 case states.actsetsvripbc95:
+                case states.lwm2mtc020241:
                     //AT+QLWSERVERIP=LWM2M,<ip>,<port>   BC95모델
                     this.sendDataOut(commands["autosetsvripbc95"] + serverip + "," + serverport);
-                    lbActionState.Text = states.autosetsvripbc95.ToString();
+                    if (lbActionState.Text == states.actsetsvripbc95.ToString())
+                        lbActionState.Text = states.autosetsvripbc95.ToString();
+                    else
+                        lbActionState.Text = states.lwm2mtc020242.ToString();
                     nextcommand = "skip";
                     break;
                 case states.autosetsvripbc95:
+                case states.lwm2mtc020242:
                     // LWM2M bootstrap 자동 요청 순서 (BC95 V150)
                     // lwm2mresetbc95 - holdoffbc95 - getsvripbc95 - autosetsvrbsbc95 - (autosetsvripbc95) - (getepnsbc95) - setepnsbc95 - getmbspsbc95 - setmbspsbc95 - bootstrapbc95
-                    nextcommand = states.getepnsbc95.ToString();
-                    nextstate = states.getepnsbc95.ToString();
+                    if (lbActionState.Text == states.actsetsvripbc95.ToString())
+                    {
+                        nextcommand = states.getepnsbc95.ToString();
+                        nextstate = states.lwm2mtc020243.ToString();
+                    }
+                    else
+                    {
+                        nextcommand = states.getepnsbc95.ToString();
+                        nextstate = states.getepnsbc95.ToString();
+                    }
                     break;
                 case states.setepnsbc95:
                     // LWM2M bootstrap 자동 요청 순서 (BC95 V150)
@@ -4111,11 +4165,22 @@ namespace WindowsFormsApp2
                     nextcommand = states.getmbspsbc95.ToString();
                     nextstate = states.getmbspsbc95.ToString();
                     break;
+                case states.lwm2mtc020245:
+                    nextcommand = states.getmbspsbc95.ToString();
+                    nextstate = states.lwm2mtc020246.ToString();
+                    break;
                 case states.autosetepnsbc95:
                     // LWM2M bootstrap 자동 요청 순서 (BC95 V150)
                     // lwm2mresetbc95 - holdoffbc95 - getsvripbc95 - autosetsvrbsbc95 - autosetsvripbc95 - getepnsbc95 - (setepnsbc95) - getmbspsbc95 - setmbspsbc95 - bootstrapbc95
                     this.sendDataOut(nextcommand);
                     lbActionState.Text = states.setepnsbc95.ToString();
+                    nextcommand = "skip";
+                    break;
+                case states.lwm2mtc020244:
+                    // LWM2M bootstrap 자동 요청 순서 (BC95 V150)
+                    // lwm2mresetbc95 - holdoffbc95 - getsvripbc95 - autosetsvrbsbc95 - autosetsvripbc95 - getepnsbc95 - (setepnsbc95) - getmbspsbc95 - setmbspsbc95 - bootstrapbc95
+                    this.sendDataOut(nextcommand);
+                    lbActionState.Text = states.lwm2mtc020245.ToString();
                     nextcommand = "skip";
                     break;
                 case states.setmbspsbc95:
@@ -4216,22 +4281,33 @@ namespace WindowsFormsApp2
                             atcmd += dev.entityId;
                         this.sendDataOut(atcmd);
                         if (lbActionState.Text == states.lwm2mtc02021.ToString())
-                            lbActionState.Text = states.lwm2mtc02022.ToString();
+                            lbActionState.Text = states.lwm2mtc02023.ToString();
                         else
                             lbActionState.Text = states.setepnstpb23.ToString();
                     }
                     else
                     {
-                        this.sendDataOut(commands["setepnstpb23"] + dev.entityId);
-                        if (lbActionState.Text == states.lwm2mtc02021.ToString())
-                            lbActionState.Text = states.lwm2mtc02022.ToString();
+                        if (dev.model.StartsWith("BC95"))
+                        {
+                            this.sendDataOut(commands["holdoffbc95"]);
+                            if (lbActionState.Text == states.lwm2mtc02021.ToString())
+                                lbActionState.Text = states.lwm2mtc02022.ToString();
+                            else
+                                lbActionState.Text = states.holdoffbc95.ToString();
+                        }
                         else
-                            lbActionState.Text = states.setepnstpb23.ToString();
+                        {
+                            this.sendDataOut(commands["setepnstpb23"] + dev.entityId);
+                            if (lbActionState.Text == states.lwm2mtc02021.ToString())
+                                lbActionState.Text = states.lwm2mtc02023.ToString();
+                            else
+                                lbActionState.Text = states.setepnstpb23.ToString();
+                        }
                     }
                     nextcommand = "skip";
                     break;
                 case states.setepnstpb23:
-                case states.lwm2mtc02022:
+                case states.lwm2mtc02023:
                     // LWM2M bootstrap 자동 요청 순서 (V150)
                     // setncdp - (setepnstpb23) - (setmbspstpb23) - bootstrapmodetpb23 - bootstraptpb23
                     // Bootstarp Parameter 설정
@@ -4249,23 +4325,23 @@ namespace WindowsFormsApp2
                     {
                         string atcmd = getLwM2MCommand("setmbsps");
                         this.sendDataOut(atcmd + command);
-                        if (lbActionState.Text == states.lwm2mtc02022.ToString())
-                            lbActionState.Text = states.lwm2mtc02023.ToString();
+                        if (lbActionState.Text == states.lwm2mtc02023.ToString())
+                            lbActionState.Text = states.lwm2mtc02025.ToString();
                         else
                             lbActionState.Text = states.setmbspstpb23.ToString();
                     }
                     else
                     {
                         this.sendDataOut(commands["setmbspstpb23"] + command);
-                        if (lbActionState.Text == states.lwm2mtc02022.ToString())
-                            lbActionState.Text = states.lwm2mtc02023.ToString();
+                        if (lbActionState.Text == states.lwm2mtc02023.ToString())
+                            lbActionState.Text = states.lwm2mtc02025.ToString();
                         else
                             lbActionState.Text = states.setmbspstpb23.ToString();
                     }
                     nextcommand = "skip";
                     break;
                 case states.setmbspstpb23:
-                case states.lwm2mtc02023:
+                case states.lwm2mtc02025:
                     // LWM2M bootstrap 자동 요청 순서 (V150)
                     // setncdp - setepnstpb23 - (setmbspstpb23) - (bootstrapmodetpb23) - bootstraptpb23
                     // LWM2M 서버 설정
@@ -4279,14 +4355,14 @@ namespace WindowsFormsApp2
                     else
                         this.sendDataOut(commands["bootstrapmodetpb23"]);
 
-                    if (lbActionState.Text == states.lwm2mtc02023.ToString())
-                        lbActionState.Text = states.lwm2mtc02024.ToString();
+                    if (lbActionState.Text == states.lwm2mtc02025.ToString())
+                        lbActionState.Text = states.lwm2mtc02028.ToString();
                     else
                         lbActionState.Text = states.bootstrapmodetpb23.ToString();
                     nextcommand = "skip";
                     break;
                 case states.bootstrapmodetpb23:
-                case states.lwm2mtc02024:
+                case states.lwm2mtc02028:
                     // LWM2M bootstrap 자동 요청 순서 (V150)
                     // setncdp - setepnstpb23 - setmbspstpb23 - (bootstrapmodetpb23) - (bootstraptpb23)
                     // LWM2M서버에 Bootstarp 요청
@@ -4299,8 +4375,8 @@ namespace WindowsFormsApp2
                     else
                         this.sendDataOut(commands["bootstraptpb23"]);
 
-                    if (lbActionState.Text == states.lwm2mtc02024.ToString())
-                        lbActionState.Text = states.lwm2mtc02025.ToString();
+                    if (lbActionState.Text == states.lwm2mtc02028.ToString())
+                        lbActionState.Text = states.lwm2mtc02029.ToString();
                     else
                         lbActionState.Text = states.bootstraptpb23.ToString();
                     nextcommand = "skip";
@@ -4401,6 +4477,7 @@ namespace WindowsFormsApp2
                         switch (state1)
                         {
                             case states.autosetepnsbc95:
+                            case states.lwm2mtc020244:
                                 this.sendDataOut(nextcommand);
                                 break;
                         default:
@@ -6008,10 +6085,10 @@ namespace WindowsFormsApp2
                     tc.lwm2m[i, 4] = string.Empty;
                 }
 
-                if (dev.model == "TPB23")
+                if (dev.model == "TPB23" || dev.model.StartsWith("BC95", System.StringComparison.CurrentCultureIgnoreCase))
                 {
                     this.sendDataOut(commands["resettpb23"]);
-                    lbActionState.Text = states.lwm2mtc0201.ToString();
+                    lbActionState.Text = states.lwm2mtc02011.ToString();
                     nextcommand = "skip";
                 }
                 else
@@ -7672,7 +7749,7 @@ namespace WindowsFormsApp2
 
         private void timer2_Tick(object sender, EventArgs e)
         {
-            if (lbActionState.Text == "lwm2mtc0201")
+            if (lbActionState.Text == "lwm2mtc02011")
             {
                 startLwM2MTC("tc0202");
                 lbActionState.Text = states.lwm2mtc02021.ToString();
